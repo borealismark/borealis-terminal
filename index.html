@@ -1328,12 +1328,86 @@
       font-size: 22px;
     }
 
+    /* ─── LISTING DETAIL LAYOUT ──────────────────────────── */
+    .listing-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 24px;
+    }
+    .listing-detail-gallery img#detail-main-img {
+      width: 100%;
+      height: 420px;
+      object-fit: contain;
+      padding: 16px;
+      cursor: zoom-in;
+    }
+    .listing-detail-info {
+      min-width: 0;
+    }
+
     /* ─── RESPONSIVE ──────────────────────────────────────── */
     @media (max-width: 1099px) {
       .grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
     }
     @media (max-width: 768px) {
-      .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+      /* Navigation */
+      .app-nav { flex-wrap: wrap; padding: 8px 12px; gap: 8px; }
+      .app-nav-left { width: 100%; justify-content: space-between; gap: 12px; }
+      .app-tabs { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; gap: 0; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px; }
+      .app-tabs::-webkit-scrollbar { display: none; }
+      .app-tab { flex: 1; text-align: center; padding: 8px 4px; font-size: 12px; white-space: nowrap; }
+      .app-tab.active::after { display: none; }
+      .app-nav-right { gap: 8px; }
+      .app-nav-right .btn { font-size: 11px; padding: 5px 10px; }
+      .user-pill { padding: 4px 10px 4px 6px; font-size: 11px; }
+      .user-pill .user-name { display: none; }
+      .user-pill .tier-badge { font-size: 8px; padding: 1px 4px; }
+      .user-avatar { width: 20px; height: 20px; font-size: 9px; }
+
+      /* Category pills */
+      .category-pills { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex-wrap: nowrap; padding-bottom: 4px; margin-right: -12px; margin-left: -12px; padding-left: 12px; padding-right: 12px; }
+      .category-pills::-webkit-scrollbar { display: none; }
+      .cat-pill { flex-shrink: 0; font-size: 12px; padding: 6px 12px; }
+
+      /* Listing grid */
+      .grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+      .card { border-radius: 8px; padding: 10px; }
+      .card-img-wrap { aspect-ratio: 4/3; height: 150px; }
+      .card h3, .card .card-title { font-size: 12px; line-height: 1.3; }
+      .card p { font-size: 11px; margin-bottom: 8px; }
+      .card-footer { padding-top: 8px; gap: 6px; }
+      .seller-name { font-size: 10px; }
+      .price { font-size: 14px; }
+
+      /* Controls */
+      .controls-bar { flex-direction: column; align-items: stretch; gap: 8px; }
+      .filters { flex-wrap: wrap; }
+      .filter-select { font-size: 12px; padding: 8px 10px; }
+      .btn-post-listing { width: 100%; font-size: 13px; }
+
+      /* Dashboard */
+      .dash-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; }
+      .dash-stat { padding: 12px; }
+      .dash-stat-label { font-size: 10px; }
+      .dash-stat-value { font-size: 18px; }
+      .dash-subnav { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; gap: 2px; gap: 0; padding-bottom: 8px; }
+      .dash-subnav::-webkit-scrollbar { display: none; }
+      .dash-subnav-btn { flex-shrink: 0; font-size: 11px; padding: 6px 10px; }
+
+      /* Form */
+      .form-row { grid-template-columns: 1fr !important; }
+
+      /* Modals */
+      .modal-overlay { align-items: flex-end; }
+      .modal { max-width: 100%; border-radius: 16px 16px 0 0; max-height: 85vh; overflow-y: auto; padding: 20px; }
+      .guidelines-modal-content { max-width: 100%; max-height: 90vh; margin: 8px; border-radius: 12px; padding: 20px; }
+
+      /* Auth */
+      .auth-card { padding: 24px 20px; max-width: 100%; margin: 0 12px; }
+      .auth-card h1 { font-size: 20px; }
+      .auth-brand .brand-t { font-size: 18px; }
+
+      /* Landing pages */
       .hero h1 { font-size: clamp(28px, 7vw, 40px); }
       .hero p { font-size: 15px; max-width: 90%; }
       .hero-trust { font-size: 9px; letter-spacing: 0.06em; gap: 4px; flex-wrap: wrap; justify-content: center; }
@@ -1343,16 +1417,11 @@
       .stat-value { font-size: 22px; }
       .hero-actions { flex-direction: column; width: 100%; }
       .hero-actions .btn { width: 100%; }
-      .controls-bar { flex-direction: column; align-items: stretch; }
-      .grid { grid-template-columns: 1fr; }
       .landing-nav { padding: 12px 16px; }
       .nav-links { gap: 4px; }
       .nav-links a { padding: 6px 8px; font-size: 11px; }
       .nav-links .btn-primary { padding: 6px 12px; font-size: 11px; }
-      .app-content { padding: 16px; }
-      .dash-grid { grid-template-columns: repeat(2, 1fr); }
-      .form-row { grid-template-columns: 1fr; }
-      .app-tabs { overflow-x: auto; gap: 0; }
+      .app-content { padding: 12px; }
       .footer-grid { grid-template-columns: 1fr; gap: 20px; }
       .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
       .cta-section { padding: 48px 20px; }
@@ -1362,6 +1431,30 @@
       .trust-bar { padding: 24px 16px; }
       .trust-badges { flex-direction: column; gap: 10px; }
       .season-label { font-size: 8px; bottom: 8px; }
+
+      /* Listing Detail */
+      .listing-detail-grid { grid-template-columns: 1fr !important; gap: 16px; }
+      .listing-detail-gallery img#detail-main-img { height: 280px; padding: 8px; }
+      #gallery-thumbs { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)) !important; gap: 6px; }
+
+      /* Messages */
+      .msg-sidebar { width: 100%; min-width: unset; }
+      .msg-chat-area { display: none; }
+      .msg-container.thread-open .msg-sidebar { display: none; }
+      .msg-container.thread-open .msg-chat-area { display: flex; }
+
+      /* Mini-chat */
+      .mini-chat-button { width: 48px !important; height: 48px !important; font-size: 20px !important; right: 12px !important; bottom: 12px !important; }
+      .mini-chat-panel { width: calc(100vw - 16px) !important; right: 8px !important; bottom: 60px !important; height: 60vh !important; max-height: 420px !important; }
+      .mini-chat-window { width: calc(100vw - 16px) !important; right: 8px !important; height: 50vh !important; max-height: 350px !important; }
+
+      /* Toast */
+      .toast-container { right: 8px; left: 8px; top: auto; bottom: 20px; }
+      .toast { width: 100%; max-width: none; }
+
+      /* Global */
+      button, a, .app-tab, .cat-pill, .card { min-height: 44px; }
+      body, html { overflow-x: hidden; }
     }
 
     /* Password visibility toggle */
@@ -1398,23 +1491,195 @@
     }
 
     @media (max-width: 480px) {
-      .hero { padding: 48px 16px 32px; }
-      .hero h1 { font-size: clamp(24px, 7vw, 30px); }
-      .hero p { font-size: 14px; }
-      .hero-trust { font-size: 8px; }
-      .stats-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 20px 16px; }
-      .stat-item { padding: 12px 8px; }
-      .stat-value { font-size: 18px; }
+      /* Grid */
+      .grid { grid-template-columns: 1fr !important; gap: 8px; }
+      .card { padding: 8px; }
+      .card-img-wrap { height: 200px; }
+      .card h3, .card .card-title { font-size: 13px; line-height: 1.3; }
+
+      /* Navigation */
+      .app-nav { padding: 6px 8px; }
+      .app-nav-left { gap: 8px; }
+      .app-tab { padding: 6px 2px; font-size: 11px; }
+      .app-nav-right { gap: 4px; }
+      .app-nav-right .btn { font-size: 10px; padding: 4px 8px; }
+
+      /* Category pills */
+      .cat-pill { font-size: 11px; padding: 5px 10px; }
+
+      /* Dashboard */
+      .dash-grid { grid-template-columns: 1fr !important; gap: 8px; }
+      .dash-stat { padding: 10px; }
+      .dash-stat-label { font-size: 9px; }
+      .dash-stat-value { font-size: 16px; }
+      .dash-subnav-btn { font-size: 10px; padding: 5px 8px; }
+
+      /* Modals */
+      .modal { padding: 16px; border-radius: 12px 12px 0 0; }
+      .modal h2 { font-size: 16px; }
+      .modal .subtitle { font-size: 12px; }
+      .form-group label { font-size: 11px; }
+      .form-group input, .form-group select, .form-group textarea { padding: 10px 12px; font-size: 14px; }
+
+      /* Auth pages */
+      .auth-card { padding: 20px 16px; }
+      .auth-card h1 { font-size: 18px; }
+      .auth-brand .brand-t { font-size: 16px; }
+      .auth-brand { margin-bottom: 24px; }
+
+      /* Mini-chat */
+      .mini-chat-button { width: 44px; height: 44px; font-size: 18px; right: 8px; bottom: 8px; }
+      .mini-chat-panel { width: calc(100vw - 8px) !important; right: 4px !important; bottom: 52px !important; height: 55vh !important; max-height: 350px !important; }
+      .mini-chat-window { width: calc(100vw - 8px) !important; right: 4px !important; height: 45vh !important; max-height: 280px !important; }
+      .mini-chat-header-title { font-size: 12px; }
+      .mini-chat-input { font-size: 11px; padding: 6px 8px; }
+
+      /* Messages */
+      .msg-thread-item { padding: 10px; gap: 8px; }
+      .msg-thread-item .msg-avatar { width: 36px; height: 36px; font-size: 12px; }
+      .msg-thread-item .msg-thread-name { font-size: 12px; }
+      .msg-thread-item .msg-thread-preview { font-size: 11px; }
+      .msg-chat-header { padding: 10px 14px; min-height: 50px; }
+      .msg-compose-bar { padding: 10px 12px; }
+      .msg-compose-input { font-size: 12px; padding: 8px 12px; }
+
+      /* Forms */
+      .form-group { margin-bottom: 14px; }
+      .image-upload-zone { min-height: 80px; }
+
+      /* Landing pages */
+      .hero { padding: 36px 12px 24px; }
+      .hero h1 { font-size: clamp(20px, 6vw, 26px); }
+      .hero p { font-size: 13px; }
+      .hero-trust { font-size: 8px; gap: 3px; }
+      .stats-strip { grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 16px 12px; }
+      .stat-item { padding: 8px 6px; }
+      .stat-value { font-size: 16px; }
       .stat-label { font-size: 8px; }
       .brand-b { display: none; }
       .brand::after { display: none; }
       .nav-links a:not(.btn-primary) { display: none; }
-      .nav-links .btn-primary { padding: 7px 16px; font-size: 12px; }
-      .features-section { padding: 36px 16px; }
-      .feature-card { padding: 20px; }
-      .cta-section { padding: 36px 16px; }
-      .landing-footer { padding: 28px 16px 12px; }
-      .footer-grid { gap: 16px; margin-bottom: 16px; }
+      .nav-links .btn-primary { padding: 6px 12px; font-size: 11px; }
+      .features-section { padding: 32px 12px; }
+      .feature-card { padding: 16px; }
+      .cta-section { padding: 32px 12px; }
+      .cta-section h2 { font-size: clamp(18px, 5vw, 24px); }
+      .landing-footer { padding: 20px 12px 8px; font-size: 12px; }
+      .footer-grid { gap: 12px; margin-bottom: 12px; }
+
+      /* Listing Detail */
+      .listing-detail-gallery img#detail-main-img { height: 220px; padding: 4px; }
+      .listing-detail-info h1 { font-size: 18px !important; }
+      .listing-detail-info .btn { font-size: 13px !important; padding: 12px !important; }
+
+      /* Controls */
+      .controls-bar { gap: 6px; }
+      .filter-select { font-size: 11px; padding: 6px 8px; }
+      .btn-post-listing { font-size: 12px; padding: 10px 12px; }
+
+      /* App content padding */
+      .app-content { padding: 8px; }
+    }
+
+    @media (max-width: 390px) {
+      /* Grid */
+      .grid { grid-template-columns: 1fr !important; gap: 6px; }
+      .card { padding: 6px; }
+      .card-img-wrap { height: 160px; }
+      .card h3, .card .card-title { font-size: 12px; }
+      .card p { font-size: 10px; }
+
+      /* Navigation */
+      .app-nav { padding: 4px 8px; }
+      .app-nav-left { gap: 6px; }
+      .app-tabs { padding-top: 6px; margin-top: 2px; }
+      .app-tab { padding: 6px 0px; font-size: 10px; }
+      .app-nav-right { gap: 4px; }
+      .app-nav-right .btn { font-size: 10px; padding: 3px 6px; }
+
+      /* Category pills */
+      .category-pills { gap: 6px; padding: 8px 8px 4px 8px; margin-right: -8px; margin-left: -8px; }
+      .cat-pill { font-size: 10px; padding: 4px 8px; }
+
+      /* Dashboard */
+      .dash-grid { gap: 6px; }
+      .dash-stat { padding: 8px; }
+      .dash-stat-label { font-size: 8px; }
+      .dash-stat-value { font-size: 14px; }
+      .dash-subnav { gap: 0; padding-bottom: 6px; }
+      .dash-subnav-btn { font-size: 9px; padding: 4px 6px; }
+
+      /* Modals */
+      .modal { padding: 14px; }
+      .modal h2 { font-size: 15px; }
+      .modal .subtitle { font-size: 11px; }
+      .form-group label { font-size: 10px; }
+      .form-group input, .form-group select, .form-group textarea { padding: 8px 10px; font-size: 13px; }
+      .btn { font-size: 12px; padding: 8px 10px; }
+
+      /* Auth pages */
+      .auth-card { padding: 16px 12px; margin: 0 8px; }
+      .auth-card h1 { font-size: 16px; }
+      .auth-brand { margin-bottom: 20px; }
+      .auth-brand .brand-t { font-size: 14px; }
+
+      /* Mini-chat */
+      .mini-chat-button { width: 40px; height: 40px; font-size: 16px; right: 6px; bottom: 6px; }
+      .mini-chat-panel { width: calc(100vw - 4px) !important; right: 2px !important; bottom: 48px !important; height: 50vh !important; max-height: 300px !important; }
+      .mini-chat-window { width: calc(100vw - 4px) !important; right: 2px !important; height: 40vh !important; max-height: 240px !important; }
+      .mini-chat-header { padding: 10px 12px; }
+      .mini-chat-header-title { font-size: 11px; }
+      .mini-chat-list-item { padding: 6px; font-size: 11px; gap: 6px; }
+      .mini-chat-list-avatar { width: 28px; height: 28px; font-size: 10px; }
+      .mini-chat-input { font-size: 10px; padding: 6px 8px; }
+      .mini-chat-send { width: 28px; height: 28px; font-size: 12px; }
+      .mini-chat-bubble { font-size: 11px; padding: 6px 10px; }
+
+      /* Messages */
+      .msg-thread-item { padding: 8px; gap: 6px; }
+      .msg-thread-item .msg-avatar { width: 32px; height: 32px; font-size: 11px; }
+      .msg-thread-item .msg-thread-name { font-size: 11px; }
+      .msg-thread-item .msg-thread-preview { font-size: 10px; }
+      .msg-thread-item .msg-thread-context { font-size: 9px; }
+      .msg-chat-header { padding: 8px 12px; min-height: 46px; }
+      .msg-chat-header-listing { max-width: 200px; padding: 4px 8px; gap: 6px; }
+      .msg-compose-bar { padding: 8px 10px; gap: 6px; }
+      .msg-compose-input { font-size: 11px; padding: 6px 10px; }
+      .msg-compose-send { width: 32px; height: 32px; font-size: 14px; }
+      .msg-bubble { font-size: 12px; padding: 8px 12px; }
+
+      /* Forms */
+      .form-group { margin-bottom: 12px; }
+      .image-upload-zone { min-height: 60px; }
+      .form-row { gap: 6px; }
+
+      /* Landing pages */
+      .hero { padding: 28px 10px 20px; }
+      .hero h1 { font-size: clamp(18px, 6vw, 22px); }
+      .hero p { font-size: 12px; }
+      .hero-trust { font-size: 7px; gap: 2px; }
+      .stats-strip { gap: 4px; padding: 12px 10px; }
+      .stat-item { padding: 6px 4px; }
+      .stat-value { font-size: 14px; }
+      .stat-label { font-size: 7px; }
+      .features-section { padding: 28px 10px; }
+      .feature-card { padding: 14px; }
+      .cta-section { padding: 28px 10px; }
+      .cta-section h2 { font-size: clamp(16px, 5vw, 20px); }
+      .landing-footer { padding: 16px 10px 6px; font-size: 11px; }
+      .footer-grid { gap: 10px; margin-bottom: 10px; }
+
+      /* Controls */
+      .controls-bar { gap: 6px; }
+      .filter-select { font-size: 10px; padding: 6px 8px; }
+      .btn-post-listing { font-size: 11px; padding: 8px 10px; }
+
+      /* App content */
+      .app-content { padding: 6px; }
+
+      /* Global */
+      button, a, .app-tab, .cat-pill, .card { min-height: 40px; }
+      * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
     }
     /* ─── SEASONAL EFFECTS ──────────────────────────────────── */
     #seasonal-canvas {
@@ -2009,13 +2274,27 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: sticky;
+      top: -24px;
+      background: var(--bg-card);
+      padding: 24px 0 12px 0;
+      margin: -24px 0 16px 0;
+      z-index: 2;
     }
     .guidelines-modal-close {
       background: none;
       border: none;
       color: var(--text);
-      font-size: 24px;
+      font-size: 28px;
       cursor: pointer;
+      padding: 4px 8px;
+      line-height: 1;
+      border-radius: 4px;
+      transition: background 0.2s;
+      pointer-events: auto;
+    }
+    .guidelines-modal-close:hover {
+      background: rgba(255,255,255,0.1);
     }
     .guidelines-section {
       margin-bottom: 20px;
@@ -2701,7 +2980,7 @@
 <div class="toast-container" id="toast-container"></div>
 
 <!-- Guidelines Modal -->
-<div class="guidelines-modal" id="guidelines-modal">
+<div class="guidelines-modal" id="guidelines-modal" onclick="if(event.target===this)closeGuidelinesModal()">
   <div class="guidelines-modal-content">
     <div class="guidelines-modal-header">
       <span>Messaging Community Guidelines</span>
@@ -6278,11 +6557,11 @@
 
       var html = '<div style="max-width:900px;margin:0 auto;">' +
         '<button onclick="window.location.hash=\'#browse\'" style="margin-bottom:16px;padding:8px 14px;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;font-size:13px;">&larr; Back to Browse</button>' +
-        '<div style="display:grid;grid-template-columns:1fr 350px;gap:24px;">' +
+        '<div class="listing-detail-grid">' +
         // Left: Images
-        '<div>' + galleryHtml + videoHtml + '</div>' +
+        '<div class="listing-detail-gallery">' + galleryHtml + videoHtml + '</div>' +
         // Right: Info
-        '<div>' +
+        '<div class="listing-detail-info">' +
         badges +
         '<h1 style="font-size:22px;font-weight:700;color:var(--text);margin:0 0 12px 0;">' + esc(l.title) + '</h1>' +
         '<div style="font-size:28px;font-weight:700;color:var(--gold);margin-bottom:4px;">$' + priceCad.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) + ' CAD</div>' +
