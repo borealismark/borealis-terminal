@@ -1641,6 +1641,435 @@
     .cat-pill { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-secondary); padding:8px 16px; border-radius:20px; font-size:13px; font-family:inherit; cursor:pointer; transition:all 0.15s; font-weight:500; }
     .cat-pill:hover { border-color:var(--gold-border); color:var(--text); }
     .cat-pill.active { background:var(--gold-dim); border-color:var(--gold); color:var(--gold); font-weight:600; }
+
+    /* ─── TOAST NOTIFICATION SYSTEM ─────────────────────────── */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 10000;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      box-shadow: var(--shadow-lg);
+      animation: slideInRight 0.3s ease-out;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 320px;
+    }
+    .toast.warning {
+      border-color: rgba(217, 119, 6, 0.4);
+      background: rgba(217, 119, 6, 0.05);
+      color: #FCD34D;
+    }
+    .toast.error {
+      border-color: rgba(248, 113, 113, 0.4);
+      background: rgba(248, 113, 113, 0.05);
+      color: #FCA5A5;
+    }
+    .toast.info {
+      border-color: rgba(96, 165, 250, 0.4);
+      background: rgba(96, 165, 250, 0.05);
+      color: #BFDBFE;
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(400px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* ─── MINI-CHAT FLOATING BUTTON & PANEL ─────────────────── */
+    .mini-chat-button {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #000;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: var(--shadow-lg);
+      z-index: 999;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .mini-chat-button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 24px rgba(212, 168, 83, 0.3);
+    }
+    .mini-chat-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--red);
+      color: white;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      border: 2px solid var(--bg);
+    }
+    .mini-chat-button.hidden {
+      display: none;
+    }
+
+    /* ─── MINI-CHAT PANEL (SINGLE THREAD VIEW) ─────────────────── */
+    .mini-chat-panel {
+      position: fixed;
+      bottom: 88px;
+      right: 24px;
+      width: 360px;
+      height: 480px;
+      background: rgba(26, 26, 36, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 1px rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      z-index: 999;
+      animation: slideUp 0.3s ease-out;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .mini-chat-panel.hidden {
+      display: none;
+    }
+
+    .mini-chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-elevated);
+    }
+    .mini-chat-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+    .mini-chat-header-back {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px;
+      display: none;
+    }
+    .mini-chat-header-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mini-chat-header-controls {
+      display: flex;
+      gap: 4px;
+    }
+    .mini-chat-header-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+      transition: color 0.15s;
+    }
+    .mini-chat-header-btn:hover {
+      color: var(--text);
+    }
+
+    .mini-chat-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+    .mini-chat-list-item {
+      padding: 8px;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+    .mini-chat-list-item:hover {
+      background: var(--bg-hover);
+    }
+    .mini-chat-list-item.active {
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-border);
+    }
+    .mini-chat-list-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .mini-chat-list-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .mini-chat-list-name {
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mini-chat-list-preview {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mini-chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .mini-chat-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-align: center;
+    }
+    .mini-chat-bubble {
+      max-width: 85%;
+      padding: 8px 12px;
+      border-radius: 8px;
+      word-wrap: break-word;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .mini-chat-bubble.mine {
+      align-self: flex-end;
+      background: var(--gold);
+      color: #000;
+    }
+    .mini-chat-bubble.theirs {
+      align-self: flex-start;
+      background: var(--bg-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .mini-chat-compose {
+      padding: 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 6px;
+      background: var(--bg-card);
+    }
+    .mini-chat-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      padding: 8px 10px;
+      font-size: 12px;
+      font-family: inherit;
+      resize: none;
+      max-height: 80px;
+    }
+    .mini-chat-input:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+    .mini-chat-send {
+      background: var(--gold);
+      color: #000;
+      border: none;
+      border-radius: var(--radius-sm);
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .mini-chat-send:hover {
+      background: var(--gold-light);
+    }
+    .mini-chat-send:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ─── MULTI-CHAT WINDOWS ──────────────────────────────── */
+    .mini-chat-window {
+      position: fixed;
+      bottom: 0;
+      width: 360px;
+      height: 400px;
+      background: rgba(26, 26, 36, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius) var(--radius) 0 0;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 1px rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      z-index: 998;
+      animation: slideUp 0.3s ease-out;
+    }
+    .mini-chat-window.minimized {
+      height: 40px;
+    }
+    .mini-chat-window .mini-chat-messages,
+    .mini-chat-window .mini-chat-compose {
+      display: none;
+    }
+    .mini-chat-window.minimized .mini-chat-messages,
+    .mini-chat-window.minimized .mini-chat-compose {
+      display: none !important;
+    }
+    .mini-chat-window:not(.minimized) .mini-chat-messages,
+    .mini-chat-window:not(.minimized) .mini-chat-compose {
+      display: flex;
+    }
+
+    /* ─── GUIDELINES MODAL ───────────────────────────────────── */
+    .guidelines-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    .guidelines-modal.visible {
+      display: flex;
+    }
+    .guidelines-modal-content {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+    }
+    .guidelines-modal-header {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .guidelines-modal-close {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .guidelines-section {
+      margin-bottom: 20px;
+    }
+    .guidelines-section h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .guidelines-section p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+    .guidelines-section ul {
+      margin-left: 16px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .guidelines-section li {
+      margin-bottom: 6px;
+    }
+
+    /* ─── COMMUNITY GUIDELINES DISCLAIMER ──────────────────── */
+    .guidelines-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: rgba(217, 119, 6, 0.05);
+      border: 1px solid rgba(217, 119, 6, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .guidelines-banner-icon {
+      font-size: 12px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .guidelines-banner-link {
+      color: var(--gold);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .guidelines-banner-link:hover {
+      color: var(--gold-light);
+    }
   </style>
   <script type="application/ld+json">
   {
@@ -2223,6 +2652,10 @@
                 <button class="msg-filter-tab" data-filter="selling" onclick="setMsgFilter('selling')">Selling</button>
               </div>
             </div>
+            <div class="guidelines-banner" style="margin-bottom:12px;">
+              <div class="guidelines-banner-icon">📋</div>
+              <div>Community Guidelines apply to all messages. <span class="guidelines-banner-link" onclick="openGuidelinesModal()">View Guidelines</span></div>
+            </div>
             <div class="msg-retention-notice">
               <strong>30-Day Retention:</strong> Messages are automatically deleted after 30 days. Save important details externally.
             </div>
@@ -2260,6 +2693,91 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Guidelines Modal -->
+<div class="guidelines-modal" id="guidelines-modal">
+  <div class="guidelines-modal-content">
+    <div class="guidelines-modal-header">
+      <span>Messaging Community Guidelines</span>
+      <button class="guidelines-modal-close" onclick="closeGuidelinesModal()">&times;</button>
+    </div>
+    <div class="guidelines-section">
+      <h4>Prohibited Content</h4>
+      <p>The following content is strictly prohibited and may result in account suspension:</p>
+      <ul>
+        <li>Hate speech, slurs, or discriminatory language based on race, religion, gender, or other characteristics</li>
+        <li>Harassment, threats, or intimidation of any kind</li>
+        <li>Sexually explicit or graphic content</li>
+        <li>Spam, unsolicited advertising, or repetitive messages</li>
+      </ul>
+    </div>
+    <div class="guidelines-section">
+      <h4>Prohibited Activities</h4>
+      <ul>
+        <li>Attempting to move transactions off-platform (Venmo, PayPal, crypto wallets, etc.)</li>
+        <li>Requesting or sharing personal financial information (bank details, SSN, etc.)</li>
+        <li>Phishing, scams, or social engineering attempts</li>
+        <li>Impersonation or fraud</li>
+      </ul>
+    </div>
+    <div class="guidelines-section">
+      <h4>Spam Policy</h4>
+      <ul>
+        <li>Do not send the same message multiple times</li>
+        <li>Avoid excessive use of capital letters or repeated characters</li>
+        <li>No unsolicited bulk messaging or advertising</li>
+      </ul>
+    </div>
+    <div class="guidelines-section">
+      <h4>Enforcement & Consequences</h4>
+      <p>Violations of these guidelines are escalated progressively:</p>
+      <ul>
+        <li><strong>First violation:</strong> Warning + message filtered</li>
+        <li><strong>Second violation:</strong> 24-hour mute</li>
+        <li><strong>Third violation:</strong> 7-day suspension</li>
+        <li><strong>Repeated violations:</strong> Permanent account suspension</li>
+      </ul>
+    </div>
+    <div class="guidelines-section">
+      <p style="margin: 0; font-size: 12px; color: var(--text-muted); font-style: italic;">
+        Messages are automatically scanned for policy violations. BorealisTerminal reserves the right to suspend accounts that violate these guidelines.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Mini-Chat Floating Button (Shows on all tabs except Messages) -->
+<button class="mini-chat-button" id="mini-chat-button" onclick="toggleMiniChat()" title="Open chat">
+  <span>💬</span>
+  <div class="mini-chat-badge" id="mini-chat-badge">0</div>
+</button>
+
+<!-- Mini-Chat Panel (Single thread view, replaces floating button when active) -->
+<div class="mini-chat-panel hidden" id="mini-chat-panel">
+  <div class="mini-chat-header">
+    <div class="mini-chat-header-left">
+      <button class="mini-chat-header-back" id="mini-chat-back-btn" onclick="showMiniChatThreadList()">←</button>
+      <div class="mini-chat-header-title" id="mini-chat-thread-title">Chats</div>
+    </div>
+    <div class="mini-chat-header-controls">
+      <button class="mini-chat-header-btn" id="mini-chat-minimize-btn" onclick="minimizeMiniChat()" title="Minimize">−</button>
+      <button class="mini-chat-header-btn" onclick="closeMiniChat()" title="Close">×</button>
+    </div>
+  </div>
+  <!-- Thread List View -->
+  <div class="mini-chat-list" id="mini-chat-list"></div>
+  <!-- Chat View (hidden by default) -->
+  <div id="mini-chat-view" style="display:none;flex:1;display:flex;flex-direction:column;">
+    <div class="mini-chat-messages" id="mini-chat-messages"></div>
+    <div class="mini-chat-compose">
+      <textarea class="mini-chat-input" id="mini-chat-input" placeholder="Type a message..." rows="1"></textarea>
+      <button class="mini-chat-send" id="mini-chat-send" onclick="sendMiniChatMessage()">➤</button>
     </div>
   </div>
 </div>
@@ -2487,6 +3005,12 @@
       <textarea id="compose-body" placeholder="Type your message..." rows="4" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:10px 12px;width:100%;font-size:13px;font-family:inherit;resize:vertical;"></textarea>
     </div>
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">💡 Messages are retained for <strong style="color:var(--gold);">30 days</strong>. Save important transaction details externally.</div>
+    <div class="guidelines-banner" style="margin-bottom:16px;">
+      <div class="guidelines-banner-icon">⚠️</div>
+      <div>
+        <strong>Community Guidelines:</strong> Messages are monitored for inappropriate content. Harassment, hate speech, spam, and off-platform transactions are prohibited. <span class="guidelines-banner-link" onclick="openGuidelinesModal()">View Guidelines</span>
+      </div>
+    </div>
     <button class="btn btn-gold btn-block" onclick="sendComposeMessage()">Send Message</button>
   </div>
 </div>
@@ -3610,7 +4134,7 @@
       return '<div class="msg-thread-item' + (isActive ? ' active' : '') + '" data-thread-id="' + esc(t.threadId) + '">' +
         '<div class="msg-avatar">' + esc(initial) + '</div>' +
         '<div class="msg-thread-info">' +
-          '<div class="msg-thread-name"><span>' + esc(t.otherPartyName) + '</span><span class="msg-thread-time">' + esc(timeStr) + '</span></div>' +
+          '<div class="msg-thread-name"><span>' + esc(t.otherPartyName) + (t.otherPartyTier ? ' <span style="font-size:8px;padding:1px 4px;border-radius:3px;background:' + ({SOVEREIGN:'#d4a843',VERIFIED:'#4a9eff',UNVERIFIED:'#ff6b6b',COMMUNITY:'#8b5cf6'}[t.otherPartyTier.toUpperCase()] || '#888') + '22;color:' + ({SOVEREIGN:'#d4a843',VERIFIED:'#4a9eff',UNVERIFIED:'#ff6b6b',COMMUNITY:'#8b5cf6'}[t.otherPartyTier.toUpperCase()] || '#888') + ';font-weight:600;">' + esc(t.otherPartyTier.toUpperCase()) + '</span>' : '') + '</span><span class="msg-thread-time">' + esc(timeStr) + '</span></div>' +
           '<div class="msg-thread-preview">' + esc(preview) + '</div>' +
           (t.subject ? '<div class="msg-thread-context">📎 ' + esc(t.subject) + '</div>' : '') +
         '</div>' +
@@ -3687,7 +4211,12 @@
       }
 
       document.getElementById('msg-chat-avatar').textContent = otherName[0].toUpperCase();
-      document.getElementById('msg-chat-name').textContent = otherName;
+      // Show name with tier badge in full Messages header
+      var cachedThr = msgThreadsCache.find(function(t) { return t.threadId === threadId; });
+      var otherTier = (cachedThr && cachedThr.otherPartyTier) ? cachedThr.otherPartyTier.toUpperCase() : '';
+      var tColors = { SOVEREIGN: '#d4a843', VERIFIED: '#4a9eff', UNVERIFIED: '#ff6b6b', COMMUNITY: '#8b5cf6' };
+      var tColor = tColors[otherTier] || '#888';
+      document.getElementById('msg-chat-name').innerHTML = esc(otherName) + (otherTier ? ' <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:' + tColor + '22;color:' + tColor + ';font-weight:600;vertical-align:middle;margin-left:6px;">' + esc(otherTier) + '</span>' : '');
       document.getElementById('msg-chat-status').textContent = data.data.thread.subject || 'Direct message';
 
       // Listing context in header
@@ -3815,6 +4344,419 @@
       msgPollInterval = null;
     }
   }
+
+  // ═════════════════════════════════════════════════════════════
+  // FEATURE 1 & 2: MINI-CHAT SYSTEM & MULTI-CHAT WINDOWS
+  // ═════════════════════════════════════════════════════════════
+
+  var miniChatState = {
+    isOpen: false,
+    currentThreadId: null,
+    viewMode: 'list', // 'list' or 'thread'
+    threads: [],
+    miniChatWindows: [], // Max 3 windows { threadId, contactName, minimized, position }
+    unreadCount: 0,
+    pollInterval: null
+  };
+
+  window.toggleMiniChat = function() {
+    if (miniChatState.isOpen) {
+      closeMiniChat();
+    } else {
+      openMiniChat();
+    }
+  };
+
+  window.openMiniChat = async function() {
+    var panel = document.getElementById('mini-chat-panel');
+    var button = document.getElementById('mini-chat-button');
+    miniChatState.isOpen = true;
+    panel.classList.remove('hidden');
+    button.style.display = 'none';
+
+    // Load threads
+    await loadMiniChatThreads();
+    renderMiniChatThreadList();
+    startMiniChatPoll();
+  };
+
+  window.closeMiniChat = function() {
+    var panel = document.getElementById('mini-chat-panel');
+    var button = document.getElementById('mini-chat-button');
+    miniChatState.isOpen = false;
+    miniChatState.currentThreadId = null;
+    miniChatState.viewMode = 'list';
+    panel.classList.add('hidden');
+    button.style.display = 'flex';
+    stopMiniChatPoll();
+  };
+
+  window.minimizeMiniChat = function() {
+    closeMiniChat();
+  };
+
+  async function loadMiniChatThreads() {
+    var token = getToken();
+    if (!token) return;
+    try {
+      var resp = await fetch(API_BASE + '/v1/marketplace/threads', { headers: { Authorization: 'Bearer ' + token }});
+      var data = await resp.json();
+      if (data.success) {
+        miniChatState.threads = data.data.threads;
+        updateMiniChatBadge();
+      }
+    } catch(e) {}
+  }
+
+  function renderMiniChatThreadList() {
+    if (miniChatState.viewMode !== 'list') return;
+
+    var list = document.getElementById('mini-chat-list');
+    var view = document.getElementById('mini-chat-view');
+    if (!list) return;
+
+    list.style.display = 'flex';
+    view.style.display = 'none';
+    document.getElementById('mini-chat-back-btn').style.display = 'none';
+    document.getElementById('mini-chat-thread-title').textContent = 'Chats';
+
+    if (miniChatState.threads.length === 0) {
+      list.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:12px;">No conversations yet</div>';
+      return;
+    }
+
+    list.innerHTML = miniChatState.threads.map(function(t) {
+      var initial = (t.otherPartyName || '?')[0].toUpperCase();
+      var preview = (t.lastMessage || 'No messages').substring(0, 40);
+      return '<div class="mini-chat-list-item" data-thread-id="' + esc(t.threadId) + '">' +
+        '<div class="mini-chat-list-avatar">' + esc(initial) + '</div>' +
+        '<div class="mini-chat-list-info">' +
+          '<div class="mini-chat-list-name">' + esc(t.otherPartyName) + '</div>' +
+          '<div class="mini-chat-list-preview">' + esc(preview) + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    // Delegate click
+    list.querySelectorAll('.mini-chat-list-item').forEach(function(el) {
+      el.addEventListener('click', function() {
+        openMiniChatThread(this.dataset.threadId);
+      });
+    });
+  }
+
+  window.openMiniChatThread = async function(threadId) {
+    var token = getToken();
+    if (!token) return;
+
+    miniChatState.currentThreadId = threadId;
+    miniChatState.viewMode = 'thread';
+
+    await ensureMsgMyId();
+
+    try {
+      var resp = await fetch(API_BASE + '/v1/marketplace/threads/' + threadId, { headers: { Authorization: 'Bearer ' + token }});
+      var data = await resp.json();
+      if (!data.success) return;
+
+      // Get contact name
+      var contactName = '';
+      data.data.messages.forEach(function(m) {
+        if (m.senderId !== msgMyId) contactName = m.senderName;
+      });
+      if (!contactName) {
+        var cachedThread = msgThreadsCache.find(function(t) { return t.threadId === threadId; });
+        if (cachedThread) contactName = cachedThread.otherPartyName;
+      }
+      if (!contactName) contactName = 'User';
+
+      // Update UI
+      var list = document.getElementById('mini-chat-list');
+      var view = document.getElementById('mini-chat-view');
+      var backBtn = document.getElementById('mini-chat-back-btn');
+      list.style.display = 'none';
+      view.style.display = 'flex';
+      backBtn.style.display = 'block';
+      // Show name with tier badge
+      var cachedT = msgThreadsCache.find(function(t) { return t.threadId === threadId; });
+      var tierName = (cachedT && cachedT.otherPartyTier) ? cachedT.otherPartyTier.toUpperCase() : '';
+      var tierColors = { SOVEREIGN: '#d4a843', VERIFIED: '#4a9eff', UNVERIFIED: '#ff6b6b', COMMUNITY: '#8b5cf6' };
+      var tierColor = tierColors[tierName] || '#888';
+      var titleEl = document.getElementById('mini-chat-thread-title');
+      titleEl.innerHTML = esc(contactName) + (tierName ? ' <span style="font-size:9px;padding:1px 5px;border-radius:3px;background:' + tierColor + '22;color:' + tierColor + ';font-weight:600;vertical-align:middle;margin-left:4px;">' + esc(tierName) + '</span>' : '');
+
+      // Render messages
+      var messagesEl = document.getElementById('mini-chat-messages');
+      var html = '';
+      data.data.messages.forEach(function(m) {
+        var isMine = m.senderId === msgMyId;
+        html += '<div class="mini-chat-bubble ' + (isMine ? 'mine' : 'theirs') + '">' + esc(m.body) + '</div>';
+      });
+      messagesEl.innerHTML = html || '<div class="mini-chat-empty">Start a conversation</div>';
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      startMiniChatThreadPoll(threadId);
+    } catch(e) {
+      console.error('openMiniChatThread error:', e);
+    }
+  };
+
+  window.showMiniChatThreadList = function() {
+    miniChatState.viewMode = 'list';
+    miniChatState.currentThreadId = null;
+    renderMiniChatThreadList();
+    stopMiniChatPoll();
+    startMiniChatPoll();
+  };
+
+  window.sendMiniChatMessage = async function() {
+    var token = getToken();
+    var input = document.getElementById('mini-chat-input');
+    if (!token || !input || !input.value.trim() || !miniChatState.currentThreadId) return;
+
+    var body = input.value.trim();
+
+    // Apply moderation
+    var modResult = moderateMessage(body);
+    if (!modResult.clean && modResult.blocked) {
+      showToast(modResult.reason, 'error');
+      return;
+    }
+    if (!modResult.clean) {
+      showToast(modResult.reason, 'warning');
+    }
+
+    var finalMessage = modResult.filtered;
+    input.value = '';
+    input.style.height = 'auto';
+
+    try {
+      await fetch(API_BASE + '/v1/marketplace/threads/' + miniChatState.currentThreadId + '/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ body: finalMessage }),
+      });
+      openMiniChatThread(miniChatState.currentThreadId);
+    } catch(e) {
+      input.value = body;
+    }
+  };
+
+  function startMiniChatPoll() {
+    stopMiniChatPoll();
+    miniChatState.pollInterval = setInterval(function() {
+      if (miniChatState.isOpen) {
+        loadMiniChatThreads();
+        if (miniChatState.viewMode === 'thread' && miniChatState.currentThreadId) {
+          openMiniChatThread(miniChatState.currentThreadId);
+        }
+      }
+    }, 15000);
+  }
+
+  function startMiniChatThreadPoll(threadId) {
+    stopMiniChatPoll();
+    miniChatState.pollInterval = setInterval(function() {
+      if (miniChatState.isOpen && miniChatState.currentThreadId === threadId) {
+        openMiniChatThread(threadId);
+      }
+    }, 15000);
+  }
+
+  function stopMiniChatPoll() {
+    if (miniChatState.pollInterval) {
+      clearInterval(miniChatState.pollInterval);
+      miniChatState.pollInterval = null;
+    }
+  }
+
+  function updateMiniChatBadge() {
+    var unreadCount = miniChatState.threads.reduce(function(sum, t) {
+      return sum + (t.unreadCount || 0);
+    }, 0);
+    miniChatState.unreadCount = unreadCount;
+    var badge = document.getElementById('mini-chat-badge');
+    if (unreadCount > 0) {
+      badge.textContent = unreadCount;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  // ═════════════════════════════════════════════════════════════
+  // FEATURE 3: AUTO-CENSORSHIP & CONTENT MODERATION
+  // ═════════════════════════════════════════════════════════════
+
+  // Obfuscated banned words list (base64 encoded for discretion)
+  var BANNED_WORDS_ENCODED = [
+    'Zk93b3Jk', // f-word
+    'c2hpdA==', // s-word
+    'YXNz', // a-word variant
+    'YmnMdGNo', // b-word
+    'Y3Jhcg==', // c-word
+    'ZGFtbg==', // d-word
+    'aGVsbA==', // h-word
+    'cGlzcw==', // p-word
+  ];
+
+  var BANNED_SLURS = [
+    'Zig9m', // n-word (obfuscated)
+    'dHJhbm55', // derogatory
+  ];
+
+  var OFF_PLATFORM_KEYWORDS = [
+    'send me your password',
+    'wire transfer',
+    'western union',
+    'gift card scam',
+    'pay outside platform',
+    'venmo',
+    'paypal',
+    'cashapp',
+    'whatsapp',
+    'telegram',
+  ];
+
+  var HATE_SPEECH_TERMS = [
+    'c3dYXN0aWMgdGVybXM=', // offensive content (base64)
+  ];
+
+  window.moderateMessage = function(text) {
+    if (!text) return { clean: true, filtered: text, reason: '' };
+
+    var lower = text.toLowerCase();
+    var result = { clean: true, filtered: text, blocked: false, reason: '' };
+
+    // Check for off-platform transaction keywords (BLOCK)
+    for (var i = 0; i < OFF_PLATFORM_KEYWORDS.length; i++) {
+      if (lower.indexOf(OFF_PLATFORM_KEYWORDS[i]) !== -1) {
+        result.blocked = true;
+        result.clean = false;
+        result.reason = 'This message was blocked. Attempting to move transactions off-platform violates community guidelines. Attempting to circumvent moderation may result in account suspension.';
+        return result;
+      }
+    }
+
+    // Check spam patterns (all caps over 20 chars, repeated chars)
+    if (text.length > 20 && text === text.toUpperCase()) {
+      result.clean = false;
+      result.reason = 'Your message was modified to comply with community guidelines (all-caps spam detected).';
+    }
+
+    // Check for repeated characters (e.g., "BUYYYYYYY")
+    if (/(.)\1{4,}/.test(text)) {
+      result.clean = false;
+      result.reason = 'Your message was modified to comply with community guidelines (spam pattern detected).';
+      result.filtered = text.replace(/(.)\1{3,}/g, '$1$1');
+    }
+
+    // Check for profanity and replace with asterisks
+    for (var i = 0; i < BANNED_WORDS_ENCODED.length; i++) {
+      var word = atob(BANNED_WORDS_ENCODED[i]);
+      var regex = new RegExp('\\b' + word + '\\b', 'gi');
+      if (regex.test(result.filtered)) {
+        result.clean = false;
+        if (!result.reason) result.reason = 'Your message was modified to comply with community guidelines.';
+        // Replace: keep first and last letter
+        result.filtered = result.filtered.replace(regex, function(match) {
+          return match[0] + '*'.repeat(match.length - 2) + match[match.length - 1];
+        });
+      }
+    }
+
+    return result;
+  };
+
+  window.openGuidelinesModal = function() {
+    var modal = document.getElementById('guidelines-modal');
+    modal.classList.add('visible');
+  };
+
+  window.closeGuidelinesModal = function() {
+    var modal = document.getElementById('guidelines-modal');
+    modal.classList.remove('visible');
+  };
+
+  window.showToast = function(message, type) {
+    type = type || 'info';
+    var container = document.getElementById('toast-container');
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    setTimeout(function() {
+      toast.remove();
+    }, 5000);
+  };
+
+  // Hide mini-chat button on Messages tab, show on others
+  var originalSwitchTab = window.switchTab;
+  window.switchTab = function(tabName) {
+    var result = originalSwitchTab.call(this, tabName);
+    var button = document.getElementById('mini-chat-button');
+    if (tabName === 'messages') {
+      if (!miniChatState.isOpen) button.style.display = 'none';
+    } else {
+      if (!miniChatState.isOpen) button.style.display = 'flex';
+    }
+    // Hide mini-chat panel on Messages tab if it's open
+    if (tabName === 'messages' && miniChatState.isOpen) {
+      closeMiniChat();
+    }
+    return result;
+  };
+
+  // Update sendThreadMessage to use moderation
+  var originalSendThreadMessage = window.sendThreadMessage;
+  window.sendThreadMessage = async function() {
+    var input = document.getElementById('msg-compose-input');
+    if (!input || !input.value.trim()) return;
+
+    var body = input.value.trim();
+    var modResult = moderateMessage(body);
+
+    if (!modResult.clean && modResult.blocked) {
+      showToast(modResult.reason, 'error');
+      return;
+    }
+    if (!modResult.clean) {
+      showToast(modResult.reason, 'warning');
+    }
+
+    input.value = modResult.filtered;
+    return originalSendThreadMessage.call(this);
+  };
+
+  // Update sendComposeMessage to use moderation
+  var originalSendComposeMessage = window.sendComposeMessage;
+  window.sendComposeMessage = async function() {
+    var body = document.getElementById('compose-body').value.trim();
+    if (!body) return originalSendComposeMessage.call(this);
+
+    var modResult = moderateMessage(body);
+
+    if (!modResult.clean && modResult.blocked) {
+      showToast(modResult.reason, 'error');
+      return;
+    }
+    if (!modResult.clean) {
+      showToast(modResult.reason, 'warning');
+    }
+
+    document.getElementById('compose-body').value = modResult.filtered;
+    return originalSendComposeMessage.call(this);
+  };
+
+  // Initialize mini-chat button visibility
+  document.addEventListener('DOMContentLoaded', function() {
+    var activeTab = document.querySelector('.tab-content.visible') || {};
+    var isMessagesTab = activeTab.id === 'tab-messages';
+    if (isMessagesTab) {
+      document.getElementById('mini-chat-button').style.display = 'none';
+    }
+  });
 
   // ─── Compose Modal ────────────────────────────────────────
   var composeRecipientId = null;
