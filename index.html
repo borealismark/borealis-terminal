@@ -2002,6 +2002,20 @@
     .dash-section { display:none; }
     .dash-section.active { display:block; }
 
+    /* ─── EMAIL VERIFICATION BANNER ─────────────────────── */
+    .verify-banner { display:none; margin-bottom:20px; padding:16px 20px; background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(251,191,36,0.03)); border:1px solid rgba(251,191,36,0.25); border-radius:var(--radius); }
+    .verify-banner.show { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+    .verify-banner-icon { font-size:24px; flex-shrink:0; }
+    .verify-banner-text { flex:1; min-width:200px; }
+    .verify-banner-text h4 { margin:0 0 4px; font-size:14px; color:var(--gold); font-weight:600; }
+    .verify-banner-text p { margin:0; font-size:13px; color:var(--text-muted); line-height:1.4; }
+    .verify-banner-actions { display:flex; gap:8px; flex-shrink:0; }
+    .verify-resend-btn { padding:8px 16px; background:var(--gold); color:#000; border:none; border-radius:var(--radius-sm); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; font-family:inherit; }
+    .verify-resend-btn:hover { background:var(--gold-hover); }
+    .verify-resend-btn:disabled { opacity:0.5; cursor:not-allowed; }
+    .verify-success-banner { display:none; margin-bottom:20px; padding:14px 20px; background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.25); border-radius:var(--radius); color:var(--green); font-size:13px; font-weight:500; align-items:center; gap:10px; }
+    .verify-success-banner.show { display:flex; }
+
     /* ─── CARD IMAGE STYLING ─────────────────────────────── */
     .card-img-wrap { position:relative; overflow:hidden; aspect-ratio:4/3; background:var(--bg-elevated); }
     .card-img-wrap .listing-img { width:100%; height:100%; object-fit:cover; }
@@ -2914,6 +2928,20 @@
         <button class="btn btn-gold" onclick="showAuthPage()">Sign In</button>
       </div>
       <div id="dashboard-content" style="display:none;">
+        <!-- Email Verification Banner -->
+        <div class="verify-success-banner" id="verify-success-banner">
+          &#10003; Your email has been verified successfully! You now have full access.
+        </div>
+        <div class="verify-banner" id="verify-banner">
+          <div class="verify-banner-icon">&#9993;</div>
+          <div class="verify-banner-text">
+            <h4>Verify Your Email</h4>
+            <p>Check your inbox for a verification link from <strong>support@borealisprotocol.ai</strong>. You need to verify your email before you can create listings, purchase items, or use marketplace features.</p>
+          </div>
+          <div class="verify-banner-actions">
+            <button class="verify-resend-btn" id="verify-resend-btn" onclick="resendVerification()">Resend Email</button>
+          </div>
+        </div>
         <!-- Dashboard Sub-Navigation -->
         <div class="dash-subnav">
           <button class="dash-subnav-btn active" onclick="switchDashSection('overview')">Overview</button>
@@ -3847,6 +3875,120 @@
     btn.querySelector('.eye-closed').style.display = isPassword ? 'block' : 'none';
   };
 
+  // ─── Email Verification ─────────────────────────────────
+  function isEmailVerified() {
+    var userJson = getUser();
+    if (!userJson) return false;
+    try {
+      var user = JSON.parse(userJson);
+      return !!user.emailVerified;
+    } catch(e) { return false; }
+  }
+
+  function showVerifyBanner() {
+    var banner = document.getElementById('verify-banner');
+    if (banner && getToken() && !isEmailVerified()) {
+      banner.classList.add('show');
+    } else if (banner) {
+      banner.classList.remove('show');
+    }
+  }
+
+  function requireVerified(actionName) {
+    if (!isEmailVerified()) {
+      showToast('Please verify your email before ' + (actionName || 'using this feature'), 'error');
+      // Scroll to banner
+      var banner = document.getElementById('verify-banner');
+      if (banner) banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return false;
+    }
+    return true;
+  }
+
+  window.resendVerification = async function() {
+    var btn = document.getElementById('verify-resend-btn');
+    if (!btn) return;
+    var token = getToken();
+    if (!token) { showToast('Please sign in first', 'error'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    try {
+      var resp = await fetch(API_BASE + '/v1/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      });
+      var data = await resp.json();
+      if (data.success) {
+        showToast('Verification email sent! Check your inbox.', 'success');
+        btn.textContent = 'Sent!';
+        setTimeout(function() { btn.textContent = 'Resend Email'; btn.disabled = false; }, 30000);
+      } else {
+        showToast(data.error || 'Failed to resend', 'error');
+        btn.textContent = 'Resend Email';
+        btn.disabled = false;
+      }
+    } catch(e) {
+      showToast('Network error', 'error');
+      btn.textContent = 'Resend Email';
+      btn.disabled = false;
+    }
+  };
+
+  // Handle ?verify= URL parameter (from email link)
+  async function handleEmailVerifyParam() {
+    var params = new URLSearchParams(window.location.search);
+    var verifyToken = params.get('verify');
+    if (!verifyToken) return;
+
+    // Clean URL
+    var url = new URL(window.location);
+    url.searchParams.delete('verify');
+    window.history.replaceState({}, '', url.pathname + url.hash);
+
+    try {
+      var resp = await fetch(API_BASE + '/v1/auth/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: verifyToken }),
+      });
+      var data = await resp.json();
+      if (data.success) {
+        // Update stored user and token
+        if (data.data.token) {
+          var remember = !!localStorage.getItem('bt_token');
+          setAuth(data.data.token, data.data.user, remember);
+        } else {
+          // Just update user data
+          var userJson = getUser();
+          if (userJson) {
+            var user = JSON.parse(userJson);
+            user.emailVerified = true;
+            if (localStorage.getItem('bt_user')) localStorage.setItem('bt_user', JSON.stringify(user));
+            else sessionStorage.setItem('bt_user', JSON.stringify(user));
+          }
+        }
+        // Show success
+        var successBanner = document.getElementById('verify-success-banner');
+        if (successBanner) successBanner.classList.add('show');
+        var verifyBanner = document.getElementById('verify-banner');
+        if (verifyBanner) verifyBanner.classList.remove('show');
+        showToast('Email verified successfully!', 'success');
+        // Enter marketplace if not already there
+        enterMarketplace();
+        loadDashboard();
+      } else {
+        showToast(data.error || 'Verification failed', 'error');
+      }
+    } catch(e) {
+      showToast('Network error during verification', 'error');
+    }
+  }
+
+  // Run verification check on load
+  handleEmailVerifyParam();
+
   // ─── Auth State ──────────────────────────────────────────
   function updateAuthUI() {
     const token = getToken();
@@ -3867,6 +4009,7 @@
       document.getElementById('dashboard-content').style.display = 'block';
       document.getElementById('messages-auth').style.display = 'none';
       document.getElementById('messages-content').style.display = 'block';
+      showVerifyBanner();
     } else {
       signinBtn.style.display = 'inline-flex';
       signoutBtn.style.display = 'none';
@@ -3875,6 +4018,9 @@
       document.getElementById('dashboard-content').style.display = 'none';
       document.getElementById('messages-auth').style.display = 'block';
       document.getElementById('messages-content').style.display = 'none';
+      // Hide verify banners when logged out
+      var vb = document.getElementById('verify-banner');
+      if (vb) vb.classList.remove('show');
     }
   }
 
@@ -3975,13 +4121,18 @@
         return;
       }
 
-      sessionStorage.setItem('bt_token', data.data.token);
-      sessionStorage.setItem('bt_user', JSON.stringify(data.data.user));
+      setAuth(data.data.token, data.data.user, false);
       resetSessionTimer();
       this.disabled = false;
       this.textContent = 'Create Account';
       enterMarketplace();
       loadDashboard();
+      // Notify user to check email
+      if (data.data.verificationEmailSent) {
+        setTimeout(function() {
+          showToast('Check your email to verify your account!', 'success');
+        }, 800);
+      }
     } catch (err) {
       errEl.textContent = 'Network error. Please try again.';
       errEl.style.display = 'block';
@@ -5241,6 +5392,7 @@
   window.sendComposeMessage = async function() {
     var token = getToken();
     if (!token) { showAuthPage(); return; }
+    if (!requireVerified('sending messages')) return;
     var errEl = document.getElementById('compose-error');
     errEl.style.display = 'none';
 
@@ -5339,6 +5491,7 @@
     e.preventDefault();
     const token = getToken();
     if (!token) { showLogin(); return; }
+    if (!requireVerified('creating a listing')) return;
 
     const statusEl = document.getElementById('cl-status');
     statusEl.style.display = 'block';
@@ -5467,6 +5620,10 @@
         loadDashboard();
         // Show onboarding wizard for new users
         setTimeout(function() { showOnboarding(); }, 400);
+        // Notify user to check email
+        if (data.data.verificationEmailSent) {
+          setTimeout(function() { showToast('Check your email to verify your account!', 'success'); }, 1200);
+        }
       } else {
         errEl.textContent = data.error || 'Registration failed';
         errEl.style.display = 'block';
@@ -5923,7 +6080,10 @@
       headers: { 'Authorization': `Bearer ${existingToken}` }
     }).then(r => r.json()).then(data => {
       if (data.success) {
-        sessionStorage.setItem('bt_user', JSON.stringify(data.data));
+        // Update user in whichever storage it lives in
+        var remember = !!localStorage.getItem('bt_token');
+        if (remember) localStorage.setItem('bt_user', JSON.stringify(data.data));
+        else sessionStorage.setItem('bt_user', JSON.stringify(data.data));
         enterMarketplace();
         loadDashboard();
         loadThreads();
@@ -6771,6 +6931,7 @@
       showAuthPage();
       return;
     }
+    if (!requireVerified('adding items to cart')) return;
     try {
       var resp = await fetch(API_BASE + '/v1/marketplace/cart/add', {
         method: 'POST',
@@ -6901,6 +7062,7 @@
   window.showCheckoutPage = async function() {
     var token = getToken();
     if (!token) { showAuthPage(); return; }
+    if (!requireVerified('checking out')) return;
 
     var tabBrowse = document.getElementById('tab-browse');
     if (!tabBrowse) return;
