@@ -1350,24 +1350,113 @@
       .grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
     }
     @media (max-width: 768px) {
-      /* Navigation */
-      .app-nav { flex-wrap: wrap; padding: 8px 12px; gap: 8px; }
-      .app-nav-left { width: 100%; justify-content: space-between; gap: 12px; }
-      .app-tabs { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; gap: 0; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px; }
+      /* ─── PREMIUM MOBILE NAV ─── */
+      /* Tier 1: Brand (left) + User pill & Sign Out (right) */
+      /* Tier 2: Tab bar — evenly spaced, full width, like iOS/Android */
+      .app-nav {
+        flex-wrap: wrap;
+        padding: 0;
+        gap: 0;
+        border-bottom: none;
+        position: relative;
+      }
+      .app-nav-left {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        gap: 0;
+      }
+      .app-nav-left .brand {
+        font-size: 14px;
+        padding: 12px 16px;
+      }
+      .app-nav-left .brand .brand-b {
+        display: none;
+      }
+      .app-tabs {
+        width: 100%;
+        order: 2;
+        display: flex !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 0;
+        justify-content: stretch;
+        padding: 0;
+        margin: 0;
+        background: rgba(255,255,255,0.02);
+        border-top: 1px solid rgba(255,255,255,0.05);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+      }
       .app-tabs::-webkit-scrollbar { display: none; }
-      .app-tab { flex: 1; text-align: center; padding: 8px 4px; font-size: 12px; white-space: nowrap; }
+      .app-tab {
+        flex: 1;
+        text-align: center;
+        padding: 11px 4px;
+        font-size: 12px;
+        font-weight: 500;
+        white-space: nowrap;
+        border-bottom: 2px solid transparent;
+        transition: border-color 0.2s, color 0.2s;
+        min-height: 40px;
+        letter-spacing: 0.02em;
+        color: var(--text-secondary);
+      }
+      .app-tab.active {
+        border-bottom-color: var(--gold);
+        color: var(--gold);
+        font-weight: 600;
+      }
       .app-tab.active::after { display: none; }
-      .app-nav-right { gap: 8px; }
-      .app-nav-right .btn { font-size: 11px; padding: 5px 10px; }
-      .user-pill { padding: 4px 10px 4px 6px; font-size: 11px; }
-      .user-pill .user-name { display: none; }
-      .user-pill .tier-badge { font-size: 8px; padding: 1px 4px; }
-      .user-avatar { width: 20px; height: 20px; font-size: 9px; }
+      .app-nav-right {
+        position: absolute;
+        right: 14px;
+        top: 8px;
+        gap: 8px;
+        display: flex;
+        align-items: center;
+        z-index: 2;
+      }
+      .app-nav-right .btn {
+        font-size: 10px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        min-height: unset;
+      }
+      .user-pill {
+        padding: 3px 6px 3px 3px;
+        font-size: 10px;
+        gap: 4px;
+        border-radius: 20px;
+      }
+      .user-pill .user-name,
+      .user-pill #user-display-name { display: none; }
+      .user-pill .tier-badge {
+        font-size: 7px;
+        padding: 1px 4px;
+        letter-spacing: 0.03em;
+      }
+      .user-avatar { width: 20px; height: 20px; font-size: 8px; }
 
-      /* Category pills */
-      .category-pills { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex-wrap: nowrap; padding-bottom: 4px; margin-right: -12px; margin-left: -12px; padding-left: 12px; padding-right: 12px; }
+      /* ─── CATEGORY PILLS (Horizontal Scroll) ─── */
+      .category-pills {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        flex-wrap: nowrap !important;
+        padding: 0 16px 8px 16px;
+        margin: 0 -8px;
+        gap: 8px;
+      }
       .category-pills::-webkit-scrollbar { display: none; }
-      .cat-pill { flex-shrink: 0; font-size: 12px; padding: 6px 12px; }
+      .cat-pill {
+        flex-shrink: 0;
+        font-size: 12px;
+        padding: 7px 14px;
+        border-radius: 20px;
+        white-space: nowrap;
+      }
 
       /* Listing grid */
       .grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
@@ -1498,13 +1587,16 @@
       .card h3, .card .card-title { font-size: 13px; line-height: 1.3; }
 
       /* Navigation */
-      .app-nav { padding: 6px 8px; }
-      .app-nav-left { gap: 8px; }
-      .app-tab { padding: 6px 2px; font-size: 11px; }
-      .app-nav-right { gap: 4px; }
+      .app-nav-left { padding: 8px 12px; }
+      .app-nav-left .brand { font-size: 13px; }
+      .app-tab { padding: 8px 2px; font-size: 11px; }
+      .app-nav-right { right: 12px; top: 8px; gap: 4px; }
       .app-nav-right .btn { font-size: 10px; padding: 4px 8px; }
+      .user-pill .tier-badge { font-size: 6px; padding: 1px 4px; }
+      .user-avatar { width: 20px; height: 20px; font-size: 8px; }
 
       /* Category pills */
+      .category-pills { padding: 0 12px 6px 12px; margin: 0 -8px; gap: 6px; }
       .cat-pill { font-size: 11px; padding: 5px 10px; }
 
       /* Dashboard */
@@ -1590,15 +1682,16 @@
       .card p { font-size: 10px; }
 
       /* Navigation */
-      .app-nav { padding: 4px 8px; }
-      .app-nav-left { gap: 6px; }
-      .app-tabs { padding-top: 6px; margin-top: 2px; }
-      .app-tab { padding: 6px 0px; font-size: 10px; }
-      .app-nav-right { gap: 4px; }
-      .app-nav-right .btn { font-size: 10px; padding: 3px 6px; }
+      .app-nav-left { padding: 6px 10px; }
+      .app-nav-left .brand { font-size: 12px; }
+      .app-tab { padding: 7px 0px; font-size: 10px; }
+      .app-nav-right { right: 10px; top: 6px; gap: 3px; }
+      .app-nav-right .btn { font-size: 9px; padding: 3px 6px; }
+      .user-pill { padding: 2px 6px 2px 3px; }
+      .user-avatar { width: 18px; height: 18px; font-size: 7px; }
 
       /* Category pills */
-      .category-pills { gap: 6px; padding: 8px 8px 4px 8px; margin-right: -8px; margin-left: -8px; }
+      .category-pills { gap: 6px; padding: 0 10px 4px 10px; margin: 0 -8px; }
       .cat-pill { font-size: 10px; padding: 4px 8px; }
 
       /* Dashboard */
@@ -2714,7 +2807,7 @@
       <div id="listing-count" style="font-size:12px;color:var(--text-muted);margin-bottom:12px;"></div>
 
       <!-- Category Pills -->
-      <div id="category-pills" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      <div id="category-pills" class="category-pills" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
         <button class="cat-pill active" data-cat="" onclick="selectCategory('')">All</button>
         <button class="cat-pill" data-cat="physical" onclick="selectCategory('physical')">📦 Physical Goods</button>
         <button class="cat-pill" data-cat="digital" onclick="selectCategory('digital')">💻 Digital Goods</button>
