@@ -1213,6 +1213,22 @@
       color: var(--text);
     }
 
+    .modal-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 12px;
+      font-family: inherit;
+      transition: color 0.15s;
+    }
+    .modal-back-btn:hover { color: var(--gold); }
+
     .modal h2 {
       font-size: 18px;
       font-weight: 700;
@@ -3228,6 +3244,7 @@
 <div class="modal-overlay" id="create-listing-modal">
   <div class="modal" style="max-width:500px;">
     <button class="modal-close" onclick="closeModal('create-listing-modal')">&times;</button>
+    <button class="modal-back-btn" onclick="closeModal('create-listing-modal')">&#8592; Back</button>
     <h2>Post a Listing</h2>
     <p class="subtitle">Your listing will be reviewed before publishing.</p>
     <div id="cl-status" class="form-status"></div>
@@ -3294,6 +3311,7 @@
 <div class="modal-overlay" id="ebay-import-modal">
   <div class="modal" style="max-width:480px;">
     <button class="modal-close" onclick="closeModal('ebay-import-modal')">&times;</button>
+    <button class="modal-back-btn" onclick="closeModal('ebay-import-modal')">&#8592; Back</button>
     <h2 style="display:flex;align-items:center;gap:8px;">Import eBay Store</h2>
     <p class="subtitle">Import your entire eBay store in one click. All listings, images, and pricing will be imported automatically.</p>
     <div id="ebay-import-tier-gate" style="display:none;background:rgba(212,168,83,0.1);border:1px solid rgba(212,168,83,0.3);border-radius:8px;padding:16px;margin-bottom:16px;text-align:center;">
@@ -3320,6 +3338,7 @@
 <div class="modal-overlay" id="marketing-modal">
   <div class="modal" style="max-width:600px;max-height:80vh;overflow-y:auto;">
     <button class="modal-close" onclick="closeModal('marketing-modal')">&times;</button>
+    <button class="modal-back-btn" onclick="closeModal('marketing-modal')">&#8592; Back</button>
     <h2>Marketing Dashboard</h2>
     <p class="subtitle">Promote your listings with trackable referral links and AI-generated copy.</p>
 
@@ -3420,6 +3439,7 @@
 <div class="modal-overlay" id="compose-msg-modal" style="display:none;" onclick="if(event.target===this)closeModal('compose-msg-modal')">
   <div class="modal" style="max-width:480px;">
     <button class="modal-close" onclick="closeModal('compose-msg-modal')">&times;</button>
+    <button class="modal-back-btn" onclick="closeModal('compose-msg-modal')">&#8592; Back</button>
     <h2 style="margin-bottom:4px;">New Message</h2>
     <p class="subtitle" style="margin-bottom:20px;color:var(--text-muted);font-size:13px;">Start a conversation with a seller or buyer.</p>
     <div id="compose-listing-ctx" style="display:none;padding:10px 12px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:16px;display:flex;align-items:center;gap:10px;">
