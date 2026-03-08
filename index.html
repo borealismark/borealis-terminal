@@ -4395,12 +4395,110 @@
     else if (section === 'settings') sectionEl = document.getElementById('dash-settings-section');
 
     if (sectionEl) sectionEl.classList.add('active');
+
+    // Load data for the section
+    if (section === 'watchlist') loadWatchlistTab();
+    if (section === 'cart') loadDashCart();
+    if (section === 'orders') loadDashOrders();
   };
+
+  // ─── Load Dashboard Cart ────────────────────────────────────
+  async function loadDashCart() {
+    var token = getToken();
+    var container = document.getElementById('dash-cart-content');
+    if (!container) return;
+    if (!token) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#128722;</div><h3>Sign in to view your cart</h3><p><button onclick="showAuthPage()" class="btn btn-gold" style="margin-top:8px;">Sign In</button></p></div>';
+      return;
+    }
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#9678;</div><h3>Loading cart...</h3></div>';
+    try {
+      var resp = await fetchWithTimeout(API_BASE + '/v1/marketplace/cart', { headers: { 'Authorization': 'Bearer ' + token } });
+      var data = await resp.json();
+      if (data.success && data.data.items && data.data.items.length > 0) {
+        var items = data.data.items;
+        var html = '<div style="display:flex;flex-direction:column;gap:12px;">';
+        items.forEach(function(item) {
+          var img = (item.images && item.images.length) ? item.images[0] : '';
+          var price = Number(item.priceCad || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+          html += '<div style="display:flex;gap:14px;align-items:center;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;">';
+          if (img) html += '<img src="' + esc(img) + '" style="width:60px;height:60px;border-radius:6px;object-fit:cover;" onerror="this.style.display=\'none\'">';
+          html += '<div style="flex:1;min-width:0;">';
+          html += '<div style="font-weight:600;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(item.title) + '</div>';
+          html += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Seller: ' + esc(item.sellerName || 'Unknown') + '</div>';
+          html += '</div>';
+          html += '<div style="text-align:right;">';
+          html += '<div style="font-weight:700;color:var(--gold);font-size:14px;">$' + price + ' CAD</div>';
+          html += '<button onclick="removeCartItem(\'' + esc(item.listingId) + '\')" style="margin-top:6px;background:none;border:none;color:var(--red,#ef4444);font-size:11px;cursor:pointer;text-decoration:underline;">Remove</button>';
+          html += '</div></div>';
+        });
+        html += '</div>';
+        // Summary
+        var subtotal = Number(data.data.summary.subtotalCad || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+        var shipping = Number(data.data.summary.shippingCad || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+        var total = Number(data.data.summary.totalCad || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+        html += '<div style="margin-top:16px;padding:14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);">';
+        html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);margin-bottom:6px;"><span>Subtotal</span><span>$' + subtotal + '</span></div>';
+        html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);margin-bottom:6px;"><span>Shipping</span><span>$' + shipping + '</span></div>';
+        html += '<div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:var(--gold);padding-top:8px;border-top:1px solid var(--border);"><span>Total</span><span>$' + total + ' CAD</span></div>';
+        html += '</div>';
+        html += '<button class="btn btn-gold" onclick="window.location.hash=\'#checkout\'" style="width:100%;margin-top:14px;padding:12px;font-size:14px;">Proceed to Checkout</button>';
+        container.innerHTML = html;
+      } else {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#128722;</div><h3>Your cart is empty</h3><p>Browse listings and add items to your cart.</p><button class="btn btn-gold" onclick="switchTab(\'browse\')" style="margin-top:10px;">Browse Listings</button></div>';
+      }
+    } catch(e) {
+      container.innerHTML = '<div class="empty-state"><h3>Failed to load cart</h3><p>Please try again.</p></div>';
+    }
+  }
+
+  // ─── Load Dashboard Orders ────────────────────────────────────
+  async function loadDashOrders() {
+    var token = getToken();
+    var container = document.getElementById('dash-orders-content');
+    if (!container) return;
+    if (!token) {
+      container.innerHTML = '<div class="empty-state"><h3>Sign in to view orders</h3><p><button onclick="showAuthPage()" class="btn btn-gold" style="margin-top:8px;">Sign In</button></p></div>';
+      return;
+    }
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#9678;</div><h3>Loading orders...</h3></div>';
+    try {
+      var resp = await fetchWithTimeout(API_BASE + '/v1/marketplace/orders/my?role=buyer&limit=20', { headers: { 'Authorization': 'Bearer ' + token } });
+      var data = await resp.json();
+      if (data.success && data.data.orders && data.data.orders.length > 0) {
+        var html = '<div style="display:flex;flex-direction:column;gap:10px;">';
+        data.data.orders.forEach(function(order) {
+          var statusColor = order.status === 'completed' ? '#34D399' : order.status === 'shipped' ? '#60A5FA' : order.status === 'disputed' ? '#EF4444' : '#D4A853';
+          var statusLabel = (order.status || 'pending').replace(/_/g, ' ');
+          var total = Number(order.totalCad || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+          var date = new Date(order.createdAt).toLocaleDateString();
+          var img = (order.items && order.items[0] && order.items[0].images && order.items[0].images[0]) ? order.items[0].images[0] : '';
+          var title = (order.items && order.items[0]) ? order.items[0].title : 'Order #' + (order.id || '').slice(0, 8);
+          html += '<div style="display:flex;gap:14px;align-items:center;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;cursor:pointer;" onclick="window.location.hash=\'#order/' + esc(order.id) + '\'">';
+          if (img) html += '<img src="' + esc(img) + '" style="width:50px;height:50px;border-radius:6px;object-fit:cover;" onerror="this.style.display=\'none\'">';
+          html += '<div style="flex:1;min-width:0;">';
+          html += '<div style="font-weight:600;font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(title) + '</div>';
+          html += '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + date + '</div>';
+          html += '</div>';
+          html += '<div style="text-align:right;">';
+          html += '<div style="font-weight:700;color:var(--gold);font-size:13px;">$' + total + '</div>';
+          html += '<span style="font-size:10px;font-weight:600;color:' + statusColor + ';text-transform:uppercase;">' + esc(statusLabel) + '</span>';
+          html += '</div></div>';
+        });
+        html += '</div>';
+        container.innerHTML = html;
+      } else {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#128230;</div><h3>No orders yet</h3><p>Your completed purchases will appear here.</p><button class="btn btn-gold" onclick="switchTab(\'browse\')" style="margin-top:10px;">Browse Listings</button></div>';
+      }
+    } catch(e) {
+      container.innerHTML = '<div class="empty-state"><h3>Failed to load orders</h3><p>Please try again.</p></div>';
+    }
+  }
 
   // ─── Load Watchlist Tab ────────────────────────────────────
   async function loadWatchlistTab() {
     var token = getToken();
-    var grid = document.getElementById('watchlist-grid');
+    var grid = document.getElementById('dash-watchlist-grid');
     if (!token) {
       grid.innerHTML = '<div class="empty-state"><h3>Sign in to view your watchlist</h3><p><button onclick="showAuthPage()" style="background:var(--gold);color:#000;border:none;padding:8px 20px;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;">Sign In</button></p></div>';
       return;
@@ -5982,7 +6080,7 @@
     clearTimeout(sessionTimer);
     sessionTimer = setTimeout(() => {
       if (getToken()) {
-        alert('Session expired due to inactivity.');
+        showToast('Session expired due to inactivity.', 'error');
         logout();
       }
     }, 30 * 60 * 1000);
@@ -6986,12 +7084,12 @@
       var data = await resp.json();
       if (data.success) {
         updateCartBadge();
-        alert('Added to cart!');
+        showToast('Added to cart!', 'success');
       } else {
-        alert(data.error || 'Failed to add to cart');
+        showToast(data.error || 'Failed to add to cart', 'error');
       }
     } catch(e) {
-      alert('Network error. Please try again.');
+      showToast('Network error. Please try again.', 'error');
     }
   };
 
@@ -7096,7 +7194,13 @@
         method: 'DELETE',
         headers: { 'Authorization': 'Bearer ' + token },
       });
-      showCartPage(); // Refresh
+      // Refresh whichever cart view is active
+      var dashCartSection = document.getElementById('dash-cart-section');
+      if (dashCartSection && dashCartSection.classList.contains('active')) {
+        loadDashCart();
+      } else {
+        showCartPage();
+      }
       updateCartBadge();
     } catch(e) {}
   };
@@ -7391,7 +7495,7 @@
     if (!token) return;
     var rating = parseInt(document.getElementById('rating-value').value);
     var comment = document.getElementById('rating-comment').value.trim();
-    if (rating < 1) { alert('Please select a rating'); return; }
+    if (rating < 1) { showToast('Please select a rating', 'error'); return; }
     try {
       var resp = await fetch(API_BASE + '/v1/marketplace/orders/' + orderId + '/rate', {
         method: 'POST',
@@ -7400,12 +7504,12 @@
       });
       var data = await resp.json();
       if (data.success) {
-        alert('Thank you for your rating!');
+        showToast('Thank you for your rating!', 'success');
         showOrderDetailPage(orderId);
       } else {
-        alert(data.error || 'Rating failed');
+        showToast(data.error || 'Rating failed', 'error');
       }
-    } catch(e) { alert('Network error'); }
+    } catch(e) { showToast('Network error', 'error'); }
   };
 
   window.confirmDelivery = async function(orderId) {
@@ -7419,12 +7523,12 @@
       });
       var data = await resp.json();
       if (data.success) {
-        alert('Delivery confirmed! Escrow settled.');
+        showToast('Delivery confirmed! Escrow settled.', 'success');
         showOrderDetailPage(orderId);
       } else {
-        alert(data.error || 'Confirmation failed');
+        showToast(data.error || 'Confirmation failed', 'error');
       }
-    } catch(e) { alert('Network error'); }
+    } catch(e) { showToast('Network error', 'error'); }
   };
 
   // ═══════════════════════════════════════════════════════════════
