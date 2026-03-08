@@ -4312,11 +4312,27 @@
     if (sendBtn) sendBtn.disabled = true;
 
     try {
-      await fetch(API_BASE + '/v1/marketplace/threads/' + msgActiveThreadId + '/messages', {
+      var resp = await fetch(API_BASE + '/v1/marketplace/threads/' + msgActiveThreadId + '/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
         body: JSON.stringify({ body: body }),
       });
+      var result = await resp.json();
+      if (!resp.ok || !result.success) {
+        input.value = body; // Restore message text
+        var errMsg = result.error || 'Failed to send message';
+        if (result.sanctionStatus) {
+          showToast(errMsg, 'error');
+        } else if (result.violation) {
+          showToast('Message blocked: ' + errMsg, 'error');
+        } else {
+          showToast(errMsg, 'error');
+        }
+        return;
+      }
+      if (result.warning) {
+        showToast(result.warning, 'warning');
+      }
       // Refresh thread view
       openThread(msgActiveThreadId);
     } catch(e) {
