@@ -3969,15 +3969,23 @@
             else sessionStorage.setItem('bt_user', JSON.stringify(user));
           }
         }
+        // Force-show app container (cold page load — no page visible yet)
+        var lp = document.getElementById('landing-page');
+        var ac = document.getElementById('app-container');
+        if (lp) { lp.style.transition = 'none'; lp.style.display = 'none'; }
+        if (ac) { ac.style.transition = 'none'; ac.style.opacity = '1'; ac.style.display = 'block'; }
+        updateAuthUI();
+        loadListings();
+        loadFeaturedStorefront();
+        fetchStats();
+        loadUserEngagement();
+        if (typeof updateCartBadge === 'function') updateCartBadge();
         // Show success
         var successBanner = document.getElementById('verify-success-banner');
         if (successBanner) successBanner.classList.add('show');
         var verifyBanner = document.getElementById('verify-banner');
         if (verifyBanner) verifyBanner.classList.remove('show');
         showToast('Email verified successfully!', 'success');
-        // Enter marketplace if not already there
-        enterMarketplace();
-        loadDashboard();
       } else {
         showToast(data.error || 'Verification failed', 'error');
       }
@@ -3986,8 +3994,8 @@
     }
   }
 
-  // Run verification check on load
-  handleEmailVerifyParam();
+  // NOTE: handleEmailVerifyParam() is called in the Init section below
+  // to avoid race conditions with the existing-token check.
 
   // ─── Auth State ──────────────────────────────────────────
   function updateAuthUI() {
@@ -6074,48 +6082,64 @@
   // ─── Init ──────────────────────────────────────────────────
   fetchStats();
 
-  const existingToken = getToken();
-  if (existingToken) {
-    fetch(`${API_BASE}/v1/auth/me`, {
-      headers: { 'Authorization': `Bearer ${existingToken}` }
-    }).then(r => r.json()).then(data => {
-      if (data.success) {
-        // Update user in whichever storage it lives in
-        var remember = !!localStorage.getItem('bt_token');
-        if (remember) localStorage.setItem('bt_user', JSON.stringify(data.data));
-        else sessionStorage.setItem('bt_user', JSON.stringify(data.data));
-        enterMarketplace();
-        loadDashboard();
-        loadThreads();
-      } else {
+  // Handle ?verify= param first (from email verification links).
+  // This is async — we await it so the token is stored before the
+  // existing-token check below runs, preventing double enterMarketplace().
+  (async function initAuth() {
+    var verifyHandled = false;
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('verify')) {
+      await handleEmailVerifyParam();
+      verifyHandled = true;
+    }
+
+    const existingToken = getToken();
+    if (existingToken && !verifyHandled) {
+      // Normal auto-login (no ?verify= param)
+      try {
+        var r = await fetch(`${API_BASE}/v1/auth/me`, {
+          headers: { 'Authorization': `Bearer ${existingToken}` }
+        });
+        var data = await r.json();
+        if (data.success) {
+          var remember = !!localStorage.getItem('bt_token');
+          if (remember) localStorage.setItem('bt_user', JSON.stringify(data.data));
+          else sessionStorage.setItem('bt_user', JSON.stringify(data.data));
+          enterMarketplace();
+          loadDashboard();
+          loadThreads();
+        } else {
+          sessionStorage.removeItem('bt_token');
+          sessionStorage.removeItem('bt_user');
+        }
+      } catch(e) {
         sessionStorage.removeItem('bt_token');
         sessionStorage.removeItem('bt_user');
       }
-    }).catch(() => {
-      sessionStorage.removeItem('bt_token');
-      sessionStorage.removeItem('bt_user');
-    });
-  }
-
-  // If no token but hash suggests marketplace page, enter as guest
-  // Skip fade animations — force immediate display to avoid opacity race conditions
-  if (!existingToken && window.location.hash) {
-    var guestHash = window.location.hash.substring(1);
-    if (['browse','cart','orders'].includes(guestHash) || guestHash.startsWith('store/') || guestHash.startsWith('listing/') || guestHash.startsWith('order/') || guestHash.startsWith('checkout')) {
-      // Force-show app container immediately (no fade)
-      var lp = document.getElementById('landing-page');
-      var ac = document.getElementById('app-container');
-      if (lp) { lp.style.transition = 'none'; lp.style.display = 'none'; }
-      if (ac) { ac.style.transition = 'none'; ac.style.opacity = '1'; ac.style.display = 'block'; }
-      updateAuthUI();
-      loadListings();
-      loadFeaturedStorefront();
-      fetchStats();
-      loadUserEngagement();
-      if (typeof updateCartBadge === 'function') updateCartBadge();
-      if (typeof window.onhashchange === 'function') window.onhashchange();
+    } else if (existingToken && verifyHandled) {
+      // Verify already called enterMarketplace(); just load extras
+      loadDashboard();
+      loadThreads();
     }
-  }
+
+    // If no token but hash suggests marketplace page, enter as guest
+    if (!getToken() && window.location.hash) {
+      var guestHash = window.location.hash.substring(1);
+      if (['browse','cart','orders'].includes(guestHash) || guestHash.startsWith('store/') || guestHash.startsWith('listing/') || guestHash.startsWith('order/') || guestHash.startsWith('checkout')) {
+        var lp = document.getElementById('landing-page');
+        var ac = document.getElementById('app-container');
+        if (lp) { lp.style.transition = 'none'; lp.style.display = 'none'; }
+        if (ac) { ac.style.transition = 'none'; ac.style.opacity = '1'; ac.style.display = 'block'; }
+        updateAuthUI();
+        loadListings();
+        loadFeaturedStorefront();
+        fetchStats();
+        loadUserEngagement();
+        if (typeof updateCartBadge === 'function') updateCartBadge();
+        if (typeof window.onhashchange === 'function') window.onhashchange();
+      }
+    }
+  })();
 
   // ─── eBay Store Import ────────────────────────────────────
   var _ebayImportPollTimer = null;
