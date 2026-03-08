@@ -225,6 +225,24 @@
       box-shadow: 0 2px 8px rgba(212, 168, 83, 0.3);
     }
 
+    .nav-status{display:flex;align-items:center;gap:6px;padding:5px 10px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.15);border-radius:20px;font-size:0.7rem;color:var(--green);font-weight:500;letter-spacing:0.02em}
+    .nav-status-dot{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:navPulse 2s ease-in-out infinite}
+    @keyframes navPulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+    /* Landing hamburger */
+    .landing-hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px;flex-direction:column;gap:4px;z-index:51}
+    .landing-hamburger span{display:block;width:20px;height:2px;background:var(--text-secondary);border-radius:2px;transition:all 0.3s ease}
+    .landing-hamburger.active span:nth-child(1){transform:rotate(45deg) translate(4px,4px)}
+    .landing-hamburger.active span:nth-child(2){opacity:0}
+    .landing-hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(4px,-4px)}
+
+    .landing-mobile-menu{display:none;position:fixed;top:56px;left:0;right:0;z-index:49;background:rgba(12,13,16,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transform:translateY(-100%);transition:transform 0.3s ease;pointer-events:none}
+    .landing-mobile-menu.open{transform:translateY(0);pointer-events:auto}
+    .landing-mobile-menu-inner{padding:16px 20px 20px;display:flex;flex-direction:column;gap:2px}
+    .landing-mobile-menu-inner a{color:var(--text-secondary);font-size:0.9rem;font-weight:500;text-decoration:none;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.04);transition:color 0.15s}
+    .landing-mobile-menu-inner a:hover,.landing-mobile-menu-inner a:active{color:var(--text)}
+    .landing-mobile-menu-inner a:last-of-type{border-bottom:none}
+
     /* Hero */
     .hero {
       flex: 1;
@@ -1507,9 +1525,9 @@
       .hero-actions { flex-direction: column; width: 100%; }
       .hero-actions .btn { width: 100%; }
       .landing-nav { padding: 12px 16px; }
-      .nav-links { gap: 4px; }
-      .nav-links a { padding: 6px 8px; font-size: 11px; }
-      .nav-links .btn-primary { padding: 6px 12px; font-size: 11px; }
+      .landing-nav .nav-links{display:none !important}
+      .landing-hamburger{display:flex}
+      .landing-mobile-menu{display:block}
       .app-content { padding: 12px; }
       .footer-grid { grid-template-columns: 1fr; gap: 20px; }
       .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
@@ -1650,8 +1668,7 @@
       .stat-label { font-size: 8px; }
       .brand-b { display: none; }
       .brand::after { display: none; }
-      .nav-links a:not(.btn-primary) { display: none; }
-      .nav-links .btn-primary { padding: 6px 12px; font-size: 11px; }
+      .landing-mobile-menu{top:48px}
       .features-section { padding: 32px 12px; }
       .feature-card { padding: 16px; }
       .cta-section { padding: 32px 12px; }
@@ -2517,12 +2534,33 @@
       <span class="brand-t">Terminal</span>
     </a>
     <div class="nav-links">
-      <a href="https://borealisprotocol.ai">Protocol</a>
-      <a href="https://borealismark.com">BorealisMark</a>
-      <a href="javascript:void(0)" onclick="enterMarketplace();return false;">Browse</a>
+      <a href="https://borealisprotocol.ai" target="_blank" rel="noopener noreferrer">Protocol</a>
+      <a href="https://borealismark.com" target="_blank" rel="noopener noreferrer">BorealisMark</a>
       <a href="javascript:void(0)" class="btn-primary" onclick="showAuthPage();return false;">Sign In</a>
+      <div class="nav-status">
+        <div class="nav-status-dot"></div>
+        <span>Hedera Mainnet</span>
+      </div>
     </div>
+    <button class="landing-hamburger" id="landingHamburger" onclick="toggleLandingMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+  <!-- Mobile slide-out menu -->
+  <div class="landing-mobile-menu" id="landingMobileMenu">
+    <div class="landing-mobile-menu-inner">
+      <a href="https://borealisprotocol.ai" target="_blank" rel="noopener noreferrer" onclick="toggleLandingMenu()">Protocol</a>
+      <a href="https://borealismark.com" target="_blank" rel="noopener noreferrer" onclick="toggleLandingMenu()">BorealisMark</a>
+      <a href="javascript:void(0)" onclick="toggleLandingMenu();enterMarketplace();">Browse Marketplace</a>
+      <div style="padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);margin-top:4px;">
+        <a class="btn-primary" href="javascript:void(0)" onclick="toggleLandingMenu();showAuthPage();" style="display:inline-block;text-align:center;width:100%;padding:10px;border-radius:6px;text-decoration:none;">Sign In</a>
+      </div>
+      <div class="nav-status" style="justify-content:center;margin-top:12px;">
+        <div class="nav-status-dot"></div>
+        <span>Hedera Mainnet</span>
+      </div>
+    </div>
+  </div>
 
   <section class="hero">
     <div class="hero-badge">Live on Hedera</div>
@@ -3743,6 +3781,25 @@
     showPage('auth');
     setTimeout(() => document.getElementById('auth-email').focus(), 350);
   };
+
+  // Landing page mobile menu toggle
+  window.toggleLandingMenu = function() {
+    const hamburger = document.getElementById('landingHamburger');
+    const menu = document.getElementById('landingMobileMenu');
+    if (!hamburger || !menu) return;
+    hamburger.classList.toggle('active');
+    menu.classList.toggle('open');
+    document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+  };
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 768) {
+      const hamburger = document.getElementById('landingHamburger');
+      const menu = document.getElementById('landingMobileMenu');
+      if (hamburger) hamburger.classList.remove('active');
+      if (menu) menu.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
 
   window.enterMarketplace = function() {
     showPage('app');
