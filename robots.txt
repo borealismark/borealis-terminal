@@ -1,0 +1,14 @@
+# Borealis Terminal Marketplace - robots.txt
+# Allow all crawlers to index the marketplace
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /.
+
+# Sitemap location
+Sitemap: https://borealisterminal.com/sitemap.xml
+
+# Crawler delays (optional - helps reduce server load)
+Crawl-delay: 1
+Request-rate: 1/2s
