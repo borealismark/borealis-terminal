@@ -187,6 +187,50 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
 .cm-discard{background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 16px;color:var(--text-secondary);cursor:pointer;font-size:13px;transition:all .12s}
 .cm-discard:hover{background:var(--bg-hover);color:var(--text-primary)}
 
+/* ─── Verification Panel ─── */
+.verif-view{display:none;flex:1;flex-direction:column;overflow:hidden}
+.verif-view.active{display:flex}
+.verif-header{padding:20px 28px 16px;border-bottom:1px solid var(--border);background:var(--bg-raised);display:flex;align-items:center;gap:16px;flex-shrink:0}
+.verif-header h2{font-size:18px;font-weight:700;color:var(--text-primary)}
+.verif-header .verif-count{font-size:12px;background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border);border-radius:10px;padding:2px 10px;font-weight:600}
+.verif-filter-bar{display:flex;gap:8px;margin-left:auto}
+.verif-filter{background:transparent;border:1px solid var(--border);border-radius:var(--radius-xs);padding:6px 14px;color:var(--text-secondary);cursor:pointer;font-size:12px;font-weight:500;transition:all .12s}
+.verif-filter:hover{background:var(--bg-hover);color:var(--text-primary)}
+.verif-filter.active{background:var(--gold-dim);color:var(--gold);border-color:var(--gold-border)}
+.verif-list{flex:1;overflow-y:auto;padding:16px 28px}
+.verif-card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px;transition:border-color .15s}
+.verif-card:hover{border-color:var(--border-light)}
+.verif-card-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.verif-avatar{width:36px;height:36px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--gold);flex-shrink:0}
+.verif-user-info{flex:1;min-width:0}
+.verif-user-name{font-size:14px;font-weight:600;color:var(--text-primary)}
+.verif-user-email{font-size:12px;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+.verif-type-badge{font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;padding:3px 10px;border-radius:8px}
+.verif-type-badge.social{background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue-border)}
+.verif-type-badge.govid{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(167,139,250,0.2)}
+.verif-type-badge.email{background:var(--emerald-dim);color:var(--emerald);border:1px solid var(--emerald-border)}
+.verif-detail-row{display:flex;gap:24px;margin-bottom:10px;flex-wrap:wrap}
+.verif-detail{font-size:12px;color:var(--text-secondary)}
+.verif-detail span{color:var(--text-muted);margin-right:6px}
+.verif-code{font-family:'JetBrains Mono',monospace;background:var(--bg-input);padding:2px 8px;border-radius:4px;color:var(--gold);font-weight:600}
+.verif-profile-link{color:var(--blue);text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12px}
+.verif-profile-link:hover{text-decoration:underline}
+.verif-aurora-note{background:var(--bg-input);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius-xs);padding:10px 14px;margin:10px 0;font-size:12px;color:var(--text-secondary);line-height:1.5}
+.verif-aurora-note .aurora-label{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;display:block}
+.verif-actions{display:flex;gap:10px;margin-top:14px;align-items:center}
+.verif-approve{background:var(--emerald);color:var(--bg);border:none;border-radius:var(--radius-xs);padding:8px 20px;font-weight:600;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:opacity .15s}
+.verif-approve:hover{opacity:.85}
+.verif-approve:disabled{opacity:.5;cursor:not-allowed}
+.verif-reject{background:var(--red);color:#fff;border:none;border-radius:var(--radius-xs);padding:8px 20px;font-weight:600;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:opacity .15s}
+.verif-reject:hover{opacity:.85}
+.verif-reject:disabled{opacity:.5;cursor:not-allowed}
+.verif-notes-input{flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-xs);padding:8px 12px;color:var(--text-primary);font-size:12px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s}
+.verif-notes-input:focus{border-color:var(--gold)}
+.verif-notes-input::placeholder{color:var(--text-faint)}
+.verif-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 40px;color:var(--text-faint);gap:12px;text-align:center}
+.verif-empty svg{width:48px;height:48px;opacity:.3}
+.verif-timestamp{font-size:11px;color:var(--text-faint);font-family:'JetBrains Mono',monospace;margin-left:auto}
+
 /* ─── Loader ─── */
 .loader{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text-faint)}
 .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin-right:10px}
@@ -260,6 +304,13 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
             Trash <span class="badge" id="badge-trash" style="display:none">0</span>
           </div>
         </div>
+        <div class="nav-section">
+          <div class="nav-section-label">Admin Tools</div>
+          <div class="nav-item" data-view="verifications" onclick="switchToVerifications()">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg>
+            Verifications <span class="badge" id="badge-verifications" style="display:none">0</span>
+          </div>
+        </div>
         <div class="nav-section" id="labels-section">
           <div class="nav-section-label">Labels</div>
         </div>
@@ -293,7 +344,7 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
         </div>
       </div>
 
-      <div class="split-view">
+      <div class="split-view" id="mail-split-view">
         <!-- Email List -->
         <div class="email-list" id="email-list">
           <div class="loader" id="list-loader"><div class="spinner"></div> Loading...</div>
@@ -307,6 +358,24 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
           </div>
         </div>
       </div>
+
+      <!-- Verification Review Panel -->
+      <div class="verif-view" id="verif-view">
+        <div class="verif-header">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg>
+          <h2>Verification Review</h2>
+          <span class="verif-count" id="verif-total">0 pending</span>
+          <div class="verif-filter-bar">
+            <button class="verif-filter active" data-vtype="all" onclick="filterVerifications('all')">All</button>
+            <button class="verif-filter" data-vtype="social_media" onclick="filterVerifications('social_media')">Social</button>
+            <button class="verif-filter" data-vtype="government_id" onclick="filterVerifications('government_id')">Gov ID</button>
+          </div>
+        </div>
+        <div class="verif-list" id="verif-list">
+          <div class="loader"><div class="spinner"></div> Loading verifications...</div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -444,6 +513,7 @@ async function init() {
   loadStats();
   loadLabels();
   loadList();
+  loadVerifCount();
 }
 
 // ─── Stats ──────────────────────────────────────────────────────────────────
@@ -491,6 +561,7 @@ async function loadLabels() {
 // ─── Folder Navigation ─────────────────────────────────────────────────────
 
 function switchFolder(folder) {
+  if (typeof currentView !== 'undefined' && currentView === 'verifications') switchToMail();
   currentFolder = folder;
   currentSearch = '';
   currentOffset = 0;
@@ -504,6 +575,7 @@ function switchFolder(folder) {
 }
 
 function switchLabel(name) {
+  if (typeof currentView !== 'undefined' && currentView === 'verifications') switchToMail();
   currentFolder = 'all';
   currentSearch = '';
   currentOffset = 0;
@@ -780,6 +852,218 @@ async function bulkAction(action) {
   document.getElementById('select-all').checked = false;
   toast(`${action} applied`, 'success');
   loadList(); loadStats();
+}
+
+// ─── Verification Panel ─────────────────────────────────────────────────────
+
+let verifData = [];
+let verifFilter = 'all';
+let currentView = 'mail'; // 'mail' or 'verifications'
+
+function switchToVerifications() {
+  currentView = 'verifications';
+  // Update nav highlights
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector('.nav-item[data-view="verifications"]').classList.add('active');
+  // Toggle views
+  document.getElementById('mail-split-view').style.display = 'none';
+  document.querySelector('.toolbar').style.display = 'none';
+  document.getElementById('verif-view').classList.add('active');
+  loadVerifications();
+}
+
+function switchToMail() {
+  currentView = 'mail';
+  document.getElementById('verif-view').classList.remove('active');
+  document.getElementById('mail-split-view').style.display = 'flex';
+  document.querySelector('.toolbar').style.display = 'flex';
+}
+
+// Note: switchFolder and switchLabel are patched inline to call switchToMail() when in verifications view
+
+async function loadVerifications() {
+  const list = document.getElementById('verif-list');
+  list.innerHTML = '<div class="loader"><div class="spinner"></div> Loading verifications...</div>';
+
+  try {
+    const url = verifFilter === 'all'
+      ? '/v1/verification/admin/pending'
+      : `/v1/verification/admin/pending?type=${verifFilter}`;
+    const data = await apiFetch(url);
+
+    if (!data.success) {
+      list.innerHTML = '<div class="verif-empty"><p>Failed to load verifications</p></div>';
+      return;
+    }
+
+    verifData = data.data || [];
+    document.getElementById('verif-total').textContent = `${verifData.length} pending`;
+    setBadge('verifications', verifData.length);
+    renderVerifications();
+  } catch (e) {
+    list.innerHTML = '<div class="verif-empty"><p>Connection error</p></div>';
+  }
+}
+
+function filterVerifications(type) {
+  verifFilter = type;
+  document.querySelectorAll('.verif-filter').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.verif-filter[data-vtype="${type}"]`).classList.add('active');
+  loadVerifications();
+}
+
+function renderVerifications() {
+  const list = document.getElementById('verif-list');
+
+  if (verifData.length === 0) {
+    list.innerHTML = `<div class="verif-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg>
+      <p>No pending verifications</p>
+      <span style="font-size:12px">All verification requests have been reviewed</span>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = '';
+  verifData.forEach(v => {
+    const card = document.createElement('div');
+    card.className = 'verif-card';
+    card.id = `verif-card-${v.id}`;
+
+    const avatar = (v.userName || v.userEmail || '?')[0].toUpperCase();
+    const typeLabel = v.verificationType === 'social_media' ? 'Social Media' : v.verificationType === 'government_id' ? 'Government ID' : v.verificationType;
+    const typeClass = v.verificationType === 'social_media' ? 'social' : v.verificationType === 'government_id' ? 'govid' : 'email';
+    const submitted = new Date(v.submittedAt).toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    const platformDisplay = v.platform ? v.platform.charAt(0).toUpperCase() + v.platform.slice(1) : '';
+
+    let detailsHtml = '';
+
+    if (v.verificationType === 'social_media') {
+      detailsHtml = `
+        <div class="verif-detail-row">
+          <div class="verif-detail"><span>Platform:</span> ${esc(platformDisplay)}</div>
+          ${v.verificationCode ? `<div class="verif-detail"><span>Code:</span> <span class="verif-code">${esc(v.verificationCode)}</span></div>` : ''}
+          ${v.profileUrl ? `<div class="verif-detail"><span>Profile:</span> <a href="${esc(v.profileUrl)}" target="_blank" rel="noopener" class="verif-profile-link">${esc(v.profileUrl)}</a></div>` : ''}
+        </div>`;
+    } else if (v.verificationType === 'government_id') {
+      let meta = {};
+      try { meta = JSON.parse(v.metadata || '{}'); } catch {}
+      detailsHtml = `
+        <div class="verif-detail-row">
+          ${meta.documentType ? `<div class="verif-detail"><span>Document:</span> ${esc(meta.documentType)}</div>` : ''}
+          ${meta.country ? `<div class="verif-detail"><span>Country:</span> ${esc(meta.country)}</div>` : ''}
+          ${meta.documentId ? `<div class="verif-detail"><span>Doc ID:</span> <span class="verif-code">${esc(meta.documentId)}</span></div>` : ''}
+        </div>`;
+    }
+
+    // Aurora note — generate contextual insight
+    const auroraNoteText = generateAuroraNote(v);
+
+    card.innerHTML = `
+      <div class="verif-card-header">
+        <div class="verif-avatar">${avatar}</div>
+        <div class="verif-user-info">
+          <div class="verif-user-name">${esc(v.userName || 'Unknown User')}</div>
+          <div class="verif-user-email">${esc(v.userEmail || v.userId)}</div>
+        </div>
+        <span class="verif-type-badge ${typeClass}">${typeLabel}</span>
+        <span class="verif-timestamp">${submitted}</span>
+      </div>
+      ${detailsHtml}
+      ${auroraNoteText ? `<div class="verif-aurora-note"><span class="aurora-label">Aurora Note</span>${esc(auroraNoteText)}</div>` : ''}
+      <div class="verif-actions">
+        <input type="text" class="verif-notes-input" id="verif-notes-${v.id}" placeholder="Admin notes (optional)...">
+        <button class="verif-approve" onclick="reviewVerification('${v.id}','approved')">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg>
+          Approve
+        </button>
+        <button class="verif-reject" onclick="reviewVerification('${v.id}','rejected')">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Reject
+        </button>
+      </div>`;
+
+    list.appendChild(card);
+  });
+}
+
+function generateAuroraNote(v) {
+  // Generate contextual notes for admins based on verification data
+  const age = Date.now() - v.submittedAt;
+  const hours = Math.floor(age / 3600000);
+  const days = Math.floor(hours / 24);
+
+  let note = '';
+
+  if (v.verificationType === 'social_media') {
+    if (v.profileUrl) {
+      note = `Social media verification via ${v.platform || 'unknown'}. User submitted profile URL for code placement. `;
+    } else {
+      note = `Social media verification initiated but no profile URL provided yet. `;
+    }
+    if (v.verificationCode) {
+      note += `Verification code ${v.verificationCode} was generated. Please confirm code is visible on the user's public profile before approving.`;
+    }
+  } else if (v.verificationType === 'government_id') {
+    let meta = {};
+    try { meta = JSON.parse(v.metadata || '{}'); } catch {}
+    note = `Government ID document submitted${meta.documentType ? ` (${meta.documentType})` : ''}${meta.country ? ` from ${meta.country}` : ''}. `;
+    note += 'Review document authenticity carefully. This grants +30 trust points upon approval.';
+  }
+
+  if (days > 3) {
+    note += ` This request has been pending for ${days} days — consider prioritizing.`;
+  } else if (hours > 24) {
+    note += ` Submitted ${days} day${days > 1 ? 's' : ''} ago.`;
+  }
+
+  return note;
+}
+
+async function reviewVerification(id, decision) {
+  const notesInput = document.getElementById(`verif-notes-${id}`);
+  const notes = notesInput ? notesInput.value.trim() : '';
+  const card = document.getElementById(`verif-card-${id}`);
+
+  // Disable buttons
+  const btns = card.querySelectorAll('button');
+  btns.forEach(b => b.disabled = true);
+
+  try {
+    const data = await apiFetch('/v1/verification/admin/review', {
+      method: 'POST',
+      body: JSON.stringify({ verificationId: id, decision, notes: notes || undefined }),
+    });
+
+    if (data.success) {
+      const d = data.data;
+      toast(`Verification ${decision}. User trust: ${d.newTrustScore} (${d.newTrustLevel})`, 'success');
+      // Animate card removal
+      card.style.transition = 'opacity 0.3s, transform 0.3s';
+      card.style.opacity = '0';
+      card.style.transform = 'translateX(20px)';
+      setTimeout(() => {
+        verifData = verifData.filter(v => v.id !== id);
+        document.getElementById('verif-total').textContent = `${verifData.length} pending`;
+        setBadge('verifications', verifData.length);
+        renderVerifications();
+      }, 300);
+    } else {
+      toast(data.error || 'Review failed', 'error');
+      btns.forEach(b => b.disabled = false);
+    }
+  } catch (e) {
+    toast('Connection error', 'error');
+    btns.forEach(b => b.disabled = false);
+  }
+}
+
+// Load verification count on init for badge
+async function loadVerifCount() {
+  try {
+    const data = await apiFetch('/v1/verification/admin/pending');
+    if (data.success) setBadge('verifications', (data.data || []).length);
+  } catch {}
 }
 
 // ─── Search ─────────────────────────────────────────────────────────────────
