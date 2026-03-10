@@ -411,10 +411,8 @@
 
     /* Scroll indicator */
     .scroll-indicator {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
+      position: relative;
+      margin-top: 32px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -443,8 +441,8 @@
     }
 
     @keyframes scrollBounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(8px); }
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
     }
 
     .btn {
