@@ -9922,7 +9922,7 @@
         notifSSE.onmessage = function(e) {
           try {
             var data = JSON.parse(e.data);
-            if (data.type === 'notification') {
+            if (data.event === 'notification') {
               notifCache.unshift(data);
               var panel = document.getElementById('notif-panel');
               if (panel && panel.classList.contains('open')) renderNotifications(notifCache);
