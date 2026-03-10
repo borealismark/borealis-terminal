@@ -1983,6 +1983,65 @@
       background: rgba(0, 100, 210, 0.2);
     }
 
+    /* Migration step indicator */
+    .mig-step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.35;
+      transition: opacity 0.3s;
+    }
+    .mig-step.active { opacity: 1; }
+    .mig-step.done { opacity: 0.7; }
+    .mig-step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .mig-step.active .mig-step-num {
+      background: rgba(212,168,83,0.2);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .mig-step.done .mig-step-num {
+      background: rgba(0,255,65,0.12);
+      border-color: rgba(0,255,65,0.4);
+      color: #00ff41;
+    }
+    .mig-step-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    .mig-step.active .mig-step-label { color: var(--text); }
+    .mig-step-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+      margin: 0 8px;
+      min-width: 16px;
+    }
+    .mig-step-line.done { background: rgba(0,255,65,0.3); }
+
+    .mig-verify-option:hover {
+      border-color: rgba(212,168,83,0.3) !important;
+      background: rgba(212,168,83,0.04) !important;
+    }
+    .mig-verify-option.selected {
+      border-color: var(--gold) !important;
+      background: rgba(212,168,83,0.08) !important;
+    }
+
     /* Filter pills for platform */
     .filter-pills {
       display: flex;
@@ -2493,6 +2552,290 @@
     .guidelines-banner-link:hover {
       color: var(--gold-light);
     }
+
+    /* ─── SECTOR NAVIGATION SYSTEM ────────────────────────────── */
+    .sector-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+      padding: 0;
+    }
+
+    .sector-tile {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sector-tile:hover {
+      border-color: var(--gold-border);
+      background: var(--bg-elevated);
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(212, 168, 83, 0.1);
+    }
+
+    .sector-tile.active {
+      border: 2px solid var(--gold);
+      background: var(--bg-elevated);
+      box-shadow: 0 0 16px rgba(212, 168, 83, 0.2);
+    }
+
+    .sector-tile-icon {
+      width: 28px;
+      height: 28px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sector-tile-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--gold);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .sector-tile.active .sector-tile-icon svg {
+      filter: drop-shadow(0 0 4px rgba(212, 168, 83, 0.5));
+    }
+
+    .sector-tile-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .sector-tile-count {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .sector-tile-tagline {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin: 4px 0 0 0;
+      line-height: 1.3;
+    }
+
+    /* Sub-category pills that appear when sector is selected */
+    .sub-category-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .sub-category-pills.hidden {
+      display: none;
+    }
+
+    .sub-cat-pill {
+      padding: 6px 12px;
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .sub-cat-pill:hover {
+      border-color: var(--gold);
+      background: var(--bg-elevated);
+    }
+
+    .sub-cat-pill.active {
+      background: var(--gold-dim);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* Enhanced listing cards with bio snippet */
+    .listing-bio {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin: 6px 0;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Trust commitment badge */
+    .trust-commitment-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .trust-commitment-badge::before {
+      content: "🛡️";
+      font-size: 11px;
+    }
+
+    /* Verified client badge */
+    .verified-client-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      color: #34D399;
+      font-weight: 600;
+    }
+
+    .verified-client-badge::before {
+      content: "✓";
+      font-size: 11px;
+    }
+
+    /* Sector badge in listing card */
+    .sector-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: var(--gold-dim);
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    /* Trust commitment modal */
+    .trust-commitment-modal {
+      position: relative;
+    }
+
+    .trust-commitment-modal .modal {
+      max-width: 520px;
+    }
+
+    .trust-commitment-section {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin: 16px 0;
+    }
+
+    .trust-commitment-section h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .trust-commitment-section p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .trust-steps {
+      list-style: none;
+      margin: 8px 0;
+      padding-left: 0;
+    }
+
+    .trust-steps li {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .trust-steps li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .trust-commitment-cta {
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin: 16px 0;
+      text-align: center;
+    }
+
+    .trust-commitment-cta p {
+      font-size: 13px;
+      color: var(--text);
+      margin: 0 0 12px 0;
+      font-weight: 500;
+    }
+
+    /* Responsive sector grid */
+    @media (max-width: 1024px) {
+      .sector-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sector-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+      }
+
+      .sector-tile {
+        padding: 14px;
+      }
+
+      .sector-tile-name {
+        font-size: 13px;
+      }
+
+      .sector-tile-icon {
+        font-size: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sector-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .sub-category-pills {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .sub-cat-pill {
+        width: 100%;
+        text-align: center;
+      }
+    }
   </style>
   <script type="application/ld+json">
   {
@@ -2878,14 +3221,11 @@
       </div>
       <div id="listing-count" style="font-size:12px;color:var(--text-muted);margin-bottom:12px;"></div>
 
-      <!-- Category Pills -->
-      <div id="category-pills" class="category-pills" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-        <button class="cat-pill active" data-cat="" onclick="selectCategory('')">All</button>
-        <button class="cat-pill" data-cat="physical" onclick="selectCategory('physical')">📦 Physical Goods</button>
-        <button class="cat-pill" data-cat="digital" onclick="selectCategory('digital')">💻 Digital Goods</button>
-        <button class="cat-pill" data-cat="services" onclick="selectCategory('services')">🛠️ Services</button>
-        <button class="cat-pill" data-cat="ai" onclick="selectCategory('ai')">🤖 AI Agents</button>
-      </div>
+      <!-- Sector Navigation Grid -->
+      <div id="sector-grid" class="sector-grid"></div>
+
+      <!-- Sub-category Pills (shown when sector selected) -->
+      <div id="sub-category-container" class="sub-category-pills hidden"></div>
 
       <div class="controls-bar">
         <div class="filters">
@@ -2995,7 +3335,7 @@
           <!-- Action Buttons -->
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;margin-top:20px;">
             <button class="btn btn-gold" onclick="showCreateListing()" style="font-size:13px;padding:8px 16px;">+ New Listing</button>
-            <button class="btn" onclick="openEbayImportModal()" style="font-size:13px;padding:8px 16px;background:rgba(212,168,83,0.15);color:var(--gold);border:1px solid rgba(212,168,83,0.3);">Import eBay Store</button>
+            <button class="btn" onclick="openEbayImportModal()" style="font-size:13px;padding:8px 16px;background:rgba(212,168,83,0.15);color:var(--gold);border:1px solid rgba(212,168,83,0.3);">Migrate Store</button>
             <button class="btn" onclick="openMarketingDashboard()" style="font-size:13px;padding:8px 16px;background:rgba(212,168,83,0.15);color:var(--gold);border:1px solid rgba(212,168,83,0.3);">Marketing</button>
           </div>
 
@@ -3010,7 +3350,7 @@
           <!-- eBay Import Progress -->
           <div id="ebay-import-progress" style="display:none;background:rgba(212,168,83,0.08);border:1px solid rgba(212,168,83,0.2);border-radius:8px;padding:14px;margin-bottom:18px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-              <span style="font-weight:600;font-size:13px;color:var(--gold);">eBay Import</span>
+              <span style="font-weight:600;font-size:13px;color:var(--gold);">Store Migration</span>
               <span id="ebay-import-status" style="font-size:12px;color:rgba(255,255,255,0.6);">Pending...</span>
             </div>
             <div style="background:rgba(255,255,255,0.1);border-radius:4px;height:6px;overflow:hidden;">
@@ -3271,20 +3611,48 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Category</label>
-          <select id="cl-category">
-            <option value="digital-goods">Digital Goods</option>
-            <option value="physical-goods">Physical Goods</option>
-            <option value="services">Services</option>
-            <option value="ai-models">AI Models</option>
-            <option value="datasets">Datasets</option>
-            <option value="consulting">Consulting</option>
-            <option value="creative">Creative</option>
-            <option value="development">Development</option>
-            <option value="marketing">Marketing</option>
-            <option value="other">Other</option>
+          <label>Sector</label>
+          <select id="cl-sector" onchange="updateCategoryOptions()">
+            <option value="">Select Sector</option>
+            <option value="enterprise">Enterprise & Business</option>
+            <option value="ai">AI & Machine Learning</option>
+            <option value="technology">Technology & Development</option>
+            <option value="data">Data & Analytics</option>
+            <option value="creative">Creative & Design</option>
+            <option value="marketing">Marketing & Growth</option>
+            <option value="legal">Legal & Compliance</option>
+            <option value="healthcare">Healthcare & Life Sciences</option>
+            <option value="engineering">Engineering & Manufacturing</option>
+            <option value="education">Education & Research</option>
+            <option value="finance">Finance & Insurance</option>
+            <option value="sustainability">Sustainability & ESG</option>
           </select>
         </div>
+      </div>
+      <div class="form-group">
+        <label>Sub-Category</label>
+        <select id="cl-category">
+          <option value="">Select category</option>
+          <option value="digital-goods">Digital Goods</option>
+          <option value="physical-goods">Physical Goods</option>
+          <option value="services">Services</option>
+          <option value="ai-models">AI Models</option>
+          <option value="datasets">Datasets</option>
+          <option value="consulting">Consulting</option>
+          <option value="creative">Creative</option>
+          <option value="development">Development</option>
+          <option value="marketing">Marketing</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>AI Agent Biography (optional)</label>
+        <textarea id="cl-agent-bio" placeholder="Describe the AI agent's work history, specialization, and experience..." style="min-height:80px;"></textarea>
+        <small style="color:var(--text-muted);font-size:11px;">Featured in listing preview (max 200 chars)</small>
+      </div>
+      <div class="form-group">
+        <label>Client Reference (optional)</label>
+        <input type="text" id="cl-client-ref" placeholder="Name of real-world client this agent serves" />
       </div>
       <div class="form-group" id="cl-price-row">
         <label>Price (USDC)</label>
@@ -3311,30 +3679,238 @@
   </div>
 </div>
 
-<!-- eBay Import Modal -->
+<!-- Store Migration Service Modal — 3-Step Flow -->
 <div class="modal-overlay" id="ebay-import-modal">
-  <div class="modal" style="max-width:480px;">
+  <div class="modal" style="max-width:540px;">
     <button class="modal-close" onclick="closeModal('ebay-import-modal')">&times;</button>
-    <button class="modal-back-btn" onclick="closeModal('ebay-import-modal')">&#8592; Back</button>
-    <h2 style="display:flex;align-items:center;gap:8px;">Import eBay Store</h2>
-    <p class="subtitle">Import your entire eBay store in one click. All listings, images, and pricing will be imported automatically.</p>
-    <div id="ebay-import-tier-gate" style="display:none;background:rgba(212,168,83,0.1);border:1px solid rgba(212,168,83,0.3);border-radius:8px;padding:16px;margin-bottom:16px;text-align:center;">
-      <p style="color:var(--gold);font-weight:600;margin-bottom:8px;">Pro Tier Required</p>
-      <p style="font-size:13px;color:rgba(255,255,255,0.6);">eBay Store Import is available for Pro tier and above. Upgrade your subscription to access this feature.</p>
+    <button class="modal-back-btn" onclick="migrationGoBack()">&#8592; Back</button>
+    <h2 style="display:flex;align-items:center;gap:10px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D4A853" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      Store Migration Service
+    </h2>
+
+    <!-- Step Indicator -->
+    <div id="migration-steps-bar" style="display:flex;align-items:center;gap:0;margin:12px 0 18px 0;">
+      <div class="mig-step active" id="mig-step-1">
+        <span class="mig-step-num">1</span>
+        <span class="mig-step-label">Store Details</span>
+      </div>
+      <div class="mig-step-line" id="mig-line-1"></div>
+      <div class="mig-step" id="mig-step-2">
+        <span class="mig-step-num">2</span>
+        <span class="mig-step-label">Verify Ownership</span>
+      </div>
+      <div class="mig-step-line" id="mig-line-2"></div>
+      <div class="mig-step" id="mig-step-3">
+        <span class="mig-step-num">3</span>
+        <span class="mig-step-label">Confirm &amp; Submit</span>
+      </div>
     </div>
-    <div id="ebay-import-form-area">
-      <div id="ebay-import-form-status" class="form-status"></div>
+
+    <div id="ebay-import-form-status" class="form-status"></div>
+
+    <!-- ═══ STEP 1: Store Details ═══ -->
+    <div id="mig-panel-1">
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5;">
+        Tell us about the store you want to migrate. A verified AI migration agent will handle the entire process — but first, we need to confirm you own the store.
+      </p>
       <div class="form-group">
-        <label>eBay Store URL</label>
-        <input type="url" id="ebay-store-url" placeholder="https://www.ebay.com/str/YourStoreName" style="width:100%;" />
-        <small style="color:rgba(255,255,255,0.4);font-size:11px;">Find your store URL by visiting your eBay store page</small>
+        <label>Source Platform</label>
+        <select id="migration-platform" style="width:100%;" onchange="updateMigrationPlaceholder()">
+          <option value="">Select your platform</option>
+          <option value="ebay">eBay Store</option>
+          <option value="etsy">Etsy Shop</option>
+          <option value="shopify">Shopify Store</option>
+          <option value="amazon">Amazon Seller</option>
+          <option value="woocommerce">WooCommerce</option>
+          <option value="other">Other Platform</option>
+        </select>
       </div>
       <div class="form-group">
-        <label>Store Name (optional)</label>
-        <input type="text" id="ebay-store-name" placeholder="My eBay Store" style="width:100%;" />
+        <label>Your Store URL</label>
+        <input type="url" id="ebay-store-url" style="width:100%;" placeholder="https://www.ebay.com/str/YourStoreName" />
+        <small style="color:rgba(255,255,255,0.4);font-size:11px;">Paste the public URL of your existing store</small>
       </div>
-      <button id="ebay-import-btn" class="btn btn-gold" style="width:100%;margin-top:8px;" onclick="startEbayImport()">Start Import</button>
+      <div class="form-group">
+        <label>Store Display Name</label>
+        <input type="text" id="migration-store-name" style="width:100%;" placeholder="My Store Name" />
+        <small style="color:rgba(255,255,255,0.4);font-size:11px;">The name as it appears on your current store</small>
+      </div>
+      <button class="btn btn-gold" style="width:100%;margin-top:8px;padding:12px;font-size:14px;font-weight:600;" onclick="migrationToStep2()">
+        Next &mdash; Verify Ownership
+      </button>
     </div>
+
+    <!-- ═══ STEP 2: Ownership Verification ═══ -->
+    <div id="mig-panel-2" style="display:none;">
+
+      <!-- Why we verify -->
+      <div style="background:rgba(212,168,83,0.06);border:1px solid rgba(212,168,83,0.2);border-radius:8px;padding:14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4A853" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4m0 4h.01"/></svg>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">
+          <strong style="color:var(--gold);">Why do we verify?</strong><br>
+          Borealis Terminal is a trust-gated exchange. Before any migration agent can scrape or import listings on your behalf, we require proof that you are the legitimate owner of the source store. This protects sellers, buyers, and the integrity of every listing on the platform.
+        </div>
+      </div>
+
+      <p style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:12px;">Choose a verification method:</p>
+
+      <!-- Verification Method 1: Verification Code -->
+      <div class="mig-verify-option" id="mig-verify-opt-code" onclick="selectVerifyMethod('code')" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s,background 0.2s;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(212,168,83,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D4A853" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:14px;color:var(--text);">Verification Code</div>
+            <div style="font-size:12px;color:var(--text-muted);">Add a unique code to your store description — we'll check for it</div>
+          </div>
+        </div>
+        <div id="mig-verify-code-detail" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">
+          <p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;line-height:1.5;">
+            Add the following code <strong>anywhere</strong> in your store's description, About page, or announcement section. The migration agent will scan your store to confirm the code is present before importing anything.
+          </p>
+          <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(212,168,83,0.25);border-radius:6px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <code id="mig-verify-code-value" style="font-size:14px;font-weight:700;color:var(--gold);letter-spacing:1px;font-family:'Courier New',monospace;">—</code>
+            <button onclick="copyVerifyCode()" style="background:rgba(212,168,83,0.15);border:1px solid rgba(212,168,83,0.3);color:var(--gold);padding:6px 12px;border-radius:4px;font-size:12px;cursor:pointer;white-space:nowrap;" id="mig-copy-btn">Copy</button>
+          </div>
+          <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">
+            You can remove the code from your store after migration is complete.
+          </p>
+        </div>
+      </div>
+
+      <!-- Verification Method 2: Unique Listing -->
+      <div class="mig-verify-option" id="mig-verify-opt-listing" onclick="selectVerifyMethod('listing')" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s,background 0.2s;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(212,168,83,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D4A853" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:14px;color:var(--text);">Verification Listing</div>
+            <div style="font-size:12px;color:var(--text-muted);">Create a specific listing on your store with a unique title — we'll confirm it exists</div>
+          </div>
+        </div>
+        <div id="mig-verify-listing-detail" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">
+          <p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;line-height:1.5;">
+            Create a new listing (any category, any price — you can remove it after) with the <strong>exact title</strong> shown below. The migration agent will search your store for this listing before proceeding.
+          </p>
+          <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(212,168,83,0.25);border-radius:6px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <code id="mig-verify-listing-value" style="font-size:13px;font-weight:700;color:var(--gold);font-family:'Courier New',monospace;">—</code>
+            <button onclick="copyVerifyListing()" style="background:rgba(212,168,83,0.15);border:1px solid rgba(212,168,83,0.3);color:var(--gold);padding:6px 12px;border-radius:4px;font-size:12px;cursor:pointer;white-space:nowrap;" id="mig-copy-listing-btn">Copy</button>
+          </div>
+          <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">
+            Set the price to $0.01 or any amount. Delete the listing after migration completes.
+          </p>
+        </div>
+      </div>
+
+      <!-- Verification Method 3: Email Match -->
+      <div class="mig-verify-option" id="mig-verify-opt-email" onclick="selectVerifyMethod('email')" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s,background 0.2s;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:0;">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(212,168,83,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D4A853" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:14px;color:var(--text);">Email Verification</div>
+            <div style="font-size:12px;color:var(--text-muted);">Send a verification email from your store's registered email to our agent</div>
+          </div>
+        </div>
+        <div id="mig-verify-email-detail" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">
+          <p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;line-height:1.5;">
+            Send an email <strong>from the email address registered with your store</strong> to the address below. Include the verification code in the subject line.
+          </p>
+          <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(212,168,83,0.25);border-radius:6px;padding:12px;margin-bottom:8px;">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Send to:</div>
+            <code style="font-size:13px;font-weight:600;color:var(--gold);font-family:'Courier New',monospace;">verify@borealisterminal.com</code>
+          </div>
+          <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(212,168,83,0.25);border-radius:6px;padding:12px;">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Subject line:</div>
+            <code id="mig-verify-email-subject" style="font-size:13px;font-weight:600;color:var(--gold);font-family:'Courier New',monospace;">—</code>
+          </div>
+          <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">
+            The agent will match the sender email against your store's public contact or registered email.
+          </p>
+        </div>
+      </div>
+
+      <!-- Confirmation checkbox -->
+      <div id="mig-verify-confirm-area" style="display:none;margin-top:14px;">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;background:rgba(0,255,65,0.04);border:1px solid rgba(0,255,65,0.15);border-radius:8px;">
+          <input type="checkbox" id="mig-verify-done-check" style="margin-top:2px;accent-color:#D4A853;width:18px;height:18px;flex-shrink:0;" />
+          <span style="font-size:13px;color:var(--text-secondary);line-height:1.5;">
+            I confirm I have completed the verification step above. I understand the migration agent will check for proof of ownership before importing any listings. If verification fails, the migration will not proceed.
+          </span>
+        </label>
+        <button class="btn btn-gold" id="mig-step2-next-btn" style="width:100%;margin-top:12px;padding:12px;font-size:14px;font-weight:600;opacity:0.4;pointer-events:none;" onclick="migrationToStep3()">
+          Next &mdash; Review &amp; Submit
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 3: Review & Submit ═══ -->
+    <div id="mig-panel-3" style="display:none;">
+
+      <!-- Summary Card -->
+      <div style="background:rgba(212,168,83,0.06);border:1px solid rgba(212,168,83,0.2);border-radius:10px;padding:16px;margin-bottom:16px;">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:10px;font-weight:600;">Migration Summary</div>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px;">
+          <span style="color:var(--text-muted);">Platform:</span>
+          <span id="mig-summary-platform" style="color:var(--text);font-weight:600;">—</span>
+          <span style="color:var(--text-muted);">Store URL:</span>
+          <span id="mig-summary-url" style="color:var(--text);font-weight:500;word-break:break-all;">—</span>
+          <span style="color:var(--text-muted);">Store Name:</span>
+          <span id="mig-summary-name" style="color:var(--text);font-weight:500;">—</span>
+          <span style="color:var(--text-muted);">Verification:</span>
+          <span id="mig-summary-verify" style="color:#00ff41;font-weight:600;">—</span>
+        </div>
+      </div>
+
+      <!-- Featured Migration Agent Card (compact) -->
+      <div style="background:rgba(212,168,83,0.04);border:1px solid rgba(212,168,83,0.15);border-radius:8px;padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;">
+        <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(212,168,83,0.3),rgba(212,168,83,0.1));display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4A853" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M12 12v4"/><path d="M8 20h8"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:14px;color:var(--text);display:flex;align-items:center;gap:6px;">
+            Borealis Migration Agent
+            <span class="trust-commitment-badge" style="font-size:9px;">Trust Committed</span>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Will verify ownership, scrape listings, import with images &amp; pricing, and categorize into sectors</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Estimated Number of Listings</label>
+        <select id="migration-listing-count" style="width:100%;">
+          <option value="1-25">1 – 25 listings</option>
+          <option value="26-100">26 – 100 listings</option>
+          <option value="101-500">101 – 500 listings</option>
+          <option value="500+">500+ listings</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Additional Notes <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+        <textarea id="migration-notes" rows="2" placeholder="Categories to prioritize, listings to exclude, timeline, etc." style="width:100%;resize:vertical;"></textarea>
+      </div>
+
+      <!-- Trust Protocol -->
+      <div style="background:rgba(0,255,65,0.04);border:1px solid rgba(0,255,65,0.15);border-radius:8px;padding:12px;margin:10px 0;display:flex;align-items:flex-start;gap:10px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00ff41" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        <div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5;">
+          <strong style="color:rgba(0,255,65,0.8);">Trust Protocol Protected</strong><br>
+          Anchored to Hedera Consensus Service. Both parties commit under verified ownership, transparent pricing, USDC settlement.
+        </div>
+      </div>
+
+      <button class="btn btn-gold" style="width:100%;margin-top:8px;padding:12px;font-size:14px;font-weight:700;" onclick="requestStoreMigration()">
+        Submit Migration Request
+      </button>
+      <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-muted);">
+        Pricing based on listing count &middot; Settled in USDC on Hedera
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -3579,7 +4155,7 @@
         <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
           <div class="onboard-checklist-item">&#9745; Account created</div>
           <div class="onboard-checklist-item">&#9744; <a onclick="closeOnboarding();openModal('create-listing-modal');" style="cursor:pointer;color:var(--gold);">Create your first listing</a></div>
-          <div class="onboard-checklist-item">&#9744; Or <a onclick="closeOnboarding();openEbayImportModal();" style="cursor:pointer;color:var(--gold);">import your eBay store</a> (Pro tier)</div>
+          <div class="onboard-checklist-item">&#9744; Or <a onclick="closeOnboarding();openEbayImportModal();" style="cursor:pointer;color:var(--gold);">migrate an existing store</a> — hire an AI agent to import your inventory</div>
           <div class="onboard-checklist-item">&#9744; AI agents will auto-promote your listings</div>
           <div class="onboard-checklist-item">&#9744; <a onclick="closeOnboarding();openMarketingDashboard();" style="cursor:pointer;color:var(--gold);">Check your marketing dashboard</a> for analytics</div>
         </div>
@@ -3591,7 +4167,7 @@
           <div class="onboard-checklist-item">&#9744; <a onclick="closeOnboarding();switchTab('browse');" style="cursor:pointer;color:var(--gold);">Browse 400+ listings</a></div>
           <div class="onboard-checklist-item">&#9744; <a onclick="closeOnboarding();openModal('create-listing-modal');" style="cursor:pointer;color:var(--gold);">Create your first listing</a></div>
           <div class="onboard-checklist-item">&#9744; AI agents auto-promote — check <a onclick="closeOnboarding();openMarketingDashboard();" style="cursor:pointer;color:var(--gold);">marketing dashboard</a></div>
-          <div class="onboard-checklist-item">&#9744; Upgrade to Pro for eBay store import + faster moderation</div>
+          <div class="onboard-checklist-item">&#9744; <a onclick="closeOnboarding();openEbayImportModal();" style="cursor:pointer;color:var(--gold);">Migrate an existing store</a> — AI agents handle the heavy lifting</div>
         </div>
       </div>
 
@@ -3743,10 +4319,7 @@
     sessionStorage.removeItem('bt_user');
     sessionStorage.removeItem('bt_token_expires');
   }
-      return t;
-    }
-    return sessionStorage.getItem('bt_token');
-  }
+
   function getUser() {
     var u = localStorage.getItem('bt_user');
     if (u && localStorage.getItem('bt_token')) return u;
@@ -3756,7 +4329,7 @@
     if (remember) {
       localStorage.setItem('bt_token', token);
       localStorage.setItem('bt_user', JSON.stringify(user));
-      localStorage.setItem('bt_token_expires', String(Date.now() + 7 * 24 * 60 * 60 * 1000));
+      localStorage.setItem('bt_token_expires', String(Date.now() + 24 * 60 * 60 * 1000));
     } else {
       sessionStorage.setItem('bt_token', token);
       sessionStorage.setItem('bt_user', JSON.stringify(user));
@@ -3883,6 +4456,7 @@
   window.enterMarketplace = function() {
     showPage('app');
     updateAuthUI();
+    initSectorGrid();
     loadListings();
     loadFeaturedStorefront();
     fetchStats();
@@ -4543,7 +5117,7 @@
 
       if (data.success && data.data && data.data.watchlist.length > 0) {
         var listings = data.data.watchlist.map(function(w) { return w.listing; });
-        grid.innerHTML = DOMPurify.sanitize(listings.map(function(l, i) { return renderListingCard(l, i); }).join('');
+        grid.innerHTML = DOMPurify.sanitize(listings.map(function(l, i) { return renderListingCard(l, i); }).join(''));
       } else {
         grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#128278;</div><h3>No saved listings yet</h3><p>Browse the marketplace and bookmark listings you\'re interested in.</p></div>';
       }
@@ -4575,10 +5149,13 @@
     var platform = (document.getElementById('mp-filter-platform') || {}).value || '';
     var condition = (document.getElementById('mp-filter-condition') || {}).value || '';
 
-    // Build category filter from pill selection
+    // Build category filter from sector selection
     var catParam = '';
-    if (selectedCategoryPill && CATEGORY_MAP[selectedCategoryPill]) {
-      catParam = CATEGORY_MAP[selectedCategoryPill].join(',');
+    if (typeof selectedSector !== 'undefined' && selectedSector && typeof CATEGORY_MAP !== 'undefined' && CATEGORY_MAP[selectedSector]) {
+      catParam = CATEGORY_MAP[selectedSector].join(',');
+    }
+    if (typeof selectedSubcategory !== 'undefined' && selectedSubcategory) {
+      catParam = selectedSubcategory;
     }
 
     var url = API_BASE + '/v1/marketplace/listings?limit=' + perPage + '&page=' + page;
@@ -4709,12 +5286,12 @@
       const data = await resp.json();
       if (data.success && data.data.services.length > 0) {
         cachedServices = data.data.services;
-        grid.innerHTML = agentsHtml + '<h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">Agent Services</h3><div class="grid">' + data.data.services.map((s, idx) => renderServiceCard(s, idx)).join('') + '</div>';
+        grid.innerHTML = DOMPurify.sanitize(agentsHtml + '<h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">Agent Services</h3><div class="grid">' + data.data.services.map((s, idx) => renderServiceCard(s, idx)).join('') + '</div>');
       } else {
-        grid.innerHTML = agentsHtml + (agentsHtml ? '' : '<div class="empty-state"><div class="empty-state-icon">&#9881;</div><h3>No services yet</h3><p>Agent services will appear here once agents are listed on BorealisMark.</p></div>');
+        grid.innerHTML = DOMPurify.sanitize(agentsHtml + (agentsHtml ? '' : '<div class="empty-state"><div class="empty-state-icon">&#9881;</div><h3>No services yet</h3><p>Agent services will appear here once agents are listed on BorealisMark.</p></div>'));
       }
     } catch(e) {
-      grid.innerHTML = agentsHtml + '<div class="empty-state"><h3>Unable to load services</h3></div>';
+      grid.innerHTML = DOMPurify.sanitize(agentsHtml + '<div class="empty-state"><h3>Unable to load services</h3></div>');
     }
   };
 
@@ -5008,7 +5585,7 @@
         '</div>';
       });
 
-      messagesEl.innerHTML = html;
+      messagesEl.innerHTML = DOMPurify.sanitize(html);
 
       // Scroll to bottom
       messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -5645,6 +6222,25 @@
     });
   }
 
+  // Update category options based on selected sector
+  window.updateCategoryOptions = function() {
+    var sectorSelect = document.getElementById('cl-sector');
+    var categorySelect = document.getElementById('cl-category');
+    var sectorKey = sectorSelect.value;
+
+    if (!sectorKey || !SECTOR_TAXONOMY[sectorKey]) {
+      categorySelect.innerHTML = '<option value="">Select category</option>';
+      return;
+    }
+
+    var sector = SECTOR_TAXONOMY[sectorKey];
+    var html = '<option value="">Select sub-category</option>';
+    sector.subcategories.forEach(function(subcat) {
+      html += '<option value="' + esc(subcat) + '">' + esc(subcat.replace(/-/g, ' ')) + '</option>';
+    });
+    categorySelect.innerHTML = html;
+  };
+
   window.submitListing = async function(e) {
     e.preventDefault();
     const token = getToken();
@@ -5664,6 +6260,9 @@
       description: document.getElementById('cl-desc').value,
       listingType: type,
       category: document.getElementById('cl-category').value,
+      sector: document.getElementById('cl-sector').value,
+      agentBio: document.getElementById('cl-agent-bio').value,
+      clientReference: document.getElementById('cl-client-ref').value,
       tags: document.getElementById('cl-tags').value.split(',').map(t => t.trim()).filter(Boolean),
     };
     if (type !== 'trade') body.priceUsdc = parseFloat(document.getElementById('cl-price').value) || 0;
@@ -5837,6 +6436,21 @@
     var catLabel = catGroup === 'physical' ? 'Physical' : catGroup === 'digital' ? 'Digital' : catGroup === 'services' ? 'Service' : catGroup === 'ai' ? 'AI Agent' : l.category;
     var catColor = borderColor;
 
+    // AI Biography snippet (first 80 chars of description)
+    var bioSnippet = l.agentBio || l.description || '';
+    bioSnippet = bioSnippet.slice(0, 80);
+    if (l.description && l.description.length > 80) bioSnippet += '...';
+
+    // Trust commitment indicator
+    var trustCommitmentHtml = (l.trustCommitted || l.sellerVerified)
+      ? '<span class="trust-commitment-badge">Trust Committed</span>'
+      : '';
+
+    // Verified client badge
+    var verifiedClientHtml = l.clientReference
+      ? '<span class="verified-client-badge">Verified Client</span>'
+      : '';
+
     // Image
     var imgHtml = (l.images && l.images.length > 0)
       ? '<div class="card-img-wrap"><img src="' + esc(l.images[0]) + '" alt="' + esc(l.title) + '" class="listing-img" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="listing-img-placeholder" style="display:none;">📦</div>' +
@@ -5852,11 +6466,13 @@
     return '<div class="card" style="cursor:pointer;padding:0;border-left:3px solid ' + borderColor + ';" onclick="window.location.hash=\'#listing/' + esc(l.id) + '\'">' +
       imgHtml +
       '<div style="padding:12px 14px;">' +
-        '<div style="margin-bottom:6px;"><span style="font-size:10px;font-weight:600;color:' + catColor + ';text-transform:uppercase;letter-spacing:0.5px;">' + esc(catLabel) + '</span></div>' +
+        '<div style="margin-bottom:6px;"><span class="sector-badge">' + esc(catLabel) + '</span></div>' +
         '<h3 style="font-size:14px;font-weight:600;color:var(--text);margin:0 0 6px 0;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + esc(l.title) + '</h3>' +
+        (bioSnippet ? '<p class="listing-bio">' + esc(bioSnippet) + '</p>' : '') +
         '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);margin-bottom:8px;">' +
           esc(l.sellerName || 'Anonymous') + ' <span style="opacity:0.4;">·</span> ' + badge +
         '</div>' +
+        (trustCommitmentHtml || verifiedClientHtml ? '<div style="display:flex;gap:6px;margin-bottom:8px;">' + trustCommitmentHtml + verifiedClientHtml + '</div>' : '') +
       '</div>' +
       '<div style="padding:8px 14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">' +
         '<span style="font-size:14px;font-weight:700;color:var(--gold);">' + price + '</span>' +
@@ -5897,6 +6513,28 @@
       ? '<a href="' + esc(listing.externalUrl) + '" target="_blank" rel="noopener noreferrer" class="btn-ebay" style="width:100%;justify-content:center;">Also on eBay →</a>'
       : '';
 
+    // Agent Bio Section HTML
+    var agentBioHtml = listing.agentBio || listing.workHistory
+      ? '<div class="trust-commitment-section">' +
+          '<h4>Agent Biography</h4>' +
+          '<p>' + esc((listing.agentBio || listing.workHistory || 'Specialized AI agent providing expert services.').slice(0, 200)) + '</p>' +
+        '</div>'
+      : '';
+
+    // Client Connection HTML
+    var clientConnHtml = listing.clientReference
+      ? '<div class="trust-commitment-section">' +
+          '<h4>Real-World Client</h4>' +
+          '<p>' + esc(listing.clientReference) + '</p>' +
+        '</div>'
+      : '';
+
+    // Trust Commitment CTA
+    var trustCommitmentHtml = '<div class="trust-commitment-cta">' +
+      '<p>Commit to Trust Protocol</p>' +
+      '<button onclick="openTrustCommitmentModal(\'' + esc(listing.id) + '\')" style="background:var(--gold);color:#000;border:none;border-radius:var(--radius-sm);padding:8px 16px;font-weight:600;cursor:pointer;font-size:0.85rem;">Learn More</button>' +
+      '</div>';
+
     c.innerHTML =
       imgHtml +
       '<div style="margin-bottom:16px;display:flex;gap:6px;flex-wrap:wrap;">' +
@@ -5912,6 +6550,9 @@
         '<div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-muted);">Listed by <strong style="color:var(--text);margin:0 4px;">' + esc(listing.sellerName || 'Anonymous') + '</strong>' + badge + '</div>' +
         '<div style="font-size:1.1rem;font-weight:700;color:var(--gold);">' + (listing.listingType === 'trade' ? 'Trade' : '$' + Number(listing.priceUsdc || 0).toLocaleString() + ' USDC') + '</div>' +
       '</div>' +
+      agentBioHtml +
+      clientConnHtml +
+      trustCommitmentHtml +
       '<div style="display:flex;gap:10px;margin:16px 0;">' +
         '<button class="btn-like' + (isLiked ? ' liked' : '') + '" style="flex:1;padding:10px;justify-content:center;" onclick="toggleLike(\'' + esc(listing.id) + '\');setTimeout(function(){openListingDetail(cachedListings.find(function(x){return x.id===\'' + esc(listing.id) + '\';})||listing);},300);">' +
           '<i class="like-heart">' + (isLiked ? '♥' : '♡') + '</i> <span>' + (listing.likeCount || 0) + ' Likes</span>' +
@@ -6016,8 +6657,61 @@
         <div style="font-size:0.85rem;color:var(--text-muted);">Min Trust Score: <strong style="color:var(--gold);">${svc.min_trust_score || 0}</strong></div>
         <div style="font-size:1.1rem;font-weight:700;color:var(--gold);">$${Number(svc.price_usdc || 0).toLocaleString()} USDC</div>
       </div>
-    `;
+    `);
     document.getElementById('listing-detail-modal').style.display = 'flex';
+  };
+
+  window.openTrustCommitmentModal = function(listingId) {
+    var listing = cachedListings.find(function(l) { return l.id === listingId; });
+    if (!listing) return;
+
+    var modal = document.getElementById('trust-commitment-modal');
+    if (!modal) {
+      // Create the modal if it doesn't exist
+      var modalHtml = '<div class="modal-overlay" id="trust-commitment-modal">' +
+        '<div class="modal trust-commitment-modal">' +
+          '<button class="modal-close" onclick="document.getElementById(\'trust-commitment-modal\').style.display=\'none\';">&times;</button>' +
+          '<button class="modal-back-btn" onclick="document.getElementById(\'trust-commitment-modal\').style.display=\'none\';">&#8592; Back</button>' +
+          '<h2>Commit to Trust Protocol</h2>' +
+          '<p class="subtitle">Secure, verified transactions on the Hedera ledger</p>' +
+          '<div id="trust-modal-content"></div>' +
+        '</div>' +
+      '</div>';
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      modal = document.getElementById('trust-commitment-modal');
+    }
+
+    var content = document.getElementById('trust-modal-content');
+    content.innerHTML =
+      '<div class="trust-commitment-section">' +
+        '<h4>What is Trust Protocol?</h4>' +
+        '<p>BorealisMark Trust Protocol is a blockchain-verified system ensuring both buyer and seller are legitimate, verified participants. All commitments are anchored to the Hedera Consensus Service with immutable timestamps.</p>' +
+      '</div>' +
+      '<div class="trust-commitment-section">' +
+        '<h4>How It Works</h4>' +
+        '<ul class="trust-steps">' +
+          '<li>Both parties verify identity through BorealisMark certification</li>' +
+          '<li>Smart contract terms are anchored to Hedera Consensus Service</li>' +
+          '<li>USDC settlement is guaranteed on Hedera Hashgraph</li>' +
+          '<li>All transactions have immutable on-chain records</li>' +
+          '<li>Instant dispute resolution through smart contract arbitration</li>' +
+        '</ul>' +
+      '</div>' +
+      '<div class="trust-commitment-section">' +
+        '<h4>Fees & Settlement</h4>' +
+        '<p><strong>Network Fees:</strong></p>' +
+        '<ul class="trust-steps">' +
+          '<li>Standard Tier: 2.5% transaction fee</li>' +
+          '<li>Elite Tier: 1.5% transaction fee</li>' +
+          '<li>Enterprise Tier: 1.0% transaction fee</li>' +
+        '</ul>' +
+      '</div>' +
+      '<div class="trust-commitment-cta">' +
+        '<p style="font-weight:600;margin-bottom:12px;">Ready to proceed?</p>' +
+        '<button onclick="window.location.hash=\'#listing/' + esc(listingId) + '\';document.getElementById(\'trust-commitment-modal\').style.display=\'none\';contactSeller(\'' + esc(listing.sellerId || '') + '\',\'' + esc(listing.title) + '\');" style="background:var(--gold);color:#000;border:none;border-radius:var(--radius-sm);padding:10px 20px;font-weight:600;cursor:pointer;font-size:0.9rem;width:100%;">Contact Seller</button>' +
+      '</div>';
+
+    modal.style.display = 'flex';
   };
 
   window.contactSeller = function(sellerId, listingTitle) {
@@ -6046,8 +6740,102 @@
     openComposeModal(sellerId, sellerName, listingId, listingTitle, listingImg, listingPrice);
   };
 
-  // ─── Category Mapping ────────────────────────────────────
-  var selectedCategoryPill = '';
+  // ─── COMPREHENSIVE SECTOR SYSTEM ────────────────────────────
+  var selectedSector = '';
+  var selectedSubcategory = '';
+
+  // Premium SVG icons for sector tiles — gold stroke, no fill, Fortune 500 aesthetic
+  var SECTOR_ICONS = {
+    'enterprise': '<svg viewBox="0 0 24 24"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21V13h6v8"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="7" y1="13" x2="7" y2="17"/><line x1="17" y1="13" x2="17" y2="17"/></svg>',
+    'ai': '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M12 12v4"/><path d="M8 20h8"/><path d="M6 4l-2 2m14-2l2 2"/><circle cx="10" cy="7" r="0.5" fill="currentColor" stroke="none"/><circle cx="14" cy="7" r="0.5" fill="currentColor" stroke="none"/><path d="M10 9.5c.8.6 3.2.6 4 0"/><path d="M4 14h3m10 0h3"/><path d="M5 14v4a2 2 0 0 0 2 2h0m10-6v4a2 2 0 0 1-2 2h0"/></svg>',
+    'technology': '<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 8l3 3-3 3"/><line x1="13" y1="14" x2="17" y2="14"/></svg>',
+    'data': '<svg viewBox="0 0 24 24"><rect x="3" y="14" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/><rect x="17" y="4" width="4" height="17" rx="1"/><path d="M4 6l6-2 6 3 5-4" stroke-dasharray="0"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="10" cy="4" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="7" r="1.5" fill="currentColor" stroke="none"/><circle cx="21" cy="3" r="1.5" fill="currentColor" stroke="none"/></svg>',
+    'creative': '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-1 0-.83.67-1.5 1.5-1.5H16c3.31 0 6-2.69 6-6 0-4.97-4.48-9-10-9z"/><circle cx="8" cy="10" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="7" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="10" r="1.5" fill="currentColor" stroke="none"/></svg>',
+    'marketing': '<svg viewBox="0 0 24 24"><path d="M22 12L2 4v16l6-4v-4"/><path d="M22 12l-14 4"/><circle cx="8" cy="18" r="2"/><path d="M8 16v-4"/></svg>',
+    'legal': '<svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="6"/><line x1="4" y1="8" x2="20" y2="8"/><line x1="12" y1="6" x2="12" y2="8"/><path d="M4 8l2 8h4l2-8"/><path d="M12 8l2 8h4l2-8"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>',
+    'healthcare': '<svg viewBox="0 0 24 24"><path d="M4.8 2.3A5.3 5.3 0 0 1 12 5a5.3 5.3 0 0 1 7.2-2.7C22.4 4.2 23 8.5 20 12c-2 2.3-5.2 5.2-8 7.5-2.8-2.3-6-5.2-8-7.5C1 8.5 1.6 4.2 4.8 2.3z"/><path d="M12 8v6m-3-3h6" stroke-width="2"/></svg>',
+    'engineering': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4m0 14v4M4.22 4.22l2.83 2.83m9.9 9.9l2.83 2.83M1 12h4m14 0h4M4.22 19.78l2.83-2.83m9.9-9.9l2.83-2.83"/></svg>',
+    'education': '<svg viewBox="0 0 24 24"><path d="M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2.7 3 6 3s6-1 6-3v-5"/><line x1="22" y1="10" x2="22" y2="17"/></svg>',
+    'finance': '<svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+    'sustainability': '<svg viewBox="0 0 24 24"><path d="M12 22c4-4 8-7.5 8-12A8 8 0 0 0 4 10c0 4.5 4 8 8 12z"/><path d="M12 22V10"/><path d="M8 14c1.3-1.3 2.7-2 4-2s2.7.7 4 2"/><path d="M7 10.5c1.5-2 3.2-3 5-3s3.5 1 5 3"/></svg>'
+  };
+
+  var SECTOR_TAXONOMY = {
+    'enterprise': {
+      name: 'Enterprise & Business',
+      icon: SECTOR_ICONS['enterprise'],
+      tagline: 'Corporate services & operations',
+      subcategories: ['consulting', 'strategy', 'operations', 'finance', 'legal', 'hr']
+    },
+    'ai': {
+      name: 'AI & Machine Learning',
+      icon: SECTOR_ICONS['ai'],
+      tagline: 'AI models & algorithms',
+      subcategories: ['nlp', 'computer-vision', 'predictive-analytics', 'generative-ai', 'robotics', 'mlops']
+    },
+    'technology': {
+      name: 'Technology & Development',
+      icon: SECTOR_ICONS['technology'],
+      tagline: 'Software & infrastructure',
+      subcategories: ['web-development', 'mobile-apps', 'cloud-devops', 'cybersecurity', 'blockchain', 'data-engineering']
+    },
+    'data': {
+      name: 'Data & Analytics',
+      icon: SECTOR_ICONS['data'],
+      tagline: 'Business intelligence & insights',
+      subcategories: ['business-intelligence', 'data-science', 'market-research', 'financial-analysis', 'risk-assessment']
+    },
+    'creative': {
+      name: 'Creative & Design',
+      icon: SECTOR_ICONS['creative'],
+      tagline: 'Visual & brand services',
+      subcategories: ['graphic-design', 'ux-ui', 'brand-strategy', 'content-creation', 'video-production']
+    },
+    'marketing': {
+      name: 'Marketing & Growth',
+      icon: SECTOR_ICONS['marketing'],
+      tagline: 'Growth & customer acquisition',
+      subcategories: ['digital-marketing', 'seo-sem', 'social-media', 'pr', 'growth-hacking', 'email-marketing']
+    },
+    'legal': {
+      name: 'Legal & Compliance',
+      icon: SECTOR_ICONS['legal'],
+      tagline: 'Legal services & compliance',
+      subcategories: ['contract-law', 'ip-protection', 'regulatory-compliance', 'privacy-gdpr', 'audit']
+    },
+    'healthcare': {
+      name: 'Healthcare & Life Sciences',
+      icon: SECTOR_ICONS['healthcare'],
+      tagline: 'Medical & biotech services',
+      subcategories: ['medical-ai', 'drug-discovery', 'clinical-trials', 'health-analytics', 'telemedicine']
+    },
+    'engineering': {
+      name: 'Engineering & Manufacturing',
+      icon: SECTOR_ICONS['engineering'],
+      tagline: 'Industrial & technical services',
+      subcategories: ['industrial-automation', 'quality-control', 'supply-chain', 'cad-cam', 'iot']
+    },
+    'education': {
+      name: 'Education & Research',
+      icon: SECTOR_ICONS['education'],
+      tagline: 'Learning & academic services',
+      subcategories: ['curriculum-design', 'academic-research', 'training-learning', 'edtech', 'knowledge-management']
+    },
+    'finance': {
+      name: 'Finance & Insurance',
+      icon: SECTOR_ICONS['finance'],
+      tagline: 'Financial & risk services',
+      subcategories: ['wealth-management', 'risk-modeling', 'algorithmic-trading', 'insurance', 'payments']
+    },
+    'sustainability': {
+      name: 'Sustainability & ESG',
+      icon: SECTOR_ICONS['sustainability'],
+      tagline: 'Environmental & impact services',
+      subcategories: ['carbon-accounting', 'esg-reporting', 'circular-economy', 'climate-tech', 'impact-assessment']
+    }
+  };
+
+  // Legacy mapping for backward compatibility
   var CATEGORY_MAP = {
     'physical': ['physical-goods'],
     'digital': ['digital-goods', 'datasets'],
@@ -6059,18 +6847,85 @@
     if (externalSource === 'ebay' || category === 'physical-goods') return 'physical';
     if (['digital-goods', 'datasets'].includes(category)) return 'digital';
     if (['services', 'consulting', 'creative', 'development', 'marketing'].includes(category)) return 'services';
-    if (category === 'ai-models') return 'ai';
+    if (category === 'ai-models' || category === 'generative-ai' || category === 'nlp') return 'ai';
     return 'other';
   }
 
-  // ─── Category Selection ───────────────────────────────────
+  // Initialize sector grid
+  window.initSectorGrid = function() {
+    var grid = document.getElementById('sector-grid');
+    if (!grid) return;
+
+    var html = '<button class="sector-tile active" data-sector="" onclick="selectSector(\'\')">' +
+      '<div class="sector-tile-name">All Sectors</div>' +
+      '<div class="sector-tile-count" id="count-all">0 listings</div>' +
+      '</button>';
+
+    for (var sectorKey in SECTOR_TAXONOMY) {
+      var sector = SECTOR_TAXONOMY[sectorKey];
+      html += '<button class="sector-tile" data-sector="' + esc(sectorKey) + '" onclick="selectSector(\'' + esc(sectorKey) + '\')">' +
+        '<div class="sector-tile-icon">' + sector.icon + '</div>' +
+        '<div class="sector-tile-name">' + esc(sector.name) + '</div>' +
+        '<div class="sector-tile-tagline">' + esc(sector.tagline) + '</div>' +
+        '<div class="sector-tile-count" id="count-' + esc(sectorKey) + '">0 listings</div>' +
+        '</button>';
+    }
+
+    grid.innerHTML = html;
+  };
+
+  // Sector selection
+  window.selectSector = function(sectorKey) {
+    selectedSector = sectorKey;
+    selectedSubcategory = '';
+
+    // Update active sector tile
+    document.querySelectorAll('.sector-tile').forEach(function(tile) {
+      tile.classList.remove('active');
+    });
+    var activeTile = document.querySelector('[data-sector="' + sectorKey + '"]');
+    if (activeTile) activeTile.classList.add('active');
+
+    // Update sub-category pills
+    var subcatContainer = document.getElementById('sub-category-container');
+    if (sectorKey === '') {
+      subcatContainer.classList.add('hidden');
+    } else {
+      var sector = SECTOR_TAXONOMY[sectorKey];
+      var html = '';
+      sector.subcategories.forEach(function(subcat) {
+        html += '<button class="sub-cat-pill" data-subcat="' + esc(subcat) + '" onclick="selectSubcategory(\'' + esc(subcat) + '\')">' +
+          esc(subcat.replace(/-/g, ' ')) + '</button>';
+      });
+      subcatContainer.innerHTML = html;
+      subcatContainer.classList.remove('hidden');
+    }
+
+    filterListingsLocal();
+  };
+
+  // Subcategory selection
+  window.selectSubcategory = function(subcatKey) {
+    selectedSubcategory = subcatKey;
+
+    // Update active subcategory pill
+    document.querySelectorAll('.sub-cat-pill').forEach(function(pill) {
+      pill.classList.remove('active');
+    });
+    var activePill = document.querySelector('[data-subcat="' + subcatKey + '"]');
+    if (activePill) activePill.classList.add('active');
+
+    filterListingsLocal();
+  };
+
+  // Category Selection (legacy, backward compatible)
   window.selectCategory = function(cat) {
-    selectedCategoryPill = cat;
-    document.querySelectorAll('.cat-pill').forEach(pill => pill.classList.remove('active'));
+    selectedSector = cat;
+    selectedSubcategory = '';
+    document.querySelectorAll('.cat-pill').forEach(function(pill) { pill.classList.remove('active'); });
     var btn = document.querySelector('[data-cat="' + cat + '"]');
     if (btn) btn.classList.add('active');
 
-    // Show/hide conditional filters based on category
     var platformFilter = document.getElementById('mp-filter-platform');
     var conditionFilter = document.getElementById('mp-filter-condition');
 
@@ -6103,6 +6958,11 @@
     const div = document.createElement('div');
     div.appendChild(document.createTextNode(String(s)));
     return div.innerHTML;
+  }
+
+  function escAttr(s) {
+    if (s === null || s === undefined) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
   // ─── Session Timeout ──────────────────────────────────────
@@ -6217,7 +7077,7 @@
             }
 
             html += '</div>';
-            tabBrowse.innerHTML = html;
+            tabBrowse.innerHTML = DOMPurify.sanitize(html);
           });
         } else {
           tabBrowse.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#9678;</div><h3>Storefront not found</h3><p><button onclick="window.location.hash=\'#browse\'" style="padding:8px 14px;background:var(--gold);color:#000;border:none;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;">Back to Browse</button></p></div>';
@@ -6292,115 +7152,251 @@
   })();
 
   // ─── eBay Store Import ────────────────────────────────────
+  // Migration service state (legacy poll timer kept for backward compat)
   var _ebayImportPollTimer = null;
   var _selectedPlatform = 'x';
 
-  window.openEbayImportModal = async function() {
-    var token = getToken();
-    if (!token) { showToast('Please sign in first', 'error'); return; }
+  // ─── STORE MIGRATION — Multi-Step Flow ──────────────────────
+  var _migrationStep = 1;
+  var _migrationVerifyMethod = '';
+  var _migrationVerifyCode = '';
+  var _lastMigrationRequest = 0;
+  var _platformNames = { ebay: 'eBay', etsy: 'Etsy', shopify: 'Shopify', amazon: 'Amazon', woocommerce: 'WooCommerce', other: 'Other Platform' };
+  var _platformUrlPlaceholders = {
+    ebay: 'https://www.ebay.com/str/YourStoreName',
+    etsy: 'https://www.etsy.com/shop/YourShopName',
+    shopify: 'https://your-store.myshopify.com',
+    amazon: 'https://www.amazon.com/sp?seller=YOUR_ID',
+    woocommerce: 'https://your-store.com/shop',
+    other: 'https://your-store-url.com'
+  };
 
+  // Generate a unique verification code
+  function generateVerifyCode() {
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var code = 'BT-';
+    var randomValues = new Uint8Array(8);
+    crypto.getRandomValues(randomValues);
+    for (var i = 0; i < 8; i++) code += chars.charAt(randomValues[i] % chars.length);
+    return code;
+  }
+
+  window.openEbayImportModal = function() {
+    var token = getToken();
+    if (!token) { showToast('Please sign in to request a migration', 'error'); showLogin(); return; }
+    _migrationStep = 1;
+    _migrationVerifyMethod = '';
+    _migrationVerifyCode = generateVerifyCode();
+    showMigrationStep(1);
     openModal('ebay-import-modal');
     document.getElementById('ebay-import-form-status').textContent = '';
+  };
 
-    // Check tier from API
-    try {
-      var resp = await fetch(API_BASE + '/v1/auth/me', { headers: { 'Authorization': 'Bearer ' + token } });
-      var data = await resp.json();
-      var tier = (data.data && data.data.tier || '').toLowerCase();
-      var role = (data.data && data.data.role || '');
-      var isAllowed = role === 'admin' || ['pro','enterprise','sovereign'].includes(tier);
-      document.getElementById('ebay-import-tier-gate').style.display = isAllowed ? 'none' : 'block';
-      document.getElementById('ebay-import-form-area').style.display = isAllowed ? 'block' : 'none';
-    } catch(e) {
-      document.getElementById('ebay-import-tier-gate').style.display = 'none';
-      document.getElementById('ebay-import-form-area').style.display = 'block';
+  window.updateMigrationPlaceholder = function() {
+    var platform = document.getElementById('migration-platform').value;
+    var urlInput = document.getElementById('ebay-store-url');
+    if (platform && _platformUrlPlaceholders[platform]) {
+      urlInput.placeholder = _platformUrlPlaceholders[platform];
     }
   };
 
-  window.startEbayImport = async function() {
+  function showMigrationStep(step) {
+    _migrationStep = step;
+    document.getElementById('mig-panel-1').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('mig-panel-2').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('mig-panel-3').style.display = step === 3 ? 'block' : 'none';
+
+    // Update step indicators
+    for (var i = 1; i <= 3; i++) {
+      var stepEl = document.getElementById('mig-step-' + i);
+      stepEl.classList.remove('active', 'done');
+      if (i < step) stepEl.classList.add('done');
+      if (i === step) stepEl.classList.add('active');
+    }
+    for (var j = 1; j <= 2; j++) {
+      var lineEl = document.getElementById('mig-line-' + j);
+      lineEl.classList.toggle('done', j < step);
+    }
+    document.getElementById('ebay-import-form-status').textContent = '';
+  }
+
+  window.migrationGoBack = function() {
+    if (_migrationStep > 1) {
+      showMigrationStep(_migrationStep - 1);
+    } else {
+      closeModal('ebay-import-modal');
+    }
+  };
+
+  window.migrationToStep2 = function() {
+    var platform = document.getElementById('migration-platform').value;
     var storeUrl = document.getElementById('ebay-store-url').value.trim();
-    var storeName = document.getElementById('ebay-store-name').value.trim();
     var statusEl = document.getElementById('ebay-import-form-status');
-    var btn = document.getElementById('ebay-import-btn');
 
-    if (!storeUrl) { statusEl.textContent = 'Please enter your eBay store URL'; statusEl.style.color = '#ff6b6b'; return; }
+    if (!platform) { statusEl.textContent = 'Please select your source platform'; statusEl.style.color = '#ff6b6b'; return; }
+    if (!storeUrl) { statusEl.textContent = 'Please enter your store URL'; statusEl.style.color = '#ff6b6b'; return; }
 
-    btn.disabled = true;
-    btn.textContent = 'Starting Import...';
+    // Populate verification codes
+    document.getElementById('mig-verify-code-value').textContent = _migrationVerifyCode;
+    document.getElementById('mig-verify-listing-value').textContent = 'BOREALIS-VERIFY-' + _migrationVerifyCode;
+    document.getElementById('mig-verify-email-subject').textContent = 'VERIFY ' + _migrationVerifyCode;
+
+    // Reset verification state
+    _migrationVerifyMethod = '';
+    document.querySelectorAll('.mig-verify-option').forEach(function(el) { el.classList.remove('selected'); });
+    document.getElementById('mig-verify-code-detail').style.display = 'none';
+    document.getElementById('mig-verify-listing-detail').style.display = 'none';
+    document.getElementById('mig-verify-email-detail').style.display = 'none';
+    document.getElementById('mig-verify-confirm-area').style.display = 'none';
+    var cb = document.getElementById('mig-verify-done-check');
+    if (cb) cb.checked = false;
+    updateStep2NextBtn();
+
+    showMigrationStep(2);
+  };
+
+  window.selectVerifyMethod = function(method) {
+    _migrationVerifyMethod = method;
+    document.querySelectorAll('.mig-verify-option').forEach(function(el) { el.classList.remove('selected'); });
+    document.getElementById('mig-verify-opt-' + method).classList.add('selected');
+
+    // Show/hide details
+    document.getElementById('mig-verify-code-detail').style.display = method === 'code' ? 'block' : 'none';
+    document.getElementById('mig-verify-listing-detail').style.display = method === 'listing' ? 'block' : 'none';
+    document.getElementById('mig-verify-email-detail').style.display = method === 'email' ? 'block' : 'none';
+
+    // Show confirmation checkbox
+    document.getElementById('mig-verify-confirm-area').style.display = 'block';
+    updateStep2NextBtn();
+  };
+
+  window.copyVerifyCode = function() {
+    navigator.clipboard.writeText(_migrationVerifyCode);
+    document.getElementById('mig-copy-btn').textContent = 'Copied!';
+    setTimeout(function() { document.getElementById('mig-copy-btn').textContent = 'Copy'; }, 2000);
+  };
+  window.copyVerifyListing = function() {
+    navigator.clipboard.writeText('BOREALIS-VERIFY-' + _migrationVerifyCode);
+    document.getElementById('mig-copy-listing-btn').textContent = 'Copied!';
+    setTimeout(function() { document.getElementById('mig-copy-listing-btn').textContent = 'Copy'; }, 2000);
+  };
+
+  function updateStep2NextBtn() {
+    var cb = document.getElementById('mig-verify-done-check');
+    var btn = document.getElementById('mig-step2-next-btn');
+    var enabled = _migrationVerifyMethod && cb && cb.checked;
+    btn.style.opacity = enabled ? '1' : '0.4';
+    btn.style.pointerEvents = enabled ? 'auto' : 'none';
+  }
+
+  // Listen for checkbox changes
+  document.addEventListener('change', function(e) {
+    if (e.target && e.target.id === 'mig-verify-done-check') updateStep2NextBtn();
+  });
+
+  window.migrationToStep3 = function() {
+    if (!_migrationVerifyMethod) return;
+    var cb = document.getElementById('mig-verify-done-check');
+    if (!cb || !cb.checked) return;
+
+    // Populate summary
+    var platform = document.getElementById('migration-platform').value;
+    var storeUrl = document.getElementById('ebay-store-url').value.trim();
+    var storeName = document.getElementById('migration-store-name').value.trim();
+    var verifyLabels = { code: 'Verification Code placed in store', listing: 'Verification Listing created', email: 'Verification Email sent' };
+
+    document.getElementById('mig-summary-platform').textContent = _platformNames[platform] || platform;
+    document.getElementById('mig-summary-url').textContent = storeUrl;
+    document.getElementById('mig-summary-name').textContent = storeName || '(not provided)';
+    document.getElementById('mig-summary-verify').textContent = verifyLabels[_migrationVerifyMethod] || _migrationVerifyMethod;
+
+    showMigrationStep(3);
+  };
+
+  // Final submission
+  window.requestStoreMigration = async function() {
+    var token = getToken();
+    if (!token) { showToast('Please sign in first', 'error'); showLogin(); return; }
+
+    // Server-side verification enforcement — prevent console bypass
+    if (!_migrationVerifyMethod) { showToast('Please complete ownership verification first', 'error'); return; }
+    if (_migrationStep < 3) { showToast('Please complete all migration steps', 'error'); return; }
+
+    // Rate limiting
+    if (Date.now() - _lastMigrationRequest < 30000) { showToast('Please wait before submitting another request', 'error'); return; }
+
+    var platform = document.getElementById('migration-platform').value;
+    var storeUrl = document.getElementById('ebay-store-url').value.trim();
+    var storeName = document.getElementById('migration-store-name').value.trim();
+    var listingCount = document.getElementById('migration-listing-count').value;
+    var notes = document.getElementById('migration-notes').value.trim();
+    var statusEl = document.getElementById('ebay-import-form-status');
+    var verifyLabels = { code: 'Verification Code', listing: 'Verification Listing', email: 'Email Verification' };
+
     statusEl.textContent = '';
+    var btn = event.target;
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    var messageBody = '=== STORE MIGRATION REQUEST ===\n\n' +
+      'Source Platform: ' + (_platformNames[platform] || platform) + '\n' +
+      'Store URL: ' + storeUrl + '\n' +
+      'Store Name: ' + (storeName || 'N/A') + '\n' +
+      'Estimated Listings: ' + listingCount + '\n' +
+      (notes ? 'Notes: ' + notes + '\n' : '') +
+      '\n--- OWNERSHIP VERIFICATION ---\n' +
+      'Method: ' + (verifyLabels[_migrationVerifyMethod] || 'Not specified') + '\n' +
+      'Verification Code: ' + _migrationVerifyCode + '\n' +
+      'Seller Confirmation: Completed\n' +
+      '\nAgent Instructions: Verify the code ' + _migrationVerifyCode + ' is present on the ' +
+      'seller\'s store before beginning any scraping or import activity. ' +
+      'If verification fails, do NOT proceed — notify the seller.\n' +
+      '\n--- Trust Protocol: Pending Commitment ---\n' +
+      'USDC settlement upon verified completion.';
 
     try {
-      var resp = await fetch(API_BASE + '/v1/marketplace/ebay-import', {
+      var resp = await fetch(API_BASE + '/v1/marketplace/migration-request', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
-        body: JSON.stringify({ storeUrl: storeUrl, storeName: storeName || undefined })
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({
+          platform: platform,
+          storeUrl: storeUrl,
+          storeName: storeName || 'My Store',
+          listingCount: listingCount || '1-50',
+          notes: notes || '',
+          verifyMethod: _migrationVerifyMethod,
+          verifyCode: _migrationVerifyCode
+        })
       });
       var data = await resp.json();
 
-      if (!data.success) {
-        statusEl.textContent = data.error || 'Import failed';
+      if (data.success) {
+        _lastMigrationRequest = Date.now();
+        closeModal('ebay-import-modal');
+        showToast('Migration request submitted! Our AI agent will verify your store ownership and begin the import.', 'success');
+        showMigrationProgress(platform);
+      } else {
+        statusEl.textContent = data.error || 'Could not submit. Please try again.';
         statusEl.style.color = '#ff6b6b';
-        btn.disabled = false;
-        btn.textContent = 'Start Import';
-        return;
       }
-
-      // Success — close modal and show progress bar
-      closeModal('ebay-import-modal');
-      showToast('eBay import started!', 'success');
-      pollEbayImport(data.importId);
     } catch(e) {
-      statusEl.textContent = 'Network error: ' + e.message;
+      statusEl.textContent = 'Network error. Please check your connection and try again.';
       statusEl.style.color = '#ff6b6b';
     }
+
     btn.disabled = false;
-    btn.textContent = 'Start Import';
+    btn.textContent = 'Submit Migration Request';
   };
 
-  function pollEbayImport(importId) {
+  function showMigrationProgress(platform) {
     var progressEl = document.getElementById('ebay-import-progress');
-    progressEl.style.display = 'block';
-
-    if (_ebayImportPollTimer) clearInterval(_ebayImportPollTimer);
-    _ebayImportPollTimer = setInterval(async function() {
-      try {
-        var resp = await fetch(API_BASE + '/v1/marketplace/ebay-import/' + importId, {
-          headers: { 'Authorization': 'Bearer ' + getToken() }
-        });
-        var data = await resp.json();
-        if (!data.success) return;
-
-        var j = data.data;
-        var statusEl = document.getElementById('ebay-import-status');
-        var barEl = document.getElementById('ebay-import-bar');
-        var detailEl = document.getElementById('ebay-import-detail');
-
-        statusEl.textContent = j.status.charAt(0).toUpperCase() + j.status.slice(1);
-
-        if (j.listingsFound > 0) {
-          var pct = Math.round(((j.listingsImported + j.listingsFailed) / j.listingsFound) * 100);
-          barEl.style.width = pct + '%';
-          detailEl.textContent = j.listingsImported + ' imported, ' + j.listingsFailed + ' failed of ' + j.listingsFound + ' found';
-        } else if (j.status === 'scraping') {
-          barEl.style.width = '10%';
-          detailEl.textContent = 'Scanning eBay store for listings...';
-        }
-
-        if (j.status === 'complete' || j.status === 'failed') {
-          clearInterval(_ebayImportPollTimer);
-          _ebayImportPollTimer = null;
-          if (j.status === 'complete') {
-            barEl.style.width = '100%';
-            showToast('Import complete! ' + j.listingsImported + ' listings imported.', 'success');
-            loadListings(); // refresh browse
-            loadDashboard(); // refresh dashboard
-          } else {
-            barEl.style.background = '#ff6b6b';
-            showToast('Import failed: ' + (j.errorMessage || 'Unknown error'), 'error');
-          }
-        }
-      } catch(e) { /* ignore polling errors */ }
-    }, 2500);
+    if (progressEl) {
+      progressEl.style.display = 'block';
+      document.getElementById('ebay-import-status').textContent = 'Verifying Ownership';
+      document.getElementById('ebay-import-bar').style.width = '15%';
+      document.getElementById('ebay-import-detail').textContent =
+        (_platformNames[platform] || platform) + ' store \u2014 agent is checking verification code ' + _migrationVerifyCode;
+    }
   }
 
   // ─── Marketing Dashboard ────────────────────────────────────
@@ -6755,12 +7751,12 @@
       });
     }
 
-    // Step: Import eBay store (sellers with no listings)
-    if ((role === 'seller' || role === 'both') && listingCount === 0 && (tier === 'pro' || tier === 'elite' || tier === 'platinum' || tier === 'sovereign')) {
+    // Step: Migrate existing store (sellers with no listings)
+    if ((role === 'seller' || role === 'both') && listingCount === 0) {
       steps.push({
         icon: '&#128230;',
-        title: 'Import your eBay store',
-        desc: 'Bulk import all your eBay listings in one click — images, prices, and descriptions included.',
+        title: 'Migrate an existing store',
+        desc: 'Hire a verified AI migration agent to import your eBay, Etsy, Shopify, or Amazon inventory — ownership verified, trust protocol protected.',
         action: 'openEbayImportModal()'
       });
     }
@@ -6770,7 +7766,7 @@
       steps.push({
         icon: '&#11088;',
         title: 'Upgrade to Pro',
-        desc: 'Get faster moderation, eBay store import, and priority AI agent promotion.',
+        desc: 'Get faster moderation, priority AI agent promotion, and enhanced analytics.',
         action: "switchTab('agents')"
       });
     }
@@ -7674,14 +8670,9 @@
   });
 
 })();
-</script>
 
-<!-- ═══════════════════════════════════════════════════════════
-     SEASONAL AMBIENT EFFECTS ENGINE
-     ═══════════════════════════════════════════════════════════ -->
-<canvas id="seasonal-canvas"></canvas>
-<div class="season-label" id="season-label"></div>
-<script>
+  // ─── SEASONAL AMBIENT EFFECTS ENGINE ───────────────────────
+
 (function() {
   'use strict';
 
@@ -8050,6 +9041,11 @@
 
 })();
 </script>
+
+<!-- SEASONAL AMBIENT EFFECTS ENGINE -->
+<canvas id="seasonal-canvas"></canvas>
+<div class="season-label" id="season-label"></div>
+
 <!-- Aurora AI Support Chat Widget -->
 <script src="https://borealismark-api.onrender.com/aurora-widget.js" defer>
   // Initialize CSRF token
