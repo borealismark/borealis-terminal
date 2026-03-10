@@ -2191,6 +2191,29 @@
     .dash-section { display:none; }
     .dash-section.active { display:block; }
 
+    /* v40: Notification Bell */
+    .notif-bell-wrap { position:relative; display:inline-flex; align-items:center; margin-left:auto; }
+    .notif-bell { background:none; border:none; color:var(--text-muted); font-size:20px; cursor:pointer; padding:6px 10px; border-radius:var(--radius-sm); transition:all 0.15s; position:relative; }
+    .notif-bell:hover { color:var(--gold); background:var(--bg-elevated); }
+    .notif-badge { position:absolute; top:2px; right:4px; background:var(--accent, #f44); color:#fff; font-size:10px; font-weight:700; min-width:16px; height:16px; border-radius:8px; display:flex; align-items:center; justify-content:center; padding:0 4px; pointer-events:none; }
+    .notif-badge.hidden { display:none; }
+    .notif-panel { display:none; position:absolute; top:100%; right:0; width:360px; max-height:440px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:0 8px 32px rgba(0,0,0,0.4); z-index:200; overflow:hidden; }
+    .notif-panel.open { display:flex; flex-direction:column; }
+    .notif-panel-header { padding:12px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+    .notif-panel-header h4 { margin:0; font-size:14px; color:var(--text); }
+    .notif-mark-all { background:none; border:none; color:var(--gold); font-size:12px; cursor:pointer; font-family:inherit; }
+    .notif-mark-all:hover { text-decoration:underline; }
+    .notif-list { overflow-y:auto; max-height:360px; flex:1; }
+    .notif-item { padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.04); cursor:pointer; transition:background 0.1s; display:flex; gap:10px; align-items:flex-start; }
+    .notif-item:hover { background:var(--bg-elevated); }
+    .notif-item.unread { background:rgba(212,168,83,0.06); }
+    .notif-item.unread::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--gold); flex-shrink:0; margin-top:6px; }
+    .notif-item-content { flex:1; min-width:0; }
+    .notif-item-title { font-size:13px; font-weight:600; color:var(--text); margin-bottom:2px; }
+    .notif-item-body { font-size:12px; color:var(--text-muted); line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .notif-item-time { font-size:10px; color:var(--text-muted); margin-top:4px; }
+    .notif-empty { padding:40px 16px; text-align:center; color:var(--text-muted); font-size:13px; }
+
     /* ─── EMAIL VERIFICATION BANNER ─────────────────────── */
     .verify-banner { display:none; margin-bottom:20px; padding:16px 20px; background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(251,191,36,0.03)); border:1px solid rgba(251,191,36,0.25); border-radius:var(--radius); }
     .verify-banner.show { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
@@ -3425,6 +3448,22 @@
           <button class="dash-subnav-btn" onclick="switchDashSection('orders')">Orders</button>
           <button class="dash-subnav-btn" onclick="switchDashSection('verification')">Trust &amp; Verification</button>
           <button class="dash-subnav-btn" onclick="switchDashSection('settings')">Settings</button>
+          <!-- v40: Notification Bell -->
+          <div class="notif-bell-wrap">
+            <button class="notif-bell" onclick="toggleNotifPanel()" title="Notifications" aria-label="Notifications">
+              &#128276;
+              <span class="notif-badge hidden" id="notif-badge">0</span>
+            </button>
+            <div class="notif-panel" id="notif-panel">
+              <div class="notif-panel-header">
+                <h4>Notifications</h4>
+                <button class="notif-mark-all" onclick="markAllNotifsRead()">Mark all read</button>
+              </div>
+              <div class="notif-list" id="notif-list">
+                <div class="notif-empty">No notifications yet</div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Overview Section -->
@@ -9751,6 +9790,184 @@
 
 <!-- Aurora AI Support Chat Widget -->
 <script src="https://borealismark-api.onrender.com/aurora-widget.js" defer>
+  // ─── v40 Signal Tower: Notification Center ──────────────────────────────
+  (function() {
+    var notifSSE = null;
+    var notifCache = [];
+
+    function getToken() {
+      try { return localStorage.getItem('bt_token'); } catch { return null; }
+    }
+
+    window.toggleNotifPanel = function() {
+      var panel = document.getElementById('notif-panel');
+      if (!panel) return;
+      panel.classList.toggle('open');
+      if (panel.classList.contains('open')) loadNotifications();
+    };
+
+    // Close panel on outside click
+    document.addEventListener('click', function(e) {
+      var panel = document.getElementById('notif-panel');
+      var wrap = e.target.closest('.notif-bell-wrap');
+      if (panel && panel.classList.contains('open') && !wrap) {
+        panel.classList.remove('open');
+      }
+    });
+
+    function timeAgo(ts) {
+      var diff = Math.floor((Date.now() - ts) / 1000);
+      if (diff < 60) return 'just now';
+      if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+      return Math.floor(diff / 86400) + 'd ago';
+    }
+
+    function renderNotifications(notifications) {
+      var list = document.getElementById('notif-list');
+      if (!list) return;
+      if (!notifications || notifications.length === 0) {
+        list.innerHTML = '<div class="notif-empty">No notifications yet</div>';
+        return;
+      }
+      list.innerHTML = notifications.map(function(n) {
+        return '<div class="notif-item ' + (n.read ? '' : 'unread') + '" onclick="handleNotifClick(\'' + n.id + '\', ' + JSON.stringify(n.link || '').replace(/'/g, "\\'") + ')">'
+          + '<div class="notif-item-content">'
+          + '<div class="notif-item-title">' + DOMPurify.sanitize(n.title) + '</div>'
+          + '<div class="notif-item-body">' + DOMPurify.sanitize(n.body) + '</div>'
+          + '<div class="notif-item-time">' + timeAgo(n.createdAt) + '</div>'
+          + '</div></div>';
+      }).join('');
+    }
+
+    function updateBadge(count) {
+      var badge = document.getElementById('notif-badge');
+      if (!badge) return;
+      if (count > 0) {
+        badge.textContent = count > 99 ? '99+' : count;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function loadNotifications() {
+      var token = getToken();
+      if (!token) return;
+      fetch(window.API_BASE + '/v1/notifications?limit=20', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        if (data.success && data.data) {
+          notifCache = data.data.notifications || [];
+          renderNotifications(notifCache);
+          updateBadge(data.data.unreadCount || 0);
+        }
+      }).catch(function() { /* silent */ });
+    }
+
+    function pollUnreadCount() {
+      var token = getToken();
+      if (!token) return;
+      fetch(window.API_BASE + '/v1/notifications/count', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        if (data.success && data.data) updateBadge(data.data.unreadCount || 0);
+      }).catch(function() { /* silent */ });
+    }
+
+    window.handleNotifClick = function(id, link) {
+      var token = getToken();
+      if (token) {
+        fetch(window.API_BASE + '/v1/notifications/' + id + '/read', {
+          method: 'PATCH',
+          headers: { 'Authorization': 'Bearer ' + token }
+        }).catch(function() {});
+      }
+      // Update UI immediately
+      notifCache = notifCache.map(function(n) {
+        return n.id === id ? Object.assign({}, n, { read: true }) : n;
+      });
+      renderNotifications(notifCache);
+      var unread = notifCache.filter(function(n) { return !n.read; }).length;
+      updateBadge(unread);
+      // Navigate if link provided
+      if (link) {
+        document.getElementById('notif-panel').classList.remove('open');
+        if (link.startsWith('/dashboard/')) {
+          var section = link.split('/dashboard/')[1];
+          if (section) window.switchDashSection(section);
+        }
+      }
+    };
+
+    window.markAllNotifsRead = function() {
+      var token = getToken();
+      if (!token) return;
+      fetch(window.API_BASE + '/v1/notifications/read-all', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token }
+      }).then(function() {
+        notifCache = notifCache.map(function(n) { return Object.assign({}, n, { read: true }); });
+        renderNotifications(notifCache);
+        updateBadge(0);
+      }).catch(function() {});
+    };
+
+    // SSE connection for real-time notifications
+    function connectSSE() {
+      var token = getToken();
+      if (!token || notifSSE) return;
+      try {
+        notifSSE = new EventSource(window.API_BASE + '/v1/notifications/stream?token=' + encodeURIComponent(token));
+        notifSSE.onmessage = function(e) {
+          try {
+            var data = JSON.parse(e.data);
+            if (data.type === 'notification') {
+              notifCache.unshift(data);
+              var panel = document.getElementById('notif-panel');
+              if (panel && panel.classList.contains('open')) renderNotifications(notifCache);
+              var unread = notifCache.filter(function(n) { return !n.read; }).length;
+              updateBadge(unread);
+            } else if (data.type === 'count_update') {
+              updateBadge(data.unreadCount || 0);
+            }
+          } catch { /* parse error */ }
+        };
+        notifSSE.onerror = function() {
+          if (notifSSE) { notifSSE.close(); notifSSE = null; }
+          // Reconnect after 30s
+          setTimeout(connectSSE, 30000);
+        };
+      } catch { /* SSE not supported */ }
+    }
+
+    // Initialize on dashboard load
+    var origSwitchTab = window.switchTab;
+    if (origSwitchTab) {
+      var _origSwitchTab = origSwitchTab;
+      window.switchTab = function(tab) {
+        _origSwitchTab(tab);
+        if (tab === 'dashboard') {
+          pollUnreadCount();
+        }
+      };
+    }
+
+    // Poll unread count every 2 minutes when logged in
+    setInterval(function() {
+      if (getToken()) pollUnreadCount();
+    }, 120000);
+
+    // Initial load if already on dashboard
+    setTimeout(function() {
+      if (getToken()) {
+        pollUnreadCount();
+        // SSE disabled for now — requires auth header which EventSource doesn't support
+        // Will use polling until we add token-based SSE auth
+      }
+    }, 2000);
+  })();
+
   // Initialize CSRF token
   function generateCSRFToken() {
     const token = 'csrf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
