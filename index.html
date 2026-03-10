@@ -3937,8 +3937,8 @@
 
 <!-- Create Listing Modal -->
 <div class="modal-overlay" id="create-listing-modal">
-  <div class="modal" style="max-width:500px;">
-    <button class="modal-close" onclick="closeModal('create-listing-modal')">&times;</button>
+  <div class="modal" style="max-width:560px; max-height:85vh; overflow-y:auto;">
+    <button class="modal-close" onclick="closeModal('create-listing-modal')" style="position:sticky;top:0;right:0;z-index:10;background:var(--bg-card);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 2px 8px rgba(0,0,0,0.3);">&times;</button>
     <button class="modal-back-btn" onclick="closeModal('create-listing-modal')">&#8592; Back</button>
     <h2>Post a Listing</h2>
     <p class="subtitle">List your product, service, or digital asset on the trust-gated marketplace.</p>
@@ -4030,6 +4030,7 @@
         <input type="text" id="cl-tags" placeholder="e.g. ai, automation, web3" />
       </div>
       <button type="submit" class="btn btn-gold btn-block">Submit Listing</button>
+      <button type="button" class="btn btn-block" style="margin-top:8px;background:transparent;border:1px solid var(--border);color:var(--text-muted);" onclick="closeModal('create-listing-modal')">Cancel</button>
     </form>
   </div>
 </div>
@@ -4830,6 +4831,7 @@
     showPage('app');
     updateAuthUI();
     initSectorGrid();
+    fetchCategoryCounts();
     loadListings();
     loadFeaturedStorefront();
     fetchStats();
@@ -6901,6 +6903,7 @@
   window.showCreateListing = function() {
     const token = getToken();
     if (!token) { showLogin(); return; }
+    if (!requireVerified('creating a listing')) return;
     openModal('create-listing-modal');
   };
 
@@ -7604,6 +7607,45 @@
     grid.innerHTML = html;
   };
 
+  // Map listing categories to sector keys
+  function categoryToSector(cat) {
+    var map = {
+      'ai-models': 'ai', 'datasets': 'data', 'consulting': 'enterprise',
+      'creative': 'creative', 'development': 'technology', 'marketing': 'marketing',
+      'services': 'enterprise', 'digital-goods': 'technology', 'physical-goods': 'engineering'
+    };
+    return map[cat] || null;
+  }
+
+  // Fetch category counts from API and populate sector tiles
+  function fetchCategoryCounts() {
+    fetch(API_BASE + '/v1/marketplace/category-counts')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data.success) return;
+        var sectorCounts = {};
+        var total = data.data.total || 0;
+        (data.data.categories || []).forEach(function(row) {
+          var sector = categoryToSector(row.category);
+          if (sector) {
+            sectorCounts[sector] = (sectorCounts[sector] || 0) + row.count;
+          }
+        });
+        // Update "All Sectors" tile
+        var allEl = document.getElementById('count-all');
+        if (allEl) allEl.textContent = total + ' listing' + (total !== 1 ? 's' : '');
+        // Update each sector tile
+        for (var key in SECTOR_TAXONOMY) {
+          var el = document.getElementById('count-' + key);
+          if (el) {
+            var c = sectorCounts[key] || 0;
+            el.textContent = c + ' listing' + (c !== 1 ? 's' : '');
+          }
+        }
+      })
+      .catch(function(err) { console.warn('Category counts fetch failed:', err); });
+  }
+
   // Sector selection
   window.selectSector = function(sectorKey) {
     selectedSector = sectorKey;
@@ -7680,6 +7722,11 @@
     localStorage.removeItem('bt_token');
     localStorage.removeItem('bt_user');
     localStorage.removeItem('bt_token_expires');
+    // Clear all auth form fields to prevent data persistence
+    var formIds = ['auth-reg-name','auth-reg-email','auth-reg-password','auth-login-email','auth-login-password','modal-reg-name','modal-reg-email','modal-reg-password','modal-login-email','modal-login-password'];
+    formIds.forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+    var tosBoxes = ['auth-reg-tos-agree','modal-reg-tos'];
+    tosBoxes.forEach(function(id) { var el = document.getElementById(id); if (el) el.checked = false; });
     updateAuthUI();
   };
 
