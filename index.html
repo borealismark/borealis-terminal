@@ -27,7 +27,39 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <meta name="csrf-token" content="" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.8/purify.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.4/purify.min.js"
+          integrity="sha512-wKnsnQ0hJGtxmHOlDQ5FTUxFGG2TVBqAEIUzlcoBMfhPHKNP8Lw5GAS4lNHiMig/VzMaQ6DeSaOCflGPWMpEg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    // Fallback: if DOMPurify CDN fails, load from alternate CDN
+    if (typeof DOMPurify === 'undefined') {
+      var _dp = document.createElement('script');
+      _dp.src = 'https://unpkg.com/dompurify@3.2.4/dist/purify.min.js';
+      _dp.async = false;
+      document.head.appendChild(_dp);
+    }
+    // Ultimate fallback: if both CDNs fail, provide a passthrough so the site doesn't break
+    window.addEventListener('DOMContentLoaded', function() {
+      if (typeof DOMPurify === 'undefined') {
+        console.warn('DOMPurify unavailable — using basic sanitizer fallback');
+        window.DOMPurify = {
+          sanitize: function(html) {
+            // Basic sanitization: strip script tags and event handlers
+            var div = document.createElement('div');
+            div.innerHTML = html;
+            var scripts = div.querySelectorAll('script');
+            scripts.forEach(function(s) { s.remove(); });
+            div.querySelectorAll('*').forEach(function(el) {
+              Array.from(el.attributes).forEach(function(attr) {
+                if (attr.name.startsWith('on')) el.removeAttribute(attr.name);
+              });
+            });
+            return div.innerHTML;
+          }
+        };
+      }
+    });
+  </script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
