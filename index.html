@@ -3712,19 +3712,31 @@
               </div>
             </div>
 
-            <!-- Layer 4: Transaction History (Organic) -->
+            <!-- Layer 4: Transaction History — Dual-Rail Scoring (Hedera + Stripe) -->
             <div class="verify-layer-card" id="verify-layer-transactions" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;">
               <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div style="display:flex;align-items:center;gap:12px;">
                   <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(212,168,83,0.12);">&#128176;</div>
                   <div>
                     <div style="font-size:14px;font-weight:600;color:var(--text);">Transaction History</div>
-                    <div style="font-size:12px;color:var(--text-muted);">+2 pts per completed transaction (max 20 pts)</div>
+                    <div style="font-size:12px;color:var(--text-muted);">Dual-rail scoring (max 20 pts combined)</div>
                   </div>
                 </div>
                 <div id="verify-tx-count" style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(100,100,100,0.2);color:var(--text-muted);">0 transactions</div>
               </div>
-              <div style="margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.5;">Trust points from transactions are earned automatically as you buy and sell on the marketplace. This layer rewards active, trustworthy participation.</div>
+              <div style="margin-top:12px;display:flex;gap:10px;">
+                <div id="verify-tx-hedera" style="flex:1;padding:10px;border-radius:8px;background:rgba(76,175,80,0.08);border:1px solid rgba(76,175,80,0.15);">
+                  <div style="font-size:11px;font-weight:600;color:#4CAF50;text-transform:uppercase;letter-spacing:0.5px;">Hedera (On-Chain)</div>
+                  <div style="font-size:18px;font-weight:700;color:var(--text);margin-top:4px;" id="verify-tx-hedera-count">0</div>
+                  <div style="font-size:11px;color:var(--text-muted);">+2 pts each</div>
+                </div>
+                <div id="verify-tx-stripe" style="flex:1;padding:10px;border-radius:8px;background:rgba(99,91,255,0.08);border:1px solid rgba(99,91,255,0.15);">
+                  <div style="font-size:11px;font-weight:600;color:#635BFF;text-transform:uppercase;letter-spacing:0.5px;">Stripe (Verified)</div>
+                  <div style="font-size:18px;font-weight:700;color:var(--text);margin-top:4px;" id="verify-tx-stripe-count">0</div>
+                  <div style="font-size:11px;color:var(--text-muted);">+1 pt each</div>
+                </div>
+              </div>
+              <div style="margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.5;">Trust is earned through completed transactions, not payment verification alone. Hedera-settled jobs carry higher weight as on-chain proof of delivery. Stripe transactions earn trust through verified payment behavior.</div>
             </div>
 
             <!-- Layer 5: Account Age (Organic) -->
@@ -3760,7 +3772,10 @@
                 <span style="color:var(--gold);">Trusted</span><span style="color:var(--text-muted);">50+ pts — Multi-layer verified</span>
               </div>
               <div data-trust-level="premium" style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);transition:all 0.3s ease;">
-                <span style="color:#E040FB;">Premium</span><span style="color:var(--text-muted);">80+ pts — Maximum trust</span>
+                <span style="color:#E040FB;">Premium</span><span style="color:var(--text-muted);">80+ pts — Full verification + history</span>
+              </div>
+              <div data-trust-level="elite" style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);transition:all 0.3s ease;">
+                <span style="background:linear-gradient(135deg,#D4A853,#E040FB);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;">Elite</span><span style="color:var(--text-muted);">105+ pts — Sustained transactional trust</span>
               </div>
             </div>
           </div>
@@ -5620,12 +5635,20 @@
         }
       }
 
-      // Transaction history
+      // Transaction history — dual-rail breakdown
       var txCount = document.getElementById('verify-tx-count');
       if (txCount) {
         var c = data.layers.transactionHistory.count;
         txCount.textContent = c + ' transaction' + (c !== 1 ? 's' : '') + ' (+' + data.layers.transactionHistory.points + ' pts)';
         if (c > 0) { txCount.style.background = 'rgba(76,175,80,0.15)'; txCount.style.color = '#4CAF50'; }
+      }
+      var hederaCountEl = document.getElementById('verify-tx-hedera-count');
+      if (hederaCountEl) {
+        hederaCountEl.textContent = (data.layers.transactionHistory.hederaTxCount || 0).toString();
+      }
+      var stripeCountEl = document.getElementById('verify-tx-stripe-count');
+      if (stripeCountEl) {
+        stripeCountEl.textContent = (data.layers.transactionHistory.stripeTxCount || 0).toString();
       }
 
       // Account age
@@ -5641,11 +5664,15 @@
       if (breakdownEl) {
         var socialPts = verifiedSocials.length * 15;
         var docPts = data.layers.governmentId.some(function(g) { return g.status === 'verified'; }) ? 30 : 0;
+        var hederaPts = data.layers.transactionHistory.hederaPoints || 0;
+        var stripePts = data.layers.transactionHistory.stripePoints || 0;
+        var txPts = Math.min(hederaPts + stripePts, data.layers.transactionHistory.maxPoints || 20);
         var segments = [
           { label: 'Email', pts: data.layers.email.points, color: '#80b3ff' },
           { label: 'Social', pts: socialPts, color: '#4CAF50' },
           { label: 'Gov ID', pts: docPts, color: '#D4A853' },
-          { label: 'Trades', pts: data.layers.transactionHistory.points, color: '#FF9800' },
+          { label: 'Hedera', pts: Math.min(hederaPts, txPts), color: '#4CAF50' },
+          { label: 'Stripe', pts: Math.min(stripePts, Math.max(0, txPts - hederaPts)), color: '#635BFF' },
           { label: 'Age', pts: data.layers.accountAge.points, color: '#E040FB' }
         ];
         var bHtml = '';
