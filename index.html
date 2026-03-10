@@ -3309,6 +3309,7 @@
           <button class="dash-subnav-btn" onclick="switchDashSection('watchlist')">Watchlist</button>
           <button class="dash-subnav-btn" onclick="switchDashSection('cart')">Cart</button>
           <button class="dash-subnav-btn" onclick="switchDashSection('orders')">Orders</button>
+          <button class="dash-subnav-btn" onclick="switchDashSection('verification')">Trust &amp; Verification</button>
           <button class="dash-subnav-btn" onclick="switchDashSection('settings')">Settings</button>
         </div>
 
@@ -3330,6 +3331,11 @@
             <div class="dash-stat">
               <div class="dash-stat-label">Messages</div>
               <div class="dash-stat-value" id="dash-messages">0</div>
+            </div>
+            <div class="dash-stat" style="cursor:pointer;" onclick="switchDashSection('verification')" title="View Trust & Verification">
+              <div class="dash-stat-label">Trust Score</div>
+              <div class="dash-stat-value" id="dash-trust-score" style="font-size:16px;color:var(--gold);">—</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:2px;" id="dash-trust-level">—</div>
             </div>
           </div>
           <!-- Action Buttons -->
@@ -3411,6 +3417,196 @@
             <div class="empty-state">
               <h3>No orders yet</h3>
               <p>Your completed purchases will appear here.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trust & Verification Section -->
+        <div class="dash-section" id="dash-verification-section">
+          <h3 style="font-size:15px;font-weight:600;margin-bottom:14px;">Trust &amp; Verification Center</h3>
+
+          <!-- Trust Score Overview Card -->
+          <div id="trust-overview-card" style="background:linear-gradient(135deg, rgba(212,168,83,0.08), rgba(212,168,83,0.02));border:1px solid rgba(212,168,83,0.25);border-radius:var(--radius-sm);padding:24px;margin-bottom:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+              <div>
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:6px;">Your Trust Score</div>
+                <div style="display:flex;align-items:baseline;gap:8px;">
+                  <span id="trust-score-big" style="font-size:36px;font-weight:700;color:var(--gold);">—</span>
+                  <span style="font-size:14px;color:var(--text-muted);">/ 100</span>
+                </div>
+                <div id="trust-level-badge" style="display:inline-block;margin-top:8px;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;background:rgba(212,168,83,0.15);color:var(--gold);text-transform:uppercase;letter-spacing:0.5px;">Unverified</div>
+              </div>
+              <div id="trust-next-level" style="text-align:right;">
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Next Level</div>
+                <div style="font-size:14px;color:var(--text);font-weight:500;" id="trust-next-name">—</div>
+                <div style="font-size:12px;color:var(--text-muted);" id="trust-next-pts">— points needed</div>
+              </div>
+            </div>
+            <!-- Progress Bar -->
+            <div style="margin-top:16px;background:rgba(255,255,255,0.05);border-radius:6px;height:8px;overflow:hidden;">
+              <div id="trust-progress-bar" style="height:100%;background:var(--gold);border-radius:6px;transition:width 0.5s ease;width:0%;"></div>
+            </div>
+          </div>
+
+          <!-- Verification Layers -->
+          <div style="display:grid;gap:14px;">
+
+            <!-- Layer 1: Email Verification -->
+            <div class="verify-layer-card" id="verify-layer-email" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(212,168,83,0.12);">&#9993;</div>
+                  <div>
+                    <div style="font-size:14px;font-weight:600;color:var(--text);">Email Verification</div>
+                    <div style="font-size:12px;color:var(--text-muted);">+10 trust points</div>
+                  </div>
+                </div>
+                <div id="verify-email-status" style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(100,100,100,0.2);color:var(--text-muted);">Pending</div>
+              </div>
+            </div>
+
+            <!-- Layer 2: Social Media Verification -->
+            <div class="verify-layer-card" id="verify-layer-social" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(212,168,83,0.12);">&#127760;</div>
+                  <div>
+                    <div style="font-size:14px;font-weight:600;color:var(--text);">Social Media Verification</div>
+                    <div style="font-size:12px;color:var(--text-muted);">+15 pts each (max 3 accounts = 45 pts)</div>
+                  </div>
+                </div>
+                <div id="verify-social-count" style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(100,100,100,0.2);color:var(--text-muted);">0/3</div>
+              </div>
+              <!-- Social verification list -->
+              <div id="social-verifications-list" style="margin-bottom:12px;"></div>
+              <!-- Add social button -->
+              <div id="social-add-container">
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <select id="social-platform-select" style="flex:1;min-width:120px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;">
+                    <option value="">Select platform...</option>
+                    <option value="facebook">Facebook</option>
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="x">X (Twitter)</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="tiktok">TikTok</option>
+                  </select>
+                  <input type="url" id="social-profile-url" placeholder="Your profile URL..." style="flex:2;min-width:200px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;">
+                  <button onclick="initiateSocialVerification()" class="btn btn-gold" style="font-size:12px;padding:8px 14px;">Verify</button>
+                </div>
+              </div>
+              <!-- Pending verification instructions (hidden by default) -->
+              <div id="social-pending-instructions" style="display:none;margin-top:12px;background:rgba(212,168,83,0.06);border:1px solid rgba(212,168,83,0.2);border-radius:var(--radius-sm);padding:14px;">
+                <div style="font-size:13px;font-weight:600;color:var(--gold);margin-bottom:8px;">Verification Instructions</div>
+                <div id="social-instructions-text" style="font-size:12px;color:var(--text-muted);line-height:1.6;white-space:pre-line;"></div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:12px;">
+                  <code id="social-verify-code" style="background:var(--bg);padding:6px 14px;border-radius:var(--radius-sm);font-size:14px;font-weight:700;color:var(--gold);border:1px solid rgba(212,168,83,0.3);letter-spacing:1px;"></code>
+                  <button onclick="copySocialCode()" style="background:none;border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px;color:var(--text-muted);font-size:11px;cursor:pointer;">Copy</button>
+                </div>
+                <div style="margin-top:12px;display:flex;gap:8px;">
+                  <button onclick="confirmSocialVerification()" class="btn btn-gold" style="font-size:12px;padding:8px 16px;">I Posted It — Confirm</button>
+                  <button onclick="cancelSocialVerification()" class="btn" style="font-size:12px;padding:8px 16px;background:rgba(255,255,255,0.05);color:var(--text-muted);border:1px solid var(--border);">Cancel</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Layer 3: Government ID Verification -->
+            <div class="verify-layer-card" id="verify-layer-document" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(212,168,83,0.12);">&#128196;</div>
+                  <div>
+                    <div style="font-size:14px;font-weight:600;color:var(--text);">Government ID Verification</div>
+                    <div style="font-size:12px;color:var(--text-muted);">+30 trust points &middot; 24-48 hour review</div>
+                  </div>
+                </div>
+                <div id="verify-doc-status" style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(100,100,100,0.2);color:var(--text-muted);">Not Submitted</div>
+              </div>
+              <!-- Document upload form (hidden when already submitted/verified) -->
+              <div id="doc-upload-form">
+                <div style="display:grid;gap:10px;grid-template-columns:1fr 1fr;">
+                  <select id="doc-type-select" style="padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;">
+                    <option value="">Document type...</option>
+                    <option value="passport">Passport</option>
+                    <option value="drivers_license">Driver's License</option>
+                    <option value="national_id">National ID Card</option>
+                  </select>
+                  <select id="doc-country-select" style="padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;">
+                    <option value="">Country...</option>
+                    <option value="US">United States</option>
+                    <option value="CA">Canada</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="AU">Australia</option>
+                    <option value="DE">Germany</option>
+                    <option value="FR">France</option>
+                    <option value="JP">Japan</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </div>
+                <div style="margin-top:10px;">
+                  <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;">Upload a clear photo of your document (front side)</label>
+                  <input type="file" id="doc-upload-input" accept="image/jpeg,image/png,image/webp" style="width:100%;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;">
+                </div>
+                <div style="margin-top:10px;">
+                  <button onclick="submitDocumentVerification()" class="btn btn-gold" style="font-size:12px;padding:8px 16px;">Submit for Review</button>
+                </div>
+                <p style="font-size:11px;color:var(--text-muted);margin-top:8px;line-height:1.5;">Your document is reviewed by our team within 24-48 hours. Images are processed securely and not stored permanently. We use AI-assisted analysis followed by human review to detect fraudulent documents.</p>
+              </div>
+              <!-- Document pending/verified status display -->
+              <div id="doc-status-display" style="display:none;padding:12px;background:rgba(212,168,83,0.06);border-radius:var(--radius-sm);border:1px solid rgba(212,168,83,0.15);">
+                <div style="font-size:13px;color:var(--text);" id="doc-status-text"></div>
+              </div>
+            </div>
+
+            <!-- Layer 4: Transaction History (Organic) -->
+            <div class="verify-layer-card" id="verify-layer-transactions" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(212,168,83,0.12);">&#128176;</div>
+                  <div>
+                    <div style="font-size:14px;font-weight:600;color:var(--text);">Transaction History</div>
+                    <div style="font-size:12px;color:var(--text-muted);">+2 pts per completed transaction (max 20 pts)</div>
+                  </div>
+                </div>
+                <div id="verify-tx-count" style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(100,100,100,0.2);color:var(--text-muted);">0 transactions</div>
+              </div>
+              <div style="margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.5;">Trust points from transactions are earned automatically as you buy and sell on the marketplace. This layer rewards active, trustworthy participation.</div>
+            </div>
+
+            <!-- Layer 5: Account Age (Organic) -->
+            <div class="verify-layer-card" id="verify-layer-age" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(212,168,83,0.12);">&#9202;</div>
+                  <div>
+                    <div style="font-size:14px;font-weight:600;color:var(--text);">Account Age</div>
+                    <div style="font-size:12px;color:var(--text-muted);">+5 at 30d, +10 at 90d, +15 at 180d</div>
+                  </div>
+                </div>
+                <div id="verify-age-days" style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(100,100,100,0.2);color:var(--text-muted);">0 days</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Trust Level Guide -->
+          <div style="margin-top:20px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;">
+            <h4 style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text);">Trust Levels</h4>
+            <div style="display:grid;gap:8px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);">
+                <span style="color:var(--text-muted);">Unverified</span><span style="color:var(--text-muted);">0 pts</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);">
+                <span style="color:#80b3ff;">Basic</span><span style="color:var(--text-muted);">10+ pts — Email verified</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);">
+                <span style="color:#4CAF50;">Verified</span><span style="color:var(--text-muted);">25+ pts — Email + Social</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);">
+                <span style="color:var(--gold);">Trusted</span><span style="color:var(--text-muted);">50+ pts — Multi-layer verified</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);">
+                <span style="color:#E040FB;">Premium</span><span style="color:var(--text-muted);">80+ pts — Maximum trust</span>
+              </div>
             </div>
           </div>
         </div>
@@ -3983,33 +4179,43 @@
     <h2>Terms of Service</h2>
     <div style="height:400px;overflow-y:auto;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px;margin-bottom:16px;font-size:13px;line-height:1.6;color:var(--text-secondary);">
       <h3 style="color:var(--text);font-size:14px;margin-bottom:12px;">Borealis Terminal Platform Terms</h3>
+      <p style="margin-bottom:12px;font-size:11px;color:var(--text-muted);">Last updated: March 2026</p>
 
       <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">1. Platform Fees</h4>
-      <p style="margin-bottom:12px;">Borealis Terminal charges tiered platform fees on all completed transactions: 2.5% for Standard users, 1.5% for Elite plan holders, and 1.0% for Enterprise clients. This fee is deducted from seller proceeds automatically during settlement in USDC on the Hedera network.</p>
+      <p style="margin-bottom:12px;">Borealis Terminal charges tiered platform fees on all completed transactions: 2.5% for Standard users, 1.5% for Pro plan holders, and 1.0% for Elite clients. This fee is deducted from seller proceeds automatically during settlement in USDC on the Hedera network. Prices are displayed in CAD with USDC equivalent shown at the current exchange rate.</p>
 
-      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">2. Liability & Disclaimers</h4>
+      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">2. Liability &amp; Disclaimers</h4>
       <p style="margin-bottom:12px;">Borealis Terminal is provided "as is" without warranty. We are not responsible for disputes between buyers and sellers, lost items, damaged goods during shipping, or any transaction-related losses. Users transact at their own risk. All transactions are final and irreversible once settled on the blockchain.</p>
 
-      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">3. Escrow & Settlement Terms</h4>
+      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">3. Escrow &amp; Settlement Terms</h4>
       <p style="margin-bottom:12px;">Funds are held in escrow for up to 14 days after purchase, allowing for dispute resolution. After 14 days, escrow is automatically released to the seller. Refunds are only issued if both parties agree or if Borealis determines fraud has occurred. All settlements occur in USDC on the Hedera network and cannot be reversed.</p>
 
-      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">4. AI Agent Disclaimers</h4>
-      <p style="margin-bottom:12px;">AI agents operating on this platform are autonomous software systems. Borealis Terminal does not guarantee the accuracy, reliability, or legal compliance of AI-generated content, marketing campaigns, or recommendations. Users assume full responsibility for AI agent outputs and their consequences. AI agents are not employees, contractors, or agents of Borealis Terminal.</p>
+      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">4. User Verification &amp; Trust System</h4>
+      <p style="margin-bottom:12px;">Borealis Terminal operates a multi-layer trust verification system. Users earn trust points through: (a) Email verification (+10 pts), (b) Social media verification via public code posting on supported platforms (+15 pts each, max 3 accounts), (c) Government-issued ID verification with AI-assisted review (+30 pts), (d) Transaction history (organic, +2 pts per completed transaction, max 20 pts), and (e) Account age bonuses. Trust levels (Unverified, Basic, Verified, Trusted, Premium) determine marketplace visibility and feature access. Social media verification requires posting a unique BT-code publicly; once confirmed, the post may be removed. Government ID submissions are reviewed within 24-48 hours using AI analysis followed by human review. Documents are processed securely and not stored permanently. Verification status can be revoked for policy violations or fraudulent submissions.</p>
 
-      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">5. Tier System</h4>
-      <p style="margin-bottom:12px;">User tiers (UNVERIFIED, STARTER TRUST, GROWTH TRUST, ENTERPRISE TRUST, INSTITUTIONAL TRUST, SOVEREIGN TRUST) are awarded based on transaction history, trust score, and community standing. Higher tiers unlock feature access, lower fees, and priority support. Tier status can be revoked for policy violations. Tier benefits are subject to change at Borealis Terminal's discretion.</p>
+      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">5. AI Agent Disclaimers</h4>
+      <p style="margin-bottom:12px;">AI agents operating on this platform, including Aurora (support), Migration Officer (store import), and marketing agents, are autonomous software systems powered by third-party AI models. Borealis Terminal does not guarantee the accuracy, reliability, or legal compliance of AI-generated content, marketing campaigns, or recommendations. Users assume full responsibility for AI agent outputs and their consequences. AI agents are not employees, contractors, or agents of Borealis Terminal.</p>
 
-      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">6. Prohibited Activities</h4>
-      <p style="margin-bottom:12px;">Users may not: sell illegal or regulated items, engage in fraud or misrepresentation, use AI agents for spam or harassment, manipulate ratings/reviews, or violate any applicable laws. Violations result in account suspension and possible legal action.</p>
+      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">6. Subscription Tiers</h4>
+      <p style="margin-bottom:12px;">User tiers (Standard, Pro, Elite) are subscription-based and determine platform fees, listing limits, and feature access. Higher tiers unlock reduced fees, priority support, and advanced marketplace features. Subscriptions can be paid via Stripe or USDC on Hedera. Tier benefits are subject to change with 30 days' notice. Subscriptions that lapse result in automatic downgrade to Standard tier.</p>
 
-      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">7. Blockchain & USDC</h4>
-      <p style="margin-bottom:12px;">All payments occur in USDC stablecoin on the Hedera network. Users are responsible for maintaining secure Hedera wallet access. Borealis Terminal is not liable for lost private keys, stolen wallets, or wallet security failures.</p>
+      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">7. Store Migration Service</h4>
+      <p style="margin-bottom:12px;">The Store Migration Service allows users to import listings from external platforms (e.g., eBay, Etsy, Shopify). Migration requires ownership verification via a unique BT-code placed on the source store. Borealis Terminal does not guarantee successful import of all listings and is not responsible for data accuracy from external platforms. Migration requests are subject to admin review.</p>
 
-      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">8. User Data & Privacy</h4>
-      <p style="margin-bottom:12px;">We collect minimal personal data to operate the platform and comply with USDC regulations. Your data is never sold to third parties. Blockchain transactions are immutable and transparent per Hedera protocol.</p>
+      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">8. Prohibited Activities</h4>
+      <p style="margin-bottom:12px;">Users may not: sell illegal or regulated items, engage in fraud or misrepresentation, use AI agents for spam or harassment, manipulate ratings/reviews, attempt to circumvent the trust verification system, submit fraudulent verification documents, create multiple accounts to evade sanctions, engage in off-platform transactions to avoid fees, or violate any applicable laws. Violations result in progressive enforcement: warnings, muting, temporary suspension, or permanent ban depending on severity.</p>
 
-      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">9. Modification of Terms</h4>
-      <p style="margin-bottom:12px;">Borealis Terminal reserves the right to modify these terms with 30 days' notice. Continued use of the platform constitutes acceptance of updated terms.</p>
+      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">9. Blockchain &amp; USDC</h4>
+      <p style="margin-bottom:12px;">All payments occur in USDC stablecoin on the Hedera network. Transaction records are anchored on Hedera Consensus Service (HCS) for immutable audit trails. Users are responsible for maintaining secure Hedera wallet access. Borealis Terminal is not liable for lost private keys, stolen wallets, or wallet security failures.</p>
+
+      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">10. Content Moderation</h4>
+      <p style="margin-bottom:12px;">All listings are subject to automated content moderation including prohibited keyword detection, AI-powered content analysis, and human review. Messages between users are monitored for policy violations including profanity, off-platform solicitation, harassment, and scam attempts. Messages are retained for 30 days and then automatically deleted.</p>
+
+      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">11. User Data &amp; Privacy</h4>
+      <p style="margin-bottom:12px;">We collect personal data (name, email, verification documents) to operate the platform, verify user identity, and comply with applicable regulations. Your data is never sold to third parties. Verification documents are processed securely and not stored permanently after review. Blockchain transactions are immutable and transparent per Hedera protocol. Email communications are processed by our AI support agent (Aurora) for faster response times.</p>
+
+      <h4 style="color:var(--text);margin-top:16px;margin-bottom:8px;font-size:12px;">12. Modification of Terms</h4>
+      <p style="margin-bottom:12px;">Borealis Terminal reserves the right to modify these terms with 30 days' notice via email and platform notification. Continued use of the platform constitutes acceptance of updated terms.</p>
     </div>
     <button class="btn btn-gold btn-block" onclick="closeModal('terms-modal')">I Understand and Agree</button>
   </div>
@@ -4997,6 +5203,7 @@
     else if (section === 'watchlist') sectionEl = document.getElementById('dash-watchlist-section');
     else if (section === 'cart') sectionEl = document.getElementById('dash-cart-section');
     else if (section === 'orders') sectionEl = document.getElementById('dash-orders-section');
+    else if (section === 'verification') sectionEl = document.getElementById('dash-verification-section');
     else if (section === 'settings') sectionEl = document.getElementById('dash-settings-section');
 
     if (sectionEl) sectionEl.classList.add('active');
@@ -5005,6 +5212,7 @@
     if (section === 'watchlist') loadWatchlistTab();
     if (section === 'cart') loadDashCart();
     if (section === 'orders') loadDashOrders();
+    if (section === 'verification') loadVerificationStatus();
   };
 
   // ─── Load Dashboard Cart ────────────────────────────────────
@@ -5099,6 +5307,288 @@
       container.innerHTML = '<div class="empty-state"><h3>Failed to load orders</h3><p>Please try again.</p></div>';
     }
   }
+
+  // ─── Trust & Verification System ─────────────────────────────
+
+  var _pendingVerificationId = null;
+  var _pendingVerificationCode = null;
+
+  async function loadVerificationStatus() {
+    var token = getToken();
+    if (!token) return;
+    try {
+      var resp = await fetch(API_BASE + '/v1/verification/status', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      var json = await resp.json();
+      if (!json.success) return;
+      var data = json.data;
+
+      // Update main trust score display
+      var scoreEl = document.getElementById('trust-score-big');
+      var levelEl = document.getElementById('trust-level-badge');
+      var progBar = document.getElementById('trust-progress-bar');
+      var nextName = document.getElementById('trust-next-name');
+      var nextPts = document.getElementById('trust-next-pts');
+
+      if (scoreEl) scoreEl.textContent = data.trustScore.totalScore;
+      if (progBar) progBar.style.width = Math.min(data.trustScore.totalScore, 100) + '%';
+
+      var levelColors = { unverified: '#666', basic: '#80b3ff', verified: '#4CAF50', trusted: '#D4A853', premium: '#E040FB' };
+      if (levelEl) {
+        levelEl.textContent = data.trustScore.trustLevel;
+        levelEl.style.color = levelColors[data.trustScore.trustLevel] || '#666';
+        levelEl.style.background = (levelColors[data.trustScore.trustLevel] || '#666') + '22';
+      }
+
+      // Next level
+      if (data.trustScore.nextLevel) {
+        if (nextName) nextName.textContent = data.trustScore.nextLevel.level;
+        if (nextPts) nextPts.textContent = data.trustScore.nextLevel.pointsNeeded + ' points needed';
+      } else {
+        if (nextName) nextName.textContent = 'Maximum';
+        if (nextPts) nextPts.textContent = 'All levels unlocked';
+      }
+
+      // Update dashboard overview cards
+      var dashScore = document.getElementById('dash-trust-score');
+      var dashLevel = document.getElementById('dash-trust-level');
+      if (dashScore) dashScore.textContent = data.trustScore.totalScore + ' pts';
+      if (dashLevel) {
+        dashLevel.textContent = data.trustScore.trustLevel;
+        dashLevel.style.color = levelColors[data.trustScore.trustLevel] || 'var(--text-muted)';
+      }
+
+      // Email layer
+      var emailStatus = document.getElementById('verify-email-status');
+      if (emailStatus) {
+        if (data.layers.email.status === 'verified') {
+          emailStatus.textContent = 'Verified +10';
+          emailStatus.style.background = 'rgba(76,175,80,0.15)';
+          emailStatus.style.color = '#4CAF50';
+        } else {
+          emailStatus.textContent = 'Pending';
+          emailStatus.style.background = 'rgba(255,193,7,0.15)';
+          emailStatus.style.color = '#FFC107';
+        }
+      }
+
+      // Social layers
+      var socialList = document.getElementById('social-verifications-list');
+      var socialCount = document.getElementById('verify-social-count');
+      var verifiedSocials = data.layers.socialMedia.filter(function(s) { return s.status === 'verified'; });
+      if (socialCount) {
+        socialCount.textContent = verifiedSocials.length + '/3';
+        if (verifiedSocials.length > 0) {
+          socialCount.style.background = verifiedSocials.length >= 3 ? 'rgba(76,175,80,0.15)' : 'rgba(255,193,7,0.15)';
+          socialCount.style.color = verifiedSocials.length >= 3 ? '#4CAF50' : '#FFC107';
+        }
+      }
+      if (socialList) {
+        var socialHtml = '';
+        data.layers.socialMedia.forEach(function(s) {
+          var platformIcons = { facebook: '&#128100;', linkedin: '&#128188;', x: '&#120143;', instagram: '&#128247;', tiktok: '&#127909;' };
+          var icon = platformIcons[s.platform] || '&#127760;';
+          var statusColor = s.status === 'verified' ? '#4CAF50' : s.status === 'pending' ? '#FFC107' : '#f44336';
+          socialHtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(255,255,255,0.02);border-radius:6px;margin-bottom:6px;">';
+          socialHtml += '<div style="display:flex;align-items:center;gap:8px;">';
+          socialHtml += '<span style="font-size:16px;">' + icon + '</span>';
+          socialHtml += '<span style="font-size:13px;color:var(--text);text-transform:capitalize;">' + DOMPurify.sanitize(s.platform) + '</span>';
+          socialHtml += '</div>';
+          socialHtml += '<span style="font-size:11px;font-weight:600;color:' + statusColor + ';text-transform:uppercase;">' + DOMPurify.sanitize(s.status) + '</span>';
+          socialHtml += '</div>';
+        });
+        socialList.innerHTML = socialHtml;
+      }
+
+      // Update available platforms in dropdown
+      var platformSelect = document.getElementById('social-platform-select');
+      if (platformSelect && data.availablePlatforms) {
+        var options = '<option value="">Select platform...</option>';
+        data.availablePlatforms.forEach(function(p) {
+          var names = { facebook: 'Facebook', linkedin: 'LinkedIn', x: 'X (Twitter)', instagram: 'Instagram', tiktok: 'TikTok' };
+          options += '<option value="' + p + '">' + (names[p] || p) + '</option>';
+        });
+        platformSelect.innerHTML = options;
+      }
+
+      // Hide add form if max reached
+      var addContainer = document.getElementById('social-add-container');
+      if (addContainer) addContainer.style.display = verifiedSocials.length >= 3 ? 'none' : 'block';
+
+      // Document layer
+      var docStatus = document.getElementById('verify-doc-status');
+      var docForm = document.getElementById('doc-upload-form');
+      var docDisplay = document.getElementById('doc-status-display');
+      var docText = document.getElementById('doc-status-text');
+      if (data.layers.governmentId.length > 0) {
+        var latestDoc = data.layers.governmentId[0];
+        if (docStatus) {
+          if (latestDoc.status === 'verified') {
+            docStatus.textContent = 'Verified +30';
+            docStatus.style.background = 'rgba(76,175,80,0.15)';
+            docStatus.style.color = '#4CAF50';
+          } else if (latestDoc.status === 'pending') {
+            docStatus.textContent = 'Under Review';
+            docStatus.style.background = 'rgba(255,193,7,0.15)';
+            docStatus.style.color = '#FFC107';
+          } else {
+            docStatus.textContent = 'Rejected';
+            docStatus.style.background = 'rgba(244,67,54,0.15)';
+            docStatus.style.color = '#f44336';
+          }
+        }
+        if (latestDoc.status === 'pending') {
+          if (docForm) docForm.style.display = 'none';
+          if (docDisplay) { docDisplay.style.display = 'block'; docText.textContent = 'Your document is under review. Estimated review time: 24-48 hours. You will receive an email when the review is complete.'; }
+        } else if (latestDoc.status === 'verified') {
+          if (docForm) docForm.style.display = 'none';
+          if (docDisplay) { docDisplay.style.display = 'block'; docText.textContent = 'Your government ID has been verified. +30 trust points earned.'; }
+        } else {
+          // Rejected — allow resubmission
+          if (docForm) docForm.style.display = 'block';
+          if (docDisplay) { docDisplay.style.display = 'block'; docText.textContent = 'Your previous submission was rejected' + (latestDoc.reviewNotes ? ': ' + DOMPurify.sanitize(latestDoc.reviewNotes) : '') + '. You may submit a new document.'; }
+        }
+      }
+
+      // Transaction history
+      var txCount = document.getElementById('verify-tx-count');
+      if (txCount) {
+        var c = data.layers.transactionHistory.count;
+        txCount.textContent = c + ' transaction' + (c !== 1 ? 's' : '') + ' (+' + data.layers.transactionHistory.points + ' pts)';
+        if (c > 0) { txCount.style.background = 'rgba(76,175,80,0.15)'; txCount.style.color = '#4CAF50'; }
+      }
+
+      // Account age
+      var ageDays = document.getElementById('verify-age-days');
+      if (ageDays) {
+        var d = data.layers.accountAge.days;
+        ageDays.textContent = d + ' day' + (d !== 1 ? 's' : '') + ' (+' + data.layers.accountAge.points + ' pts)';
+        if (d >= 30) { ageDays.style.background = 'rgba(76,175,80,0.15)'; ageDays.style.color = '#4CAF50'; }
+      }
+
+    } catch(e) {
+      console.error('Failed to load verification status:', e);
+    }
+  }
+
+  window.initiateSocialVerification = async function() {
+    var token = getToken();
+    if (!token) return showToast('Please sign in first', 'error');
+    var platform = document.getElementById('social-platform-select').value;
+    var profileUrl = document.getElementById('social-profile-url').value.trim();
+    if (!platform) return showToast('Please select a platform', 'error');
+    if (!profileUrl) return showToast('Please enter your profile URL', 'error');
+    try {
+      var resp = await fetch(API_BASE + '/v1/verification/social/initiate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ platform: platform, profileUrl: profileUrl })
+      });
+      var json = await resp.json();
+      if (!json.success) return showToast(json.error || 'Failed to initiate verification', 'error');
+
+      _pendingVerificationId = json.data.verificationId;
+      _pendingVerificationCode = json.data.verificationCode;
+
+      // Show instructions
+      document.getElementById('social-pending-instructions').style.display = 'block';
+      document.getElementById('social-instructions-text').textContent = json.data.instructions;
+      document.getElementById('social-verify-code').textContent = json.data.verificationCode;
+      document.getElementById('social-add-container').style.display = 'none';
+
+      showToast('Verification initiated! Post the code on your ' + platform + ' profile.', 'success');
+    } catch(e) {
+      showToast('Network error. Please try again.', 'error');
+    }
+  };
+
+  window.copySocialCode = function() {
+    var code = document.getElementById('social-verify-code').textContent;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(code).then(function() { showToast('Code copied!', 'success'); });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = code; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      showToast('Code copied!', 'success');
+    }
+  };
+
+  window.confirmSocialVerification = async function() {
+    if (!_pendingVerificationId) return showToast('No pending verification', 'error');
+    var token = getToken();
+    if (!token) return;
+    try {
+      var resp = await fetch(API_BASE + '/v1/verification/social/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ verificationId: _pendingVerificationId })
+      });
+      var json = await resp.json();
+      if (!json.success) return showToast(json.error || 'Verification failed', 'error');
+
+      showToast(json.data.message, 'success');
+      _pendingVerificationId = null;
+      _pendingVerificationCode = null;
+      document.getElementById('social-pending-instructions').style.display = 'none';
+      document.getElementById('social-add-container').style.display = 'block';
+      document.getElementById('social-profile-url').value = '';
+
+      // Reload verification status
+      loadVerificationStatus();
+    } catch(e) {
+      showToast('Network error. Please try again.', 'error');
+    }
+  };
+
+  window.cancelSocialVerification = function() {
+    _pendingVerificationId = null;
+    _pendingVerificationCode = null;
+    document.getElementById('social-pending-instructions').style.display = 'none';
+    document.getElementById('social-add-container').style.display = 'block';
+  };
+
+  window.submitDocumentVerification = async function() {
+    var token = getToken();
+    if (!token) return showToast('Please sign in first', 'error');
+
+    var docType = document.getElementById('doc-type-select').value;
+    var country = document.getElementById('doc-country-select').value;
+    var fileInput = document.getElementById('doc-upload-input');
+
+    if (!docType) return showToast('Please select a document type', 'error');
+    if (!country) return showToast('Please select your country', 'error');
+    if (!fileInput.files || !fileInput.files[0]) return showToast('Please upload a document image', 'error');
+
+    var file = fileInput.files[0];
+    if (file.size > 5 * 1024 * 1024) return showToast('File too large. Maximum 5MB.', 'error');
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return showToast('Invalid file type. Use JPEG, PNG, or WebP.', 'error');
+
+    // Convert to base64
+    var reader = new FileReader();
+    reader.onload = async function(e) {
+      try {
+        var base64 = e.target.result;
+        var resp = await fetch(API_BASE + '/v1/verification/document/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({
+            documentType: docType,
+            documentImageBase64: base64,
+            country: country
+          })
+        });
+        var json = await resp.json();
+        if (!json.success) return showToast(json.error || 'Failed to submit document', 'error');
+
+        showToast('Document submitted for review. ' + json.data.estimatedReviewTime + ' review time.', 'success');
+        loadVerificationStatus();
+      } catch(err) {
+        showToast('Network error. Please try again.', 'error');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   // ─── Load Watchlist Tab ────────────────────────────────────
   async function loadWatchlistTab() {
@@ -5312,6 +5802,18 @@
       if (meData.success) {
         document.getElementById('dash-name').textContent = meData.data.name || meData.data.email;
         document.getElementById('dash-tier').textContent = (meData.data.tier || 'standard').toUpperCase();
+
+        // Update trust score in overview if available
+        if (meData.data.trustScore !== undefined) {
+          var dashScoreEl = document.getElementById('dash-trust-score');
+          var dashLevelEl = document.getElementById('dash-trust-level');
+          var levelColors = { unverified: '#666', basic: '#80b3ff', verified: '#4CAF50', trusted: '#D4A853', premium: '#E040FB' };
+          if (dashScoreEl) dashScoreEl.textContent = meData.data.trustScore + ' pts';
+          if (dashLevelEl) {
+            dashLevelEl.textContent = meData.data.trustLevel || 'unverified';
+            dashLevelEl.style.color = levelColors[meData.data.trustLevel] || 'var(--text-muted)';
+          }
+        }
       }
 
       const listResp = await fetch(`${API_BASE}/v1/marketplace/listings/my`, { headers: { Authorization: `Bearer ${token}` }});
@@ -6446,6 +6948,14 @@
       ? '<span class="trust-commitment-badge">Trust Committed</span>'
       : '';
 
+    // Seller trust level badge
+    var trustLevelColors = { unverified: '', basic: '#80b3ff', verified: '#4CAF50', trusted: '#D4A853', premium: '#E040FB' };
+    var sellerTrustBadge = '';
+    if (l.sellerTrustLevel && l.sellerTrustLevel !== 'unverified') {
+      var tlColor = trustLevelColors[l.sellerTrustLevel] || '#666';
+      sellerTrustBadge = ' <span class="trust-badge" style="color:' + tlColor + ';border-color:' + tlColor + '33;background:' + tlColor + '15;font-size:9px;padding:1px 5px;">' + esc(l.sellerTrustLevel) + '</span>';
+    }
+
     // Verified client badge
     var verifiedClientHtml = l.clientReference
       ? '<span class="verified-client-badge">Verified Client</span>'
@@ -6470,7 +6980,7 @@
         '<h3 style="font-size:14px;font-weight:600;color:var(--text);margin:0 0 6px 0;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + esc(l.title) + '</h3>' +
         (bioSnippet ? '<p class="listing-bio">' + esc(bioSnippet) + '</p>' : '') +
         '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);margin-bottom:8px;">' +
-          esc(l.sellerName || 'Anonymous') + ' <span style="opacity:0.4;">·</span> ' + badge +
+          esc(l.sellerName || 'Anonymous') + sellerTrustBadge + ' <span style="opacity:0.4;">·</span> ' + badge +
         '</div>' +
         (trustCommitmentHtml || verifiedClientHtml ? '<div style="display:flex;gap:6px;margin-bottom:8px;">' + trustCommitmentHtml + verifiedClientHtml + '</div>' : '') +
       '</div>' +
@@ -6547,7 +7057,7 @@
       '<p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;margin-bottom:20px;white-space:pre-wrap;">' + esc(listing.description) + '</p>' +
       (listing.tags && listing.tags.length ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;">' + listing.tags.map(function(t){return '<span style="background:var(--bg-elevated);color:var(--text-muted);padding:4px 10px;border-radius:20px;font-size:11px;">' + esc(t) + '</span>';}).join('') + '</div>' : '') +
       '<div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);">' +
-        '<div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-muted);">Listed by <strong style="color:var(--text);margin:0 4px;">' + esc(listing.sellerName || 'Anonymous') + '</strong>' + badge + '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-muted);">Listed by <strong style="color:var(--text);margin:0 4px;">' + esc(listing.sellerName || 'Anonymous') + '</strong>' + (function(){ var tl=listing.sellerTrustLevel; if(!tl||tl==='unverified') return ''; var tc={basic:'#80b3ff',verified:'#4CAF50',trusted:'#D4A853',premium:'#E040FB'}; return ' <span class="trust-badge" style="color:'+tc[tl]+';border-color:'+tc[tl]+'33;background:'+tc[tl]+'15;">'+esc(tl)+'</span>'; })() + ' ' + badge + '</div>' +
         '<div style="font-size:1.1rem;font-weight:700;color:var(--gold);">' + (listing.listingType === 'trade' ? 'Trade' : '$' + Number(listing.priceUsdc || 0).toLocaleString() + ' USDC') + '</div>' +
       '</div>' +
       agentBioHtml +
