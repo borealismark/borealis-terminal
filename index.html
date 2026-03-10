@@ -3560,6 +3560,8 @@
             <div style="margin-top:16px;background:rgba(255,255,255,0.05);border-radius:6px;height:8px;overflow:hidden;">
               <div id="trust-progress-bar" style="height:100%;background:var(--gold);border-radius:6px;transition:width 0.5s ease;width:0%;"></div>
             </div>
+            <!-- v38: Points Breakdown Bar -->
+            <div id="trust-points-breakdown" style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap;"></div>
           </div>
 
           <!-- Verification Layers -->
@@ -3706,19 +3708,19 @@
           <div style="margin-top:20px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;">
             <h4 style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text);">Trust Levels</h4>
             <div style="display:grid;gap:8px;">
-              <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);">
+              <div data-trust-level="unverified" style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);transition:all 0.3s ease;">
                 <span style="color:var(--text-muted);">Unverified</span><span style="color:var(--text-muted);">0 pts</span>
               </div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);">
+              <div data-trust-level="basic" style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);transition:all 0.3s ease;">
                 <span style="color:#80b3ff;">Basic</span><span style="color:var(--text-muted);">10+ pts — Email verified</span>
               </div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);">
+              <div data-trust-level="verified" style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);transition:all 0.3s ease;">
                 <span style="color:#4CAF50;">Verified</span><span style="color:var(--text-muted);">25+ pts — Email + Social</span>
               </div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);">
+              <div data-trust-level="trusted" style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);transition:all 0.3s ease;">
                 <span style="color:var(--gold);">Trusted</span><span style="color:var(--text-muted);">50+ pts — Multi-layer verified</span>
               </div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);">
+              <div data-trust-level="premium" style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);transition:all 0.3s ease;">
                 <span style="color:#E040FB;">Premium</span><span style="color:var(--text-muted);">80+ pts — Maximum trust</span>
               </div>
             </div>
@@ -5592,6 +5594,44 @@
         ageDays.textContent = d + ' day' + (d !== 1 ? 's' : '') + ' (+' + data.layers.accountAge.points + ' pts)';
         if (d >= 30) { ageDays.style.background = 'rgba(76,175,80,0.15)'; ageDays.style.color = '#4CAF50'; }
       }
+
+      // v38: Points breakdown bar
+      var breakdownEl = document.getElementById('trust-points-breakdown');
+      if (breakdownEl) {
+        var socialPts = verifiedSocials.length * 15;
+        var docPts = data.layers.governmentId.some(function(g) { return g.status === 'verified'; }) ? 30 : 0;
+        var segments = [
+          { label: 'Email', pts: data.layers.email.points, color: '#80b3ff' },
+          { label: 'Social', pts: socialPts, color: '#4CAF50' },
+          { label: 'Gov ID', pts: docPts, color: '#D4A853' },
+          { label: 'Trades', pts: data.layers.transactionHistory.points, color: '#FF9800' },
+          { label: 'Age', pts: data.layers.accountAge.points, color: '#E040FB' }
+        ];
+        var bHtml = '';
+        segments.forEach(function(seg) {
+          if (seg.pts > 0) {
+            bHtml += '<div style="display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:600;background:' + seg.color + '18;color:' + seg.color + ';border:1px solid ' + seg.color + '33;">';
+            bHtml += seg.label + ' +' + seg.pts;
+            bHtml += '</div>';
+          }
+        });
+        if (!bHtml) bHtml = '<span style="font-size:11px;color:var(--text-muted);">Complete verifications to earn trust points</span>';
+        breakdownEl.innerHTML = bHtml;
+      }
+
+      // v38: Highlight current trust level in guide
+      var levelGuide = document.querySelectorAll('#dash-verification-section .verify-level-row');
+      // Use a different approach — find by data attribute
+      var allLevelRows = document.querySelectorAll('[data-trust-level]');
+      allLevelRows.forEach(function(row) {
+        if (row.getAttribute('data-trust-level') === data.trustScore.trustLevel) {
+          row.style.background = 'rgba(212,168,83,0.08)';
+          row.style.borderLeft = '3px solid var(--gold)';
+        } else {
+          row.style.background = 'rgba(255,255,255,0.02)';
+          row.style.borderLeft = 'none';
+        }
+      });
 
     } catch(e) {
       console.error('Failed to load verification status:', e);
