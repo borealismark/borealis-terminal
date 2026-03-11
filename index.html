@@ -7243,6 +7243,7 @@
           esc(l.sellerName || 'Anonymous') + sellerTrustBadge + ' <span style="opacity:0.4;">·</span> ' + badge +
         '</div>' +
         (trustCommitmentHtml || verifiedClientHtml ? '<div style="display:flex;gap:6px;margin-bottom:8px;">' + trustCommitmentHtml + verifiedClientHtml + '</div>' : '') +
+        ((l.watchCount || 0) > 0 ? '<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#50C4ED;margin-bottom:4px;"><span style="font-size:12px;">⚡</span> On ' + l.watchCount + (l.watchCount === 1 ? ' radar' : ' radars') + '</div>' : '') +
       '</div>' +
       '<div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">' +
         '<span style="font-size:14px;font-weight:700;color:var(--gold);">' + price + '</span>' +
@@ -7329,6 +7330,10 @@
       agentBioHtml +
       clientConnHtml +
       trustCommitmentHtml +
+      ((listing.watchCount || 0) > 0 || (listing.likeCount || 0) > 0 ? '<div style="display:flex;gap:16px;align-items:center;margin:12px 0;padding:10px 14px;background:rgba(80,196,237,0.06);border:1px solid rgba(80,196,237,0.12);border-radius:8px;">' +
+        ((listing.watchCount || 0) > 0 ? '<span style="display:flex;align-items:center;gap:5px;font-size:13px;color:#50C4ED;font-weight:500;">⚡ On ' + listing.watchCount + (listing.watchCount === 1 ? ' radar' : ' radars') + '</span>' : '') +
+        ((listing.likeCount || 0) > 0 ? '<span style="display:flex;align-items:center;gap:5px;font-size:13px;color:#ff4b6e;font-weight:500;">♥ ' + listing.likeCount + (listing.likeCount === 1 ? ' person loves this' : ' people love this') + '</span>' : '') +
+      '</div>' : '') +
       '<div style="display:flex;gap:10px;margin:16px 0;">' +
         '<button class="btn-like' + (isLiked ? ' liked' : '') + '" style="flex:1;padding:10px;justify-content:center;" onclick="toggleLike(\'' + esc(listing.id) + '\');setTimeout(function(){openListingDetail(cachedListings.find(function(x){return x.id===\'' + esc(listing.id) + '\';})||listing);},300);">' +
           '<i class="like-heart">' + (isLiked ? '♥' : '♡') + '</i> <span>' + (listing.likeCount || 0) + ' Likes</span>' +
