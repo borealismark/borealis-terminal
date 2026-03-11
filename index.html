@@ -5391,8 +5391,13 @@
 
     if (tab === 'browse') {
       restoreBrowseLayout();
+      initSectorGrid();
+      fetchCategoryCounts();
       loadListings();
       loadFeaturedStorefront();
+      fetchStats();
+      loadUserEngagement();
+      if (typeof updateCartBadge === 'function') updateCartBadge();
     }
     if (tab === 'services') loadServices();
     if (tab === 'my') {
@@ -8860,6 +8865,8 @@
       switchTab('my');
       switchDashSection('watchlist');
     } else if (hash === 'browse' || hash === '') {
+      showPage('app');
+      updateAuthUI();
       switchTab('browse');
     } else if (['services', 'my', 'messages'].includes(hash)) {
       switchTab(hash);
