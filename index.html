@@ -7711,32 +7711,32 @@
     }
   };
 
-  // Legacy mapping for backward compatibility
+  // Sector-to-API-category mapping for filtering
   var CATEGORY_MAP = {
     'physical': ['physical-goods'],
     'digital': ['digital-goods', 'datasets'],
     'services': ['services', 'consulting', 'creative', 'development', 'marketing'],
     'ai': ['ai-models'],
     'retail': ['physical-goods'],
-    'enterprise': ['consulting', 'services'],
+    'enterprise': ['consulting', 'services', 'other'],
     'technology': ['development', 'digital-goods'],
     'data': ['datasets'],
     'creative': ['creative'],
     'marketing': ['marketing'],
-    'engineering': ['physical-goods'],
-    'legal': ['consulting'],
-    'healthcare': [],
-    'education': [],
-    'finance': [],
-    'sustainability': []
+    'engineering': ['physical-goods', 'other'],
+    'legal': ['consulting', 'services'],
+    'healthcare': ['consulting', 'services', 'ai-models'],
+    'education': ['consulting', 'services', 'digital-goods'],
+    'finance': ['consulting', 'services', 'datasets'],
+    'sustainability': ['consulting', 'services', 'other']
   };
 
   function getCategoryGroup(category, externalSource) {
     if (externalSource === 'ebay' || category === 'physical-goods') return 'physical';
     if (['digital-goods', 'datasets'].includes(category)) return 'digital';
-    if (['services', 'consulting', 'creative', 'development', 'marketing'].includes(category)) return 'services';
+    if (['services', 'consulting', 'creative', 'development', 'marketing', 'other'].includes(category)) return 'services';
     if (category === 'ai-models' || category === 'generative-ai' || category === 'nlp') return 'ai';
-    return 'other';
+    return 'services';
   }
 
   // Initialize sector grid
@@ -7767,9 +7767,10 @@
     var map = {
       'ai-models': 'ai', 'datasets': 'data', 'consulting': 'enterprise',
       'creative': 'creative', 'development': 'technology', 'marketing': 'marketing',
-      'services': 'enterprise', 'digital-goods': 'technology', 'physical-goods': 'retail'
+      'services': 'enterprise', 'digital-goods': 'technology', 'physical-goods': 'retail',
+      'other': 'enterprise'
     };
-    return map[cat] || null;
+    return map[cat] || 'enterprise';
   }
 
   // Fetch category counts from API and populate sector tiles
