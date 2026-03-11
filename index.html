@@ -2231,12 +2231,16 @@
     /* ─── CARD IMAGE STYLING ─────────────────────────────── */
     .card-img-wrap { position:relative; overflow:hidden; aspect-ratio:4/3; background:var(--bg-elevated); }
     .card-img-wrap .listing-img { width:100%; height:100%; object-fit:cover; }
-    .card-engage { position:absolute; top:8px; right:8px; display:flex; flex-direction:column; gap:4px; opacity:0; transition:opacity 0.15s; }
+    .card-engage { position:absolute; top:8px; right:8px; display:flex; flex-direction:column; gap:6px; opacity:0; transition:opacity 0.2s ease; }
     .card:hover .card-engage { opacity:1; }
-    .card-engage-btn { width:32px; height:32px; border-radius:50%; background:rgba(0,0,0,0.6); border:none; color:#fff; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
-    .card-engage-btn:hover { background:rgba(0,0,0,0.8); }
-    .card-engage-btn.liked { color:var(--red); }
-    .card-engage-btn.watched { color:var(--gold); }
+    .card-engage-btn { width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.55); backdrop-filter:blur(4px); border:1.5px solid rgba(255,255,255,0.15); color:#fff; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.25s cubic-bezier(.4,0,.2,1); }
+    .card-engage-btn:hover { transform:scale(1.15); background:rgba(0,0,0,0.75); }
+    .card-engage-btn.liked { color:#ff4b6e; border-color:rgba(255,75,110,0.4); background:rgba(255,75,110,0.15); text-shadow:0 0 8px rgba(255,75,110,0.5); }
+    .card-engage-btn.liked:hover { transform:scale(1.25); }
+    .card-engage-btn.watched { color:var(--gold); border-color:rgba(191,149,63,0.4); background:rgba(191,149,63,0.15); text-shadow:0 0 8px rgba(191,149,63,0.5); }
+    .card-engage-btn.watched:hover { transform:scale(1.25); }
+    @keyframes heartPop { 0%{transform:scale(1)} 30%{transform:scale(1.4)} 60%{transform:scale(0.9)} 100%{transform:scale(1)} }
+    .heart-pop { animation: heartPop 0.4s ease; }
 
     /* ─── CATEGORY PILLS ─────────────────────────────────── */
     .cat-pill { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-secondary); padding:8px 16px; border-radius:20px; font-size:13px; font-family:inherit; cursor:pointer; transition:all 0.15s; font-weight:500; }
@@ -7240,12 +7244,12 @@
         '</div>' +
         (trustCommitmentHtml || verifiedClientHtml ? '<div style="display:flex;gap:6px;margin-bottom:8px;">' + trustCommitmentHtml + verifiedClientHtml + '</div>' : '') +
       '</div>' +
-      '<div style="padding:8px 14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">' +
+      '<div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">' +
         '<span style="font-size:14px;font-weight:700;color:var(--gold);">' + price + '</span>' +
-        '<div style="display:flex;align-items:center;gap:8px;">' +
-          '<span onclick="event.stopPropagation();toggleLike(\'' + esc(l.id) + '\')" style="cursor:pointer;display:flex;align-items:center;gap:3px;font-size:12px;color:' + (isLiked ? 'var(--red,#e74c3c)' : 'var(--text-muted)') + ';transition:color 0.15s;" title="Like">' +
-            '<span style="font-size:14px;">' + (isLiked ? '♥' : '♡') + '</span>' +
-            '<span class="like-count-' + esc(l.id) + '">' + (l.likeCount || 0) + '</span>' +
+        '<div style="display:flex;align-items:center;gap:10px;">' +
+          '<span onclick="event.stopPropagation();this.querySelector(\'.card-heart\').classList.add(\'heart-pop\');setTimeout(function(){document.querySelectorAll(\'.heart-pop\').forEach(function(e){e.classList.remove(\'heart-pop\')})},500);toggleLike(\'' + esc(l.id) + '\')" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:3px 8px;border-radius:12px;' + (isLiked ? 'color:#ff4b6e;background:rgba(255,75,110,0.1);' : 'color:var(--text-muted);background:rgba(255,255,255,0.04);') + 'transition:all 0.2s ease;" title="Like">' +
+            '<span class="card-heart" style="font-size:15px;transition:transform 0.2s;">' + (isLiked ? '♥' : '♡') + '</span>' +
+            '<span class="like-count-' + esc(l.id) + '" style="font-weight:600;">' + (l.likeCount || 0) + '</span>' +
           '</span>' +
           (usdc ? '<span style="font-size:10px;color:var(--text-muted);">' + usdc + '</span>' : '') +
         '</div>' +
