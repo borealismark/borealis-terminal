@@ -7242,7 +7242,13 @@
       '</div>' +
       '<div style="padding:8px 14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">' +
         '<span style="font-size:14px;font-weight:700;color:var(--gold);">' + price + '</span>' +
-        (usdc ? '<span style="font-size:10px;color:var(--text-muted);">' + usdc + '</span>' : '') +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<span onclick="event.stopPropagation();toggleLike(\'' + esc(l.id) + '\')" style="cursor:pointer;display:flex;align-items:center;gap:3px;font-size:12px;color:' + (isLiked ? 'var(--red,#e74c3c)' : 'var(--text-muted)') + ';transition:color 0.15s;" title="Like">' +
+            '<span style="font-size:14px;">' + (isLiked ? '♥' : '♡') + '</span>' +
+            '<span class="like-count-' + esc(l.id) + '">' + (l.likeCount || 0) + '</span>' +
+          '</span>' +
+          (usdc ? '<span style="font-size:10px;color:var(--text-muted);">' + usdc + '</span>' : '') +
+        '</div>' +
       '</div>' +
     '</div>';
   };
