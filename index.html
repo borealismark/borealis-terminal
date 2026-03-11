@@ -8063,6 +8063,8 @@
         if (lp) { lp.style.transition = 'none'; lp.style.display = 'none'; }
         if (ac) { ac.style.transition = 'none'; ac.style.opacity = '1'; ac.style.display = 'block'; }
         updateAuthUI();
+        initSectorGrid();
+        fetchCategoryCounts();
         loadListings();
         loadFeaturedStorefront();
         fetchStats();
