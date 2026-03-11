@@ -5875,7 +5875,12 @@
 
       if (data.success && data.data && data.data.watchlist.length > 0) {
         var listings = data.data.watchlist.map(function(w) { return w.listing; });
-        grid.innerHTML = DOMPurify.sanitize(listings.map(function(l, i) { return renderListingCard(l, i); }).join(''));
+        grid.innerHTML = DOMPurify.sanitize(listings.map(function(l, i) {
+          return '<div style="position:relative;">' +
+            renderListingCard(l, i) +
+            '<button onclick="event.stopPropagation();toggleWatch(\'' + esc(l.id) + '\')" style="position:absolute;top:8px;right:8px;z-index:10;background:rgba(231,76,60,0.9);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:all 0.2s ease;" title="Remove from Watchlist" onmouseover="this.style.background=\'rgba(231,76,60,1)\';this.style.transform=\'scale(1.1)\'" onmouseout="this.style.background=\'rgba(231,76,60,0.9)\';this.style.transform=\'scale(1)\'">✕</button>' +
+          '</div>';
+        }).join(''));
       } else {
         grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#128278;</div><h3>No saved listings yet</h3><p>Browse the marketplace and bookmark listings you\'re interested in.</p></div>';
       }
@@ -6783,12 +6788,29 @@
     var container = document.getElementById('toast-container');
     var toast = document.createElement('div');
     toast.className = 'toast ' + type;
-    toast.textContent = message;
+    var icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+    toast.innerHTML = '<span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;margin-right:10px;flex-shrink:0;' +
+      (type === 'success' ? 'background:rgba(52,211,153,0.2);color:#34D39B;' : type === 'error' ? 'background:rgba(248,113,113,0.2);color:#f87171;' : type === 'warning' ? 'background:rgba(251,191,36,0.2);color:#fbbf24;' : 'background:rgba(96,165,250,0.2);color:#60a5fa;') +
+      '">' + (icons[type] || icons.info) + '</span>' +
+      '<span style="flex:1;">' + DOMPurify.sanitize(message) + '</span>';
+    toast.style.cssText = 'display:flex;align-items:center;padding:12px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.3);backdrop-filter:blur(12px);transform:translateX(100%);opacity:0;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);max-width:360px;' +
+      (type === 'success' ? 'border-left:3px solid #34D39B;' : type === 'error' ? 'border-left:3px solid #f87171;' : type === 'warning' ? 'border-left:3px solid #fbbf24;' : 'border-left:3px solid #60a5fa;');
     container.appendChild(toast);
 
+    // Animate in
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        toast.style.transform = 'translateX(0)';
+        toast.style.opacity = '1';
+      });
+    });
+
+    // Animate out
     setTimeout(function() {
-      toast.remove();
-    }, 5000);
+      toast.style.transform = 'translateX(100%)';
+      toast.style.opacity = '0';
+      setTimeout(function() { toast.remove(); }, 350);
+    }, 3500);
   };
 
   // Hide mini-chat button on Messages tab, show on others
@@ -7445,9 +7467,16 @@
         badge.style.display = watchedSet.size > 0 ? 'inline' : 'none';
       }
 
-      // Re-render cards
+      // Toast feedback
+      showToast(isWatched ? 'Removed from Watchlist' : 'Added to Watchlist', isWatched ? 'info' : 'success');
+
+      // Re-render cards + refresh dashboard watchlist if visible
       filterListingsLocal();
-    } catch(e) { console.error('Watch error:', e); }
+      var dashWatchSection = document.getElementById('dash-watchlist-section');
+      if (dashWatchSection && dashWatchSection.classList.contains('active')) {
+        loadWatchlistTab();
+      }
+    } catch(e) { console.error('Watch error:', e); showToast('Failed to update watchlist', 'error'); }
   };
 
   window.openServiceDetail = function(svc) {
@@ -9129,8 +9158,13 @@
       '<h3 style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;">Order Summary</h3>' +
       '<div style="display:flex;justify-content:space-between;font-size:14px;color:var(--text-secondary);margin-bottom:6px;"><span>' + summary.itemCount + ' item(s)</span><span>$' + summary.subtotalCad.toFixed(2) + ' CAD</span></div>' +
       '<div style="display:flex;justify-content:space-between;font-size:14px;color:var(--text-secondary);margin-bottom:6px;"><span>Shipping</span><span>$' + summary.shippingCad.toFixed(2) + ' CAD</span></div>' +
+      '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-muted);margin-bottom:6px;" title="Tax is calculated based on buyer and seller jurisdictions and applied at settlement"><span>Tax (GST/HST/PST) <span style="font-size:10px;background:rgba(212,168,83,0.12);color:var(--gold);padding:1px 6px;border-radius:8px;">est. at settlement</span></span><span>TBD</span></div>' +
+      '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-muted);margin-bottom:8px;"><span>Platform Fee (2.5%)</span><span>-$' + (summary.totalCad * 0.025).toFixed(2) + ' CAD</span></div>' +
       '<div style="display:flex;justify-content:space-between;font-size:18px;font-weight:700;padding-top:10px;border-top:1px solid var(--border);"><span style="color:var(--text);">Total</span><span style="color:var(--gold);">$' + summary.totalCad.toFixed(2) + ' CAD</span></div>' +
       '<div style="font-size:12px;color:var(--text-muted);margin-top:4px;text-align:right;">~ ' + summary.totalUsdc.toFixed(2) + ' USDC (rate: 1 CAD = ' + summary.exchangeRate.toFixed(6) + ' USDC)</div>' +
+      '<div style="margin-top:10px;padding:10px;background:rgba(212,168,83,0.06);border-radius:var(--radius-sm);font-size:11px;color:var(--text-muted);line-height:1.5;">' +
+        '<strong style="color:var(--text);">Where does the money go?</strong> Your USDC deposit is held in the Borealis treasury (escrow). Upon delivery confirmation, the seller receives payment minus a 2.5% platform fee. The seller\'s 25% trust bond is returned to them. All movements are settled on Hedera Hashgraph.' +
+      '</div>' +
       '</div>' +
       // Shipping address form
       '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;">' +
@@ -9146,17 +9180,67 @@
       '<input id="ship-country" placeholder="Country" value="Canada" style="padding:10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;">' +
       '</div>' +
       '</div>' +
-      // Escrow explainer
-      '<div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:20px;font-size:13px;color:var(--text-muted);line-height:1.6;">' +
-      '<strong style="color:var(--text);">How Escrow Works</strong><br>' +
-      '1. You deposit the full price in USDC to our treasury<br>' +
-      '2. Seller deposits a 25% trust bond<br>' +
-      '3. Seller ships the item with tracking<br>' +
-      '4. You confirm delivery → funds released to seller<br>' +
-      'All transactions are anchored on Hedera for immutable proof.' +
+      // Transaction lifecycle visual
+      '<div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;">' +
+      '<strong style="color:var(--text);font-size:14px;display:block;margin-bottom:14px;">Transaction Lifecycle</strong>' +
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">' +
+        '<div style="text-align:center;padding:12px 8px;background:var(--bg-card);border-radius:var(--radius-sm);border:1px solid var(--border);">' +
+          '<div style="font-size:20px;margin-bottom:4px;">💰</div>' +
+          '<div style="font-size:11px;font-weight:600;color:var(--text);">You Deposit</div>' +
+          '<div style="font-size:10px;color:var(--text-muted);">Full price in USDC</div>' +
+        '</div>' +
+        '<div style="text-align:center;padding:12px 8px;background:var(--bg-card);border-radius:var(--radius-sm);border:1px solid var(--border);">' +
+          '<div style="font-size:20px;margin-bottom:4px;">🔒</div>' +
+          '<div style="font-size:11px;font-weight:600;color:var(--text);">Seller Bonds</div>' +
+          '<div style="font-size:10px;color:var(--text-muted);">25% trust deposit</div>' +
+        '</div>' +
+        '<div style="text-align:center;padding:12px 8px;background:var(--bg-card);border-radius:var(--radius-sm);border:1px solid var(--border);">' +
+          '<div style="font-size:20px;margin-bottom:4px;">📦</div>' +
+          '<div style="font-size:11px;font-weight:600;color:var(--text);">Ship & Track</div>' +
+          '<div style="font-size:10px;color:var(--text-muted);">With tracking number</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">' +
+        '<div style="text-align:center;padding:12px 8px;background:var(--bg-card);border-radius:var(--radius-sm);border:1px solid var(--border);">' +
+          '<div style="font-size:20px;margin-bottom:4px;">✅</div>' +
+          '<div style="font-size:11px;font-weight:600;color:var(--text);">Confirm Delivery</div>' +
+          '<div style="font-size:10px;color:var(--text-muted);">Buyer confirms receipt</div>' +
+        '</div>' +
+        '<div style="text-align:center;padding:12px 8px;background:var(--bg-card);border-radius:var(--radius-sm);border:1px solid var(--border);">' +
+          '<div style="font-size:20px;margin-bottom:4px;">💸</div>' +
+          '<div style="font-size:11px;font-weight:600;color:var(--text);">Settlement</div>' +
+          '<div style="font-size:10px;color:var(--text-muted);">Funds released on-chain</div>' +
+        '</div>' +
+        '<div style="text-align:center;padding:12px 8px;background:var(--bg-card);border-radius:var(--radius-sm);border:1px solid var(--border);">' +
+          '<div style="font-size:20px;margin-bottom:4px;">🏆</div>' +
+          '<div style="font-size:11px;font-weight:600;color:var(--text);">Trust Points</div>' +
+          '<div style="font-size:10px;color:var(--text-muted);">+2 AP for both parties</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="margin-top:10px;font-size:11px;color:var(--text-muted);text-align:center;">All steps are immutably recorded on Hedera Consensus Service</div>' +
+      '</div>' +
+      // Trust Agreement acceptance
+      '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;">' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">' +
+        '<span style="font-size:20px;">🤝</span>' +
+        '<h3 style="font-size:15px;font-weight:600;color:var(--text);margin:0;">Borealis Trust Agreement</h3>' +
+      '</div>' +
+      '<div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:14px;font-size:12px;color:var(--text-secondary);line-height:1.7;margin-bottom:14px;max-height:160px;overflow-y:auto;border:1px solid var(--border);">' +
+        '<p style="margin:0 0 8px 0;">By placing this order, I agree to the <strong style="color:var(--text);">Borealis Protocol Trust Framework</strong>:</p>' +
+        '<p style="margin:0 0 6px 0;"><strong style="color:var(--text);">1. Escrow Commitment:</strong> My full deposit will be held in the Borealis treasury until I confirm delivery of the item.</p>' +
+        '<p style="margin:0 0 6px 0;"><strong style="color:var(--text);">2. Seller Bond:</strong> The seller will deposit a 25% trust bond. Both deposits are secured and verifiable on Hedera Hashgraph.</p>' +
+        '<p style="margin:0 0 6px 0;"><strong style="color:var(--text);">3. Settlement:</strong> Upon confirmed delivery, seller receives payment (minus 2.5% platform fee) and their bond is returned.</p>' +
+        '<p style="margin:0 0 6px 0;"><strong style="color:var(--text);">4. Dispute Resolution:</strong> Either party may raise a dispute, which will freeze escrow funds pending arbitration by the Borealis Protocol team.</p>' +
+        '<p style="margin:0 0 6px 0;"><strong style="color:var(--text);">5. On-Chain Record:</strong> All transaction events are immutably anchored on Hedera Consensus Service and contribute to both parties\' trust scores.</p>' +
+        '<p style="margin:0;"><strong style="color:var(--text);">6. Tax Responsibility:</strong> Applicable taxes (GST/HST/PST) are the responsibility of the respective parties based on jurisdiction. Tax estimates will be provided at settlement.</p>' +
+      '</div>' +
+      '<label style="display:flex;align-items:start;gap:10px;cursor:pointer;font-size:13px;color:var(--text);">' +
+        '<input type="checkbox" id="trust-agreement-check" style="margin-top:2px;accent-color:var(--gold);width:18px;height:18px;flex-shrink:0;" onchange="document.getElementById(\'place-order-btn\').disabled=!this.checked;document.getElementById(\'place-order-btn\').style.opacity=this.checked?\'1\':\'0.4\';">' +
+        '<span>I have read and agree to the Borealis Trust Agreement. I understand my deposit will be held in escrow and all actions are recorded on-chain.</span>' +
+      '</label>' +
       '</div>' +
       '<div id="checkout-error" style="display:none;color:#e74c3c;margin-bottom:12px;font-size:13px;"></div>' +
-      '<button class="btn btn-gold" id="place-order-btn" onclick="placeOrder()" style="width:100%;padding:14px;font-size:15px;">Place Order</button>' +
+      '<button class="btn btn-gold" id="place-order-btn" onclick="placeOrder()" style="width:100%;padding:14px;font-size:15px;opacity:0.4;" disabled>Place Order</button>' +
       '<div id="checkout-result" style="display:none;margin-top:20px;"></div>' +
       '</div>';
 
@@ -9259,7 +9343,7 @@
   };
 
   // ═══════════════════════════════════════════════════════════════
-  // ORDER DETAIL PAGE (#order/:id)
+  // ORDER DETAIL PAGE (#order/:id) — Full Transaction Lifecycle
   // ═══════════════════════════════════════════════════════════════
   window.showOrderDetailPage = async function(orderId) {
     var token = getToken();
@@ -9267,8 +9351,8 @@
 
     var tabBrowse = document.getElementById('tab-browse');
     if (!tabBrowse) return;
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+    document.querySelectorAll('.app-tab').forEach(function(t) { t.classList.remove('active'); });
     tabBrowse.classList.add('active');
     document.querySelector('[data-tab="browse"]').classList.add('active');
     tabBrowse.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text-muted);">Loading order...</div>';
@@ -9283,94 +9367,460 @@
         return;
       }
       var o = data.data;
+      var userId = JSON.parse(atob(token.split('.')[1])).sub;
+      var isBuyer = o.buyerId === userId;
+      var isSeller = o.sellerId === userId;
+      var role = isBuyer ? 'buyer' : 'seller';
 
-      // Status step tracker
-      var steps = ['pending_payment', 'buyer_deposited', 'escrow_active', 'shipped', 'delivered', 'completed'];
-      var stepLabels = ['Payment', 'Buyer Deposit', 'Escrow Active', 'Shipped', 'Delivered', 'Complete'];
-      var currentStep = steps.indexOf(o.status);
-      if (o.status === 'disputed') currentStep = -1;
+      // ── Full lifecycle steps ──
+      var steps = [
+        { key: 'pending_payment', label: 'Order Placed', icon: '📋', buyerDesc: 'Send USDC deposit to treasury', sellerDesc: 'Waiting for buyer payment' },
+        { key: 'buyer_deposited', label: 'Buyer Deposited', icon: '💰', buyerDesc: 'Payment confirmed — waiting for seller bond', sellerDesc: 'Deposit your 25% trust bond to activate escrow' },
+        { key: 'escrow_active', label: 'Escrow Active', icon: '🔒', buyerDesc: 'Both deposits secured — seller is preparing shipment', sellerDesc: 'Prepare the item and ship with tracking' },
+        { key: 'shipped', label: 'Shipped', icon: '📦', buyerDesc: 'Item is on the way — confirm when received', sellerDesc: 'Shipment in transit — waiting for buyer confirmation' },
+        { key: 'delivered', label: 'Delivered', icon: '✅', buyerDesc: 'Delivery confirmed — settlement processing', sellerDesc: 'Buyer confirmed receipt — funds releasing' },
+        { key: 'completed', label: 'Completed', icon: '⭐', buyerDesc: 'Transaction complete — rate your experience', sellerDesc: 'Transaction complete — funds settled to you' }
+      ];
+      var stepKeys = steps.map(function(s) { return s.key; });
+      var currentStep = stepKeys.indexOf(o.status);
+      var isDisputed = o.status === 'disputed';
+      if (isDisputed) currentStep = -1;
 
-      var stepsHtml = '<div style="display:flex;justify-content:space-between;margin-bottom:24px;position:relative;">';
+      // ── Progress tracker with connecting line ──
+      var trackerHtml = '<div style="position:relative;padding:0 8px;margin-bottom:28px;">';
+      // Background connecting line
+      trackerHtml += '<div style="position:absolute;top:18px;left:36px;right:36px;height:3px;background:var(--border);border-radius:2px;z-index:0;"></div>';
+      // Progress fill line
+      if (currentStep > 0) {
+        var pct = Math.min(100, (currentStep / (steps.length - 1)) * 100);
+        trackerHtml += '<div style="position:absolute;top:18px;left:36px;width:calc(' + pct + '% - ' + (pct < 100 ? '36' : '72') + 'px);height:3px;background:linear-gradient(90deg,var(--gold),#34D39B);border-radius:2px;z-index:1;transition:width 0.8s ease;"></div>';
+      }
+      trackerHtml += '<div style="display:flex;justify-content:space-between;position:relative;z-index:2;">';
       steps.forEach(function(s, i) {
         var isComplete = i <= currentStep;
         var isCurrent = i === currentStep;
-        stepsHtml += '<div style="flex:1;text-align:center;">' +
-          '<div style="width:24px;height:24px;border-radius:50%;margin:0 auto 4px;background:' + (isComplete ? 'var(--gold)' : 'var(--bg-elevated)') + ';border:2px solid ' + (isCurrent ? 'var(--gold)' : 'var(--border)') + ';display:flex;align-items:center;justify-content:center;font-size:12px;color:' + (isComplete ? 'var(--bg)' : 'var(--text-muted)') + ';">' + (isComplete ? '✓' : (i + 1)) + '</div>' +
-          '<div style="font-size:10px;color:' + (isComplete ? 'var(--text)' : 'var(--text-muted)') + ';">' + stepLabels[i] + '</div>' +
-          '</div>';
-      });
-      stepsHtml += '</div>';
-
-      if (o.status === 'disputed') {
-        stepsHtml = '<div style="background:#e74c3c22;border:1px solid #e74c3c;border-radius:var(--radius);padding:16px;margin-bottom:20px;color:#e74c3c;text-align:center;">' +
-          '<strong>DISPUTED</strong> — ' + esc(o.disputeReason || 'No reason provided') + '</div>';
-      }
-
-      var html = '<div style="max-width:700px;margin:0 auto;">' +
-        '<button onclick="window.location.hash=\'#orders\'" style="margin-bottom:16px;padding:8px 14px;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;font-size:13px;">&larr; My Orders</button>' +
-        '<h2 style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:20px;">Order Details</h2>' +
-        stepsHtml +
-        '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;">' +
-        '<div style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">Order ID: ' + esc(o.id) + '</div>' +
-        '<div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px;">' + esc(o.listingTitle) + '</div>' +
-        '<div style="display:flex;justify-content:space-between;font-size:14px;color:var(--text-secondary);margin-bottom:4px;"><span>Item Price</span><span>$' + Number(o.itemPriceCad).toFixed(2) + ' CAD</span></div>' +
-        '<div style="display:flex;justify-content:space-between;font-size:14px;color:var(--text-secondary);margin-bottom:4px;"><span>Shipping</span><span>$' + Number(o.shippingCostCad).toFixed(2) + ' CAD</span></div>' +
-        '<div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;padding-top:8px;border-top:1px solid var(--border);"><span style="color:var(--text);">Total</span><span style="color:var(--gold);">$' + Number(o.totalCad).toFixed(2) + ' CAD</span></div>' +
-        '<div style="font-size:12px;color:var(--text-muted);text-align:right;">' + Number(o.totalUsdc).toFixed(6) + ' USDC</div>' +
-        '</div>' +
-        // Escrow status
-        '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;">' +
-        '<h3 style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;">Escrow Status</h3>';
-
-      (o.escrowDeposits || []).forEach(function(d) {
-        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">' +
-          '<span style="color:var(--text);">' + esc(d.party.charAt(0).toUpperCase() + d.party.slice(1)) + ' Deposit</span>' +
-          '<span>' + d.amountUsdc.toFixed(6) + ' USDC</span>' +
-          '<span style="color:' + (d.status === 'confirmed' || d.status === 'settled' ? 'var(--accent-green)' : '#f39c12') + ';">' + esc(d.status) + '</span>' +
-          '</div>';
-      });
-      html += '</div>';
-
-      // Shipping info
-      if (o.trackingNumber) {
-        html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;">' +
-          '<h3 style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px;">Shipping</h3>' +
-          '<div style="font-size:13px;color:var(--text-secondary);">Carrier: ' + esc(o.shippingCarrier) + '</div>' +
-          '<div style="font-size:13px;color:var(--text-secondary);">Tracking: <strong style="color:var(--text);">' + esc(o.trackingNumber) + '</strong></div>' +
-          '</div>';
-      }
-
-      // HCS proof
-      if (o.hcsTopicId) {
-        html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;font-size:13px;color:var(--text-muted);">' +
-          'Hedera Proof: Topic ' + esc(o.hcsTopicId) + ' | Seq #' + o.hcsSequenceNumber +
-          '</div>';
-      }
-
-      // Action buttons based on status
-      var userId = JSON.parse(atob(token.split('.')[1])).sub;
-      if (o.status === 'shipped' && o.buyerId === userId) {
-        html += '<button class="btn btn-gold" onclick="confirmDelivery(\'' + esc(o.id) + '\')" style="width:100%;padding:14px;font-size:15px;">Confirm Delivery</button>';
-      }
-      if (o.status === 'completed' && o.buyerId === userId && !o.rating) {
-        html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-top:16px;">' +
-          '<h3 style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;">Rate this Transaction</h3>' +
-          '<div id="rating-stars" style="font-size:24px;margin-bottom:12px;cursor:pointer;">' +
-          [1,2,3,4,5].map(function(n) { return '<span onclick="setRating(' + n + ')" data-star="' + n + '" style="color:var(--border);">★</span>'; }).join('') +
+        var isUpcoming = i > currentStep;
+        var nodeColor = isComplete ? (isCurrent ? 'var(--gold)' : '#34D39B') : 'var(--bg-elevated)';
+        var borderCol = isComplete ? 'transparent' : 'var(--border)';
+        var textColor = isComplete ? 'var(--text)' : 'var(--text-muted)';
+        var glow = isCurrent ? 'box-shadow:0 0 12px rgba(212,168,83,0.4);' : '';
+        trackerHtml += '<div style="flex:1;text-align:center;max-width:100px;">' +
+          '<div style="width:36px;height:36px;border-radius:50%;margin:0 auto 6px;background:' + nodeColor + ';border:2px solid ' + borderCol + ';display:flex;align-items:center;justify-content:center;font-size:14px;' + glow + 'transition:all 0.3s ease;">' +
+            (isComplete && !isCurrent ? '<span style="color:#000;font-weight:700;font-size:13px;">✓</span>' : '<span style="font-size:14px;">' + s.icon + '</span>') +
           '</div>' +
-          '<input type="hidden" id="rating-value" value="0">' +
-          '<textarea id="rating-comment" placeholder="Optional comment..." style="width:100%;padding:10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;min-height:60px;margin-bottom:10px;resize:vertical;"></textarea>' +
-          '<button class="btn btn-gold" onclick="submitRating(\'' + esc(o.id) + '\')" style="padding:10px 24px;">Submit Rating</button>' +
-          '</div>';
+          '<div style="font-size:10px;font-weight:' + (isCurrent ? '700' : '500') + ';color:' + textColor + ';line-height:1.2;">' + s.label + '</div>' +
+        '</div>';
+      });
+      trackerHtml += '</div></div>';
+
+      // Current status explainer
+      var currentStepData = steps[currentStep] || steps[0];
+      var statusMsg = isBuyer ? currentStepData.buyerDesc : currentStepData.sellerDesc;
+      if (!isDisputed) {
+        trackerHtml += '<div style="background:linear-gradient(135deg,rgba(212,168,83,0.08),rgba(52,211,153,0.05));border:1px solid rgba(212,168,83,0.2);border-radius:var(--radius);padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;">' +
+          '<div style="width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse-dot 2s ease-in-out infinite;flex-shrink:0;"></div>' +
+          '<div style="font-size:13px;color:var(--text);"><strong>Current Status:</strong> ' + esc(statusMsg) + '</div>' +
+        '</div>';
       }
 
-      html += '<div style="font-size:11px;color:var(--text-muted);margin-top:12px;">Created: ' + new Date(o.createdAt).toLocaleString() + '</div>';
+      if (isDisputed) {
+        trackerHtml = '<div style="background:linear-gradient(135deg,rgba(231,76,60,0.1),rgba(231,76,60,0.05));border:1px solid rgba(231,76,60,0.3);border-radius:var(--radius);padding:20px;margin-bottom:20px;text-align:center;">' +
+          '<div style="font-size:24px;margin-bottom:8px;">⚠️</div>' +
+          '<div style="font-size:16px;font-weight:700;color:#e74c3c;margin-bottom:6px;">TRANSACTION DISPUTED</div>' +
+          '<div style="font-size:13px;color:var(--text-secondary);">' + esc(o.disputeReason || 'No reason provided') + '</div>' +
+          '<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Escrow funds are frozen pending resolution by the Borealis Protocol arbitration team.</div>' +
+        '</div>';
+      }
+
+      // ── Build page ──
+      var html = '<div style="max-width:760px;margin:0 auto;">' +
+        '<button onclick="window.location.hash=\'#orders\'" style="margin-bottom:16px;padding:8px 14px;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;font-size:13px;">&larr; My Orders</button>' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">' +
+          '<h2 style="font-size:20px;font-weight:700;color:var(--text);margin:0;">Transaction Details</h2>' +
+          '<span style="font-size:11px;padding:4px 12px;border-radius:12px;font-weight:600;background:' + (isBuyer ? 'rgba(96,165,250,0.12);color:#60a5fa;' : 'rgba(212,168,83,0.12);color:var(--gold);') + '">' + (isBuyer ? 'Buyer' : 'Seller') + '</span>' +
+        '</div>' +
+        trackerHtml;
+
+      // ── Trust Agreement Banner ──
+      html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">' +
+        '<div style="font-size:22px;flex-shrink:0;">🤝</div>' +
+        '<div style="flex:1;">' +
+          '<div style="font-size:13px;font-weight:600;color:var(--text);">Borealis Trust Agreement Active</div>' +
+          '<div style="font-size:11px;color:var(--text-muted);">Both parties entered this transaction under the Borealis Protocol trust framework. All actions are recorded on-chain.</div>' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--text-muted);text-align:right;flex-shrink:0;">' +
+          '<div>' + esc(o.buyerName || 'Buyer') + '</div>' +
+          '<div style="color:var(--gold);font-size:10px;">×</div>' +
+          '<div>' + esc(o.sellerName || 'Seller') + '</div>' +
+        '</div>' +
+      '</div>';
+
+      // ── Order Info Card ──
+      html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;">' +
+          '<div>' +
+            '<div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Order #' + esc(o.id.slice(0, 8)) + '</div>' +
+            '<div style="font-size:16px;font-weight:600;color:var(--text);">' + esc(o.listingTitle) + '</div>' +
+          '</div>' +
+          '<div style="text-align:right;font-size:11px;color:var(--text-muted);">' + new Date(o.createdAt).toLocaleString() + '</div>' +
+        '</div>' +
+        // Pricing breakdown
+        '<div style="border-top:1px solid var(--border);padding-top:12px;">' +
+          '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);margin-bottom:6px;"><span>Item Price</span><span>$' + Number(o.itemPriceCad).toFixed(2) + ' CAD</span></div>' +
+          '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);margin-bottom:6px;"><span>Shipping</span><span>$' + Number(o.shippingCostCad).toFixed(2) + ' CAD</span></div>' +
+          '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);margin-bottom:6px;"><span>Tax <span style="font-size:10px;color:var(--text-muted);" title="Tax is calculated based on jurisdiction at settlement">(est. at settlement)</span></span><span style="color:var(--text-muted);">TBD</span></div>' +
+          '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);margin-bottom:8px;"><span>Platform Fee <span style="font-size:10px;color:var(--text-muted);">(2.5%)</span></span><span>-$' + (Number(o.totalCad) * 0.025).toFixed(2) + ' CAD</span></div>' +
+          '<div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;padding-top:10px;border-top:1px solid var(--border);"><span style="color:var(--text);">Total</span><span style="color:var(--gold);">$' + Number(o.totalCad).toFixed(2) + ' CAD</span></div>' +
+          '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:2px;"><span>USDC Equivalent</span><span>' + Number(o.totalUsdc).toFixed(6) + ' USDC</span></div>' +
+        '</div>' +
+      '</div>';
+
+      // ── Escrow Vault ──
+      var buyerDep = (o.escrowDeposits || []).find(function(d) { return d.party === 'buyer'; });
+      var sellerDep = (o.escrowDeposits || []).find(function(d) { return d.party === 'seller'; });
+      html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;"><span style="font-size:16px;">🔐</span><h3 style="font-size:15px;font-weight:600;color:var(--text);margin:0;">Escrow Vault</h3></div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+          // Buyer deposit
+          '<div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:14px;border-left:3px solid ' + (buyerDep && buyerDep.status !== 'pending' ? '#34D39B' : '#f39c12') + ';">' +
+            '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Buyer Deposit</div>' +
+            '<div style="font-size:15px;font-weight:700;color:var(--text);">' + (buyerDep ? buyerDep.amountUsdc.toFixed(2) : Number(o.totalUsdc).toFixed(2)) + ' <span style="font-size:11px;font-weight:400;color:var(--text-muted);">USDC</span></div>' +
+            '<div style="margin-top:6px;font-size:11px;display:flex;align-items:center;gap:4px;color:' + (buyerDep && buyerDep.status !== 'pending' ? '#34D39B' : '#f39c12') + ';">' +
+              '<span style="width:6px;height:6px;border-radius:50%;background:currentColor;"></span> ' + (buyerDep ? esc(buyerDep.status.charAt(0).toUpperCase() + buyerDep.status.slice(1)) : 'Pending') +
+            '</div>' +
+          '</div>' +
+          // Seller bond
+          '<div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:14px;border-left:3px solid ' + (sellerDep && sellerDep.status !== 'pending' ? '#34D39B' : '#f39c12') + ';">' +
+            '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Seller Trust Bond (25%)</div>' +
+            '<div style="font-size:15px;font-weight:700;color:var(--text);">' + (sellerDep ? sellerDep.amountUsdc.toFixed(2) : (Number(o.totalUsdc) * 0.25).toFixed(2)) + ' <span style="font-size:11px;font-weight:400;color:var(--text-muted);">USDC</span></div>' +
+            '<div style="margin-top:6px;font-size:11px;display:flex;align-items:center;gap:4px;color:' + (sellerDep && sellerDep.status !== 'pending' ? '#34D39B' : '#f39c12') + ';">' +
+              '<span style="width:6px;height:6px;border-radius:50%;background:currentColor;"></span> ' + (sellerDep ? esc(sellerDep.status.charAt(0).toUpperCase() + sellerDep.status.slice(1)) : 'Pending') +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="margin-top:10px;padding:10px;background:rgba(212,168,83,0.06);border-radius:var(--radius-sm);font-size:11px;color:var(--text-muted);line-height:1.5;">' +
+          '<strong style="color:var(--text);">How it works:</strong> Buyer deposits 100% of the item price. Seller deposits a 25% trust bond. On confirmed delivery, buyer funds go to the seller (minus 2.5% platform fee) and the seller bond is returned. All movements are anchored on Hedera.' +
+        '</div>' +
+      '</div>';
+
+      // ── Shipping & Tracking ──
+      html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;"><span style="font-size:16px;">🚚</span><h3 style="font-size:15px;font-weight:600;color:var(--text);margin:0;">Shipping & Tracking</h3></div>';
+      if (o.trackingNumber) {
+        var carrierUrls = { fedex: 'https://www.fedex.com/fedextrack/?trknbr=', ups: 'https://www.ups.com/track?tracknum=', usps: 'https://tools.usps.com/go/TrackConfirmAction?tLabels=', dhl: 'https://www.dhl.com/en/express/tracking.html?AWB=', canadapost: 'https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor=' };
+        var carrierKey = (o.shippingCarrier || '').toLowerCase().replace(/[\s-]/g, '');
+        var trackUrl = carrierUrls[carrierKey] ? carrierUrls[carrierKey] + encodeURIComponent(o.trackingNumber) : '';
+        html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+          '<div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:12px;">' +
+            '<div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Carrier</div>' +
+            '<div style="font-size:14px;font-weight:600;color:var(--text);">' + esc(o.shippingCarrier) + '</div>' +
+          '</div>' +
+          '<div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:12px;">' +
+            '<div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Tracking Number</div>' +
+            (trackUrl ? '<a href="' + esc(trackUrl) + '" target="_blank" rel="noopener" style="font-size:14px;font-weight:600;color:var(--gold);text-decoration:none;">' + esc(o.trackingNumber) + ' ↗</a>'
+                      : '<div style="font-size:14px;font-weight:600;color:var(--text);">' + esc(o.trackingNumber) + '</div>') +
+          '</div>' +
+        '</div>';
+        if (o.shippedAt) {
+          html += '<div style="margin-top:8px;font-size:11px;color:var(--text-muted);">Shipped: ' + new Date(o.shippedAt).toLocaleString() + '</div>';
+        }
+      } else {
+        html += '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">' +
+          (stepKeys.indexOf(o.status) < 3 ? 'Tracking information will appear once the seller ships the item.' : 'No tracking information provided.') +
+        '</div>';
+      }
       html += '</div>';
 
+      // ── SELLER ACTION PANEL ──
+      if (isSeller) {
+        html += '<div style="background:linear-gradient(135deg,rgba(212,168,83,0.06),rgba(212,168,83,0.02));border:1px solid rgba(212,168,83,0.2);border-radius:var(--radius);padding:20px;margin-bottom:16px;">' +
+          '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;"><span style="font-size:16px;">⚙️</span><h3 style="font-size:15px;font-weight:600;color:var(--gold);margin:0;">Seller Actions</h3></div>';
+
+        // Step 1: Deposit bond (when buyer_deposited)
+        if (o.status === 'buyer_deposited') {
+          html += '<div style="background:var(--bg-card);border-radius:var(--radius-sm);padding:16px;margin-bottom:10px;">' +
+            '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">Step 1: Deposit Your Trust Bond</div>' +
+            '<p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;line-height:1.5;">The buyer has deposited their payment. You need to deposit a 25% trust bond (' + (Number(o.totalUsdc) * 0.25).toFixed(2) + ' USDC) to activate escrow and proceed with the sale.</p>' +
+            '<button class="btn btn-gold" id="seller-deposit-btn" onclick="initSellerDeposit(\'' + esc(o.id) + '\')" style="width:100%;padding:12px;font-size:14px;">Deposit Trust Bond — ' + (Number(o.totalUsdc) * 0.25).toFixed(2) + ' USDC</button>' +
+            '<div id="seller-deposit-info" style="margin-top:10px;display:none;"></div>' +
+          '</div>';
+        }
+
+        // Step 2: Ship item (when escrow_active)
+        if (o.status === 'escrow_active') {
+          html += '<div style="background:var(--bg-card);border-radius:var(--radius-sm);padding:16px;margin-bottom:10px;">' +
+            '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">Step 2: Ship the Item</div>' +
+            '<p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;line-height:1.5;">Escrow is active. Package the item and ship it to the buyer. Enter tracking details below.</p>' +
+            '<select id="ship-carrier" style="width:100%;padding:10px;margin-bottom:8px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;">' +
+              '<option value="">Select Carrier</option>' +
+              '<option value="Canada Post">Canada Post</option>' +
+              '<option value="FedEx">FedEx</option>' +
+              '<option value="UPS">UPS</option>' +
+              '<option value="USPS">USPS</option>' +
+              '<option value="DHL">DHL</option>' +
+              '<option value="Purolator">Purolator</option>' +
+              '<option value="Other">Other</option>' +
+            '</select>' +
+            '<input id="ship-tracking" placeholder="Tracking Number" style="width:100%;padding:10px;margin-bottom:10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;">' +
+            '<button class="btn btn-gold" onclick="shipOrder(\'' + esc(o.id) + '\')" style="width:100%;padding:12px;font-size:14px;">Mark as Shipped</button>' +
+          '</div>';
+        }
+
+        // Completed status for seller
+        if (o.status === 'completed') {
+          var payout = (Number(o.totalUsdc) * 0.975).toFixed(2);
+          var bond = (Number(o.totalUsdc) * 0.25).toFixed(2);
+          html += '<div style="background:var(--bg-card);border-radius:var(--radius-sm);padding:16px;">' +
+            '<div style="font-size:13px;font-weight:600;color:#34D39B;margin-bottom:8px;">Transaction Complete</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+              '<div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:10px;text-align:center;">' +
+                '<div style="font-size:10px;color:var(--text-muted);">Your Payout</div>' +
+                '<div style="font-size:16px;font-weight:700;color:#34D39B;">' + payout + ' USDC</div>' +
+              '</div>' +
+              '<div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:10px;text-align:center;">' +
+                '<div style="font-size:10px;color:var(--text-muted);">Bond Returned</div>' +
+                '<div style="font-size:16px;font-weight:700;color:var(--gold);">' + bond + ' USDC</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }
+
+        // Waiting states for seller
+        if (o.status === 'pending_payment') {
+          html += '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px;">Waiting for the buyer to complete their USDC deposit...</div>';
+        }
+        if (o.status === 'shipped') {
+          html += '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px;">Item shipped. Waiting for buyer to confirm delivery...</div>';
+        }
+        if (o.status === 'delivered') {
+          html += '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px;">Delivery confirmed. Settlement is being processed...</div>';
+        }
+
+        html += '</div>';
+      }
+
+      // ── BUYER ACTION PANEL ──
+      if (isBuyer) {
+        // Confirm delivery button
+        if (o.status === 'shipped') {
+          html += '<div style="background:linear-gradient(135deg,rgba(52,211,153,0.06),rgba(52,211,153,0.02));border:1px solid rgba(52,211,153,0.2);border-radius:var(--radius);padding:20px;margin-bottom:16px;text-align:center;">' +
+            '<div style="font-size:24px;margin-bottom:8px;">📬</div>' +
+            '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;">Did you receive your item?</div>' +
+            '<div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Confirming delivery will release the escrow funds to the seller and return their trust bond.</div>' +
+            '<button class="btn btn-gold" onclick="confirmDelivery(\'' + esc(o.id) + '\')" style="padding:14px 40px;font-size:15px;">Confirm Delivery</button>' +
+          '</div>';
+        }
+
+        // Rating section
+        if (o.status === 'completed' && !o.rating) {
+          html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;">' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;"><span style="font-size:16px;">⭐</span><h3 style="font-size:15px;font-weight:600;color:var(--text);margin:0;">Rate this Transaction</h3></div>' +
+            '<p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Your rating helps build the seller\'s trust score and earns you AP points.</p>' +
+            '<div id="rating-stars" style="font-size:28px;margin-bottom:12px;cursor:pointer;text-align:center;">' +
+            [1,2,3,4,5].map(function(n) { return '<span onclick="setRating(' + n + ')" data-star="' + n + '" style="color:var(--border);transition:color 0.15s,transform 0.15s;display:inline-block;" onmouseover="previewRating(' + n + ')" onmouseout="resetRatingPreview()">★</span>'; }).join('') +
+            '</div>' +
+            '<input type="hidden" id="rating-value" value="0">' +
+            '<textarea id="rating-comment" placeholder="Share your experience (optional)..." style="width:100%;padding:10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;min-height:60px;margin-bottom:10px;resize:vertical;"></textarea>' +
+            '<button class="btn btn-gold" onclick="submitRating(\'' + esc(o.id) + '\')" style="width:100%;padding:12px;font-size:14px;">Submit Rating</button>' +
+          '</div>';
+        }
+        if (o.rating) {
+          html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;">' +
+            '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">Your Rating</div>' +
+            '<div style="font-size:20px;color:var(--gold);">' + '★'.repeat(o.rating) + '<span style="color:var(--border);">' + '★'.repeat(5 - o.rating) + '</span></div>' +
+            (o.ratingComment ? '<div style="font-size:12px;color:var(--text-secondary);margin-top:6px;">"' + esc(o.ratingComment) + '"</div>' : '') +
+          '</div>';
+        }
+      }
+
+      // ── Trust Points Earned ──
+      if (o.status === 'completed') {
+        html += '<div style="background:linear-gradient(135deg,rgba(212,168,83,0.08),rgba(52,211,153,0.05));border:1px solid rgba(212,168,83,0.15);border-radius:var(--radius);padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">' +
+          '<div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#34D39B);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🏆</div>' +
+          '<div style="flex:1;">' +
+            '<div style="font-size:13px;font-weight:600;color:var(--text);">+2 Trust Points Earned</div>' +
+            '<div style="font-size:11px;color:var(--text-muted);">This completed Hedera-settled transaction has been recorded to your trust profile. Keep trading to climb the trust tiers.</div>' +
+          '</div>' +
+        '</div>';
+      }
+
+      // ── Hedera Blockchain Proof ──
+      if (o.hcsTopicId) {
+        html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;">' +
+          '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:14px;">⛓️</span><span style="font-size:13px;font-weight:600;color:var(--text);">On-Chain Proof</span></div>' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+            '<div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:10px;">' +
+              '<div style="font-size:10px;color:var(--text-muted);">HCS Topic</div>' +
+              '<div style="font-size:12px;font-weight:600;color:var(--text);font-family:monospace;">' + esc(o.hcsTopicId) + '</div>' +
+            '</div>' +
+            '<div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:10px;">' +
+              '<div style="font-size:10px;color:var(--text-muted);">Sequence #</div>' +
+              '<div style="font-size:12px;font-weight:600;color:var(--text);font-family:monospace;">' + o.hcsSequenceNumber + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="margin-top:8px;font-size:10px;color:var(--text-muted);">Immutable settlement record anchored on Hedera Hashgraph</div>' +
+        '</div>';
+      }
+
+      // ── Dispute option ──
+      if (!isDisputed && ['buyer_deposited','escrow_active','shipped'].indexOf(o.status) !== -1) {
+        html += '<div style="text-align:center;padding:12px;margin-bottom:16px;">' +
+          '<button onclick="openDisputeModal(\'' + esc(o.id) + '\')" style="background:transparent;border:1px solid rgba(231,76,60,0.3);color:#e74c3c;border-radius:var(--radius-sm);padding:8px 20px;font-size:12px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background=\'rgba(231,76,60,0.08)\'" onmouseout="this.style.background=\'transparent\'">Report an Issue</button>' +
+        '</div>';
+      }
+
+      html += '</div>';
       tabBrowse.innerHTML = html;
+
+      // Add pulse animation CSS if not present
+      if (!document.getElementById('pulse-dot-css')) {
+        var style = document.createElement('style');
+        style.id = 'pulse-dot-css';
+        style.textContent = '@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.7)}}';
+        document.head.appendChild(style);
+      }
     } catch(e) {
       tabBrowse.innerHTML = '<div class="empty-state"><h3>Error loading order</h3></div>';
     }
+  };
+
+  // ── Seller deposit init ──
+  window.initSellerDeposit = async function(orderId) {
+    var token = getToken();
+    if (!token) return;
+    var btn = document.getElementById('seller-deposit-btn');
+    var info = document.getElementById('seller-deposit-info');
+    if (btn) { btn.disabled = true; btn.textContent = 'Loading...'; }
+    try {
+      var resp = await fetch(API_BASE + '/v1/marketplace/orders/' + orderId + '/seller-deposit-init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      });
+      var data = await resp.json();
+      if (data.success) {
+        info.style.display = 'block';
+        info.innerHTML = '<div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:14px;border:1px solid var(--gold);">' +
+          '<div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Send USDC to:</div>' +
+          '<div style="font-size:13px;margin-bottom:4px;">Treasury: <code style="color:var(--text);background:var(--bg);padding:2px 6px;border-radius:4px;">' + esc(data.data.treasuryAccountId) + '</code></div>' +
+          '<div style="font-size:13px;margin-bottom:4px;">Amount: <strong style="color:var(--gold);">' + data.data.sellerBondUsdc.toFixed(6) + ' USDC</strong></div>' +
+          '<div style="font-size:13px;margin-bottom:10px;">Memo: <code style="color:var(--gold);background:var(--bg);padding:2px 6px;border-radius:4px;">' + esc(data.data.sellerMemo) + '</code></div>' +
+          '<button class="btn btn-gold" onclick="verifySellerDeposit(\'' + esc(orderId) + '\')" style="width:100%;padding:10px;font-size:13px;">I\'ve Sent My Bond — Verify</button>' +
+          '<div id="seller-verify-result" style="margin-top:8px;font-size:12px;"></div>' +
+        '</div>';
+        if (btn) btn.style.display = 'none';
+      } else {
+        showToast(data.error || 'Failed to get deposit info', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = 'Deposit Trust Bond'; }
+      }
+    } catch(e) { showToast('Network error', 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Deposit Trust Bond'; } }
+  };
+
+  // ── Verify seller deposit ──
+  window.verifySellerDeposit = async function(orderId) {
+    var token = getToken();
+    var el = document.getElementById('seller-verify-result');
+    if (!token || !el) return;
+    el.textContent = 'Checking Hedera Mirror Node...';
+    el.style.color = 'var(--text-muted)';
+    try {
+      var resp = await fetch(API_BASE + '/v1/marketplace/orders/' + orderId + '/verify-seller-deposit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      });
+      var data = await resp.json();
+      if (data.success && data.data.verified) {
+        el.textContent = 'Bond confirmed! Escrow is now active.';
+        el.style.color = '#34D39B';
+        showToast('Trust bond verified — escrow active!', 'success');
+        setTimeout(function() { showOrderDetailPage(orderId); }, 1500);
+      } else {
+        el.textContent = data.data?.message || 'Not detected yet. Please wait a moment and try again.';
+        el.style.color = '#f39c12';
+      }
+    } catch(e) { el.textContent = 'Verification error.'; el.style.color = '#e74c3c'; }
+  };
+
+  // ── Ship order (seller) ──
+  window.shipOrder = async function(orderId) {
+    var token = getToken();
+    if (!token) return;
+    var carrier = document.getElementById('ship-carrier').value;
+    var tracking = document.getElementById('ship-tracking').value.trim();
+    if (!carrier) { showToast('Please select a carrier', 'error'); return; }
+    if (!tracking) { showToast('Please enter a tracking number', 'error'); return; }
+    try {
+      var resp = await fetch(API_BASE + '/v1/marketplace/orders/' + orderId + '/ship', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ carrier: carrier, trackingNumber: tracking }),
+      });
+      var data = await resp.json();
+      if (data.success) {
+        showToast('Item marked as shipped! Buyer has been notified.', 'success');
+        setTimeout(function() { showOrderDetailPage(orderId); }, 1000);
+      } else {
+        showToast(data.error || 'Failed to update shipping', 'error');
+      }
+    } catch(e) { showToast('Network error', 'error'); }
+  };
+
+  // ── Dispute modal ──
+  window.openDisputeModal = function(orderId) {
+    var existing = document.getElementById('dispute-modal');
+    if (existing) existing.remove();
+    var modal = document.createElement('div');
+    modal.id = 'dispute-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(4px);';
+    modal.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:440px;width:90%;">' +
+      '<h3 style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:12px;">Report an Issue</h3>' +
+      '<p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">Filing a dispute will freeze the escrow funds until the Borealis Protocol arbitration team reviews the case. Please provide a clear reason.</p>' +
+      '<textarea id="dispute-reason" placeholder="Describe the issue..." style="width:100%;padding:10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;min-height:80px;margin-bottom:12px;resize:vertical;"></textarea>' +
+      '<div style="display:flex;gap:8px;">' +
+        '<button onclick="document.getElementById(\'dispute-modal\').remove()" style="flex:1;padding:10px;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;font-size:13px;">Cancel</button>' +
+        '<button onclick="submitDispute(\'' + orderId + '\')" style="flex:1;padding:10px;background:#e74c3c;border:none;border-radius:var(--radius-sm);color:#fff;cursor:pointer;font-size:13px;font-weight:600;">Submit Dispute</button>' +
+      '</div>' +
+    '</div>';
+    modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
+    document.body.appendChild(modal);
+  };
+
+  window.submitDispute = async function(orderId) {
+    var token = getToken();
+    if (!token) return;
+    var reason = document.getElementById('dispute-reason').value.trim();
+    if (!reason) { showToast('Please provide a reason', 'error'); return; }
+    try {
+      var resp = await fetch(API_BASE + '/v1/marketplace/orders/' + orderId + '/dispute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ reason: reason }),
+      });
+      var data = await resp.json();
+      if (data.success) {
+        document.getElementById('dispute-modal').remove();
+        showToast('Dispute submitted. Escrow funds are now frozen.', 'warning');
+        setTimeout(function() { showOrderDetailPage(orderId); }, 1000);
+      } else {
+        showToast(data.error || 'Failed to submit dispute', 'error');
+      }
+    } catch(e) { showToast('Network error', 'error'); }
+  };
+
+  // ── Rating preview helpers ──
+  window.previewRating = function(n) {
+    document.querySelectorAll('#rating-stars span').forEach(function(s) {
+      var star = parseInt(s.getAttribute('data-star'));
+      s.style.color = star <= n ? 'var(--gold)' : 'var(--border)';
+      s.style.transform = star <= n ? 'scale(1.15)' : 'scale(1)';
+    });
+  };
+  window.resetRatingPreview = function() {
+    var current = parseInt((document.getElementById('rating-value') || {}).value || 0);
+    document.querySelectorAll('#rating-stars span').forEach(function(s) {
+      var star = parseInt(s.getAttribute('data-star'));
+      s.style.color = star <= current ? 'var(--gold)' : 'var(--border)';
+      s.style.transform = 'scale(1)';
+    });
   };
 
   window.setRating = function(n) {
@@ -9486,7 +9936,8 @@
           ? '<img src="' + esc(o.listingImages[0]) + '" style="width:60px;height:60px;object-fit:contain;border-radius:6px;background:var(--bg-elevated);" onerror="this.style.display=\'none\'">'
           : '<div style="width:60px;height:60px;background:var(--bg-elevated);border-radius:6px;"></div>';
 
-        html += '<div onclick="window.location.hash=\'#order/' + esc(o.id) + '\'" style="display:flex;gap:14px;padding:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;align-items:center;">' +
+        var trustPtsHtml = o.status === 'completed' ? '<div style="font-size:10px;color:#34D39B;margin-top:2px;">+2 AP earned</div>' : '';
+        html += '<div onclick="window.location.hash=\'#order/' + esc(o.id) + '\'" style="display:flex;gap:14px;padding:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;align-items:center;transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'var(--gold)\'" onmouseout="this.style.borderColor=\'var(--border)\'">' +
           img +
           '<div style="flex:1;">' +
           '<div style="font-size:14px;font-weight:600;color:var(--text);">' + esc(o.listingTitle) + '</div>' +
@@ -9495,6 +9946,7 @@
           '<div style="text-align:right;">' +
           '<div style="font-size:14px;font-weight:600;color:var(--gold);">$' + Number(o.totalCad).toFixed(2) + '</div>' +
           '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:' + (statusColor[o.status] || '#666') + '22;color:' + (statusColor[o.status] || '#666') + ';font-weight:600;">' + esc(o.status.replace(/_/g, ' ')) + '</span>' +
+          trustPtsHtml +
           '</div></div>';
       });
       list.innerHTML = html;
