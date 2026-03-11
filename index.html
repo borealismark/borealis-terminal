@@ -3739,18 +3739,19 @@
               <div style="margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.5;">Trust is earned through completed transactions, not payment verification alone. Hedera-settled jobs carry higher weight as on-chain proof of delivery. Stripe transactions earn trust through verified payment behavior.</div>
             </div>
 
-            <!-- Layer 5: Account Age (Organic) -->
+            <!-- Layer 5: Active Engagement (replaces passive Account Age) -->
             <div class="verify-layer-card" id="verify-layer-age" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;">
               <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div style="display:flex;align-items:center;gap:12px;">
-                  <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(212,168,83,0.12);">&#9202;</div>
+                  <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(178,102,255,0.12);">&#128170;</div>
                   <div>
-                    <div style="font-size:14px;font-weight:600;color:var(--text);">Account Age</div>
-                    <div style="font-size:12px;color:var(--text-muted);">+5 at 30d, +10 at 90d, +15 at 180d</div>
+                    <div style="font-size:14px;font-weight:600;color:var(--text);">Active Engagement</div>
+                    <div style="font-size:12px;color:var(--text-muted);">+5 at 30 active days, +10 at 90, +15 at 180</div>
                   </div>
                 </div>
-                <div id="verify-age-days" style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(100,100,100,0.2);color:var(--text-muted);">0 days</div>
+                <div id="verify-age-days" style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(100,100,100,0.2);color:var(--text-muted);">0 active days</div>
               </div>
+              <div style="margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.5;">Points are earned through active participation. Each distinct day you log in counts toward your engagement milestone. You must be actively using the platform, not just holding an account.</div>
             </div>
 
           </div>
@@ -3759,23 +3760,23 @@
           <div style="margin-top:20px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;">
             <h4 style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text);">Trust Levels</h4>
             <div style="display:grid;gap:8px;">
-              <div data-trust-level="unverified" style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);transition:all 0.3s ease;">
-                <span style="color:var(--text-muted);">Unverified</span><span style="color:var(--text-muted);">0 pts</span>
+              <div data-trust-level="unverified" style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:8px 12px;border-radius:8px;background:rgba(90,90,110,0.06);border-left:3px solid transparent;transition:all 0.3s ease;">
+                <span style="color:#5a5a6e;font-weight:500;letter-spacing:0.3px;">Unverified</span><span style="color:var(--text-muted);font-size:11px;">0 pts</span>
               </div>
-              <div data-trust-level="basic" style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);transition:all 0.3s ease;">
-                <span style="color:#80b3ff;">Basic</span><span style="color:var(--text-muted);">10+ pts — Email verified</span>
+              <div data-trust-level="basic" style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:8px 12px;border-radius:8px;background:rgba(140,166,196,0.06);border-left:3px solid transparent;transition:all 0.3s ease;">
+                <span style="color:#8CA6C4;font-weight:600;letter-spacing:0.3px;">Basic</span><span style="color:var(--text-muted);font-size:11px;">10+ pts — Email verified</span>
               </div>
-              <div data-trust-level="verified" style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);transition:all 0.3s ease;">
-                <span style="color:#4CAF50;">Verified</span><span style="color:var(--text-muted);">25+ pts — Email + Social</span>
+              <div data-trust-level="verified" style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:8px 12px;border-radius:8px;background:rgba(80,196,237,0.06);border-left:3px solid transparent;transition:all 0.3s ease;">
+                <span style="color:#50C4ED;font-weight:600;letter-spacing:0.3px;">Verified</span><span style="color:var(--text-muted);font-size:11px;">25+ pts — Email + Social</span>
               </div>
-              <div data-trust-level="trusted" style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);transition:all 0.3s ease;">
-                <span style="color:var(--gold);">Trusted</span><span style="color:var(--text-muted);">50+ pts — Multi-layer verified</span>
+              <div data-trust-level="trusted" style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:8px 12px;border-radius:8px;background:rgba(201,168,76,0.06);border-left:3px solid transparent;transition:all 0.3s ease;">
+                <span style="color:#C9A84C;font-weight:600;letter-spacing:0.3px;">Trusted</span><span style="color:var(--text-muted);font-size:11px;">50+ pts — Multi-layer verified</span>
               </div>
-              <div data-trust-level="premium" style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);transition:all 0.3s ease;">
-                <span style="color:#E040FB;">Premium</span><span style="color:var(--text-muted);">80+ pts — Full verification + history</span>
+              <div data-trust-level="premium" style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:8px 12px;border-radius:8px;background:rgba(178,102,255,0.06);border-left:3px solid transparent;transition:all 0.3s ease;">
+                <span style="color:#B266FF;font-weight:700;letter-spacing:0.4px;">Premium</span><span style="color:var(--text-muted);font-size:11px;">80+ pts — Full verification + history</span>
               </div>
-              <div data-trust-level="elite" style="display:flex;justify-content:space-between;font-size:12px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);transition:all 0.3s ease;">
-                <span style="background:linear-gradient(135deg,#D4A853,#E040FB);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;">Elite</span><span style="color:var(--text-muted);">105+ pts — Sustained transactional trust</span>
+              <div data-trust-level="elite" style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:8px 12px;border-radius:8px;background:linear-gradient(135deg,rgba(240,194,127,0.08),rgba(178,102,255,0.08));border-left:3px solid transparent;transition:all 0.3s ease;">
+                <span style="background:linear-gradient(135deg,#F0C27F,#B266FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800;letter-spacing:0.5px;font-size:13px;">Elite</span><span style="color:var(--text-muted);font-size:11px;">105+ pts — Sustained transactional trust</span>
               </div>
             </div>
           </div>
@@ -5518,7 +5519,7 @@
       if (scoreEl) scoreEl.textContent = data.trustScore.totalScore;
       if (progBar) progBar.style.width = Math.min(data.trustScore.totalScore, 100) + '%';
 
-      var levelColors = { unverified: '#666', basic: '#80b3ff', verified: '#4CAF50', trusted: '#D4A853', premium: '#E040FB' };
+      var levelColors = { unverified: '#5a5a6e', basic: '#8CA6C4', verified: '#50C4ED', trusted: '#C9A84C', premium: '#B266FF', elite: '#F0C27F' };
       if (levelEl) {
         levelEl.textContent = data.trustScore.trustLevel;
         levelEl.style.color = levelColors[data.trustScore.trustLevel] || '#666';
@@ -5651,12 +5652,12 @@
         stripeCountEl.textContent = (data.layers.transactionHistory.stripeTxCount || 0).toString();
       }
 
-      // Account age
+      // Active engagement (login days)
       var ageDays = document.getElementById('verify-age-days');
       if (ageDays) {
-        var d = data.layers.accountAge.days;
-        ageDays.textContent = d + ' day' + (d !== 1 ? 's' : '') + ' (+' + data.layers.accountAge.points + ' pts)';
-        if (d >= 30) { ageDays.style.background = 'rgba(76,175,80,0.15)'; ageDays.style.color = '#4CAF50'; }
+        var d = data.layers.accountAge.activeLoginDays || data.layers.accountAge.days || 0;
+        ageDays.textContent = d + ' active day' + (d !== 1 ? 's' : '') + ' (+' + data.layers.accountAge.points + ' pts)';
+        if (d >= 30) { ageDays.style.background = 'rgba(178,102,255,0.15)'; ageDays.style.color = '#B266FF'; }
       }
 
       // v38: Points breakdown bar
@@ -5668,12 +5669,12 @@
         var stripePts = data.layers.transactionHistory.stripePoints || 0;
         var txPts = Math.min(hederaPts + stripePts, data.layers.transactionHistory.maxPoints || 20);
         var segments = [
-          { label: 'Email', pts: data.layers.email.points, color: '#80b3ff' },
-          { label: 'Social', pts: socialPts, color: '#4CAF50' },
-          { label: 'Gov ID', pts: docPts, color: '#D4A853' },
+          { label: 'Email', pts: data.layers.email.points, color: '#8CA6C4' },
+          { label: 'Social', pts: socialPts, color: '#50C4ED' },
+          { label: 'Gov ID', pts: docPts, color: '#C9A84C' },
           { label: 'Hedera', pts: Math.min(hederaPts, txPts), color: '#4CAF50' },
           { label: 'Stripe', pts: Math.min(stripePts, Math.max(0, txPts - hederaPts)), color: '#635BFF' },
-          { label: 'Age', pts: data.layers.accountAge.points, color: '#E040FB' }
+          { label: 'Active', pts: data.layers.accountAge.points, color: '#B266FF' }
         ];
         var bHtml = '';
         segments.forEach(function(seg) {
@@ -5691,13 +5692,18 @@
       var levelGuide = document.querySelectorAll('#dash-verification-section .verify-level-row');
       // Use a different approach — find by data attribute
       var allLevelRows = document.querySelectorAll('[data-trust-level]');
+      var currentLevel = data.trustScore.trustLevel;
+      var activeColor = levelColors[currentLevel] || '#C9A84C';
       allLevelRows.forEach(function(row) {
-        if (row.getAttribute('data-trust-level') === data.trustScore.trustLevel) {
-          row.style.background = 'rgba(212,168,83,0.08)';
-          row.style.borderLeft = '3px solid var(--gold)';
+        var rowLevel = row.getAttribute('data-trust-level');
+        if (rowLevel === currentLevel) {
+          row.style.background = activeColor + '14';
+          row.style.borderLeft = '3px solid ' + activeColor;
+          row.style.boxShadow = '0 0 12px ' + activeColor + '10';
         } else {
-          row.style.background = 'rgba(255,255,255,0.02)';
-          row.style.borderLeft = 'none';
+          row.style.background = rowLevel === 'elite' ? 'linear-gradient(135deg,rgba(240,194,127,0.04),rgba(178,102,255,0.04))' : 'rgba(255,255,255,0.02)';
+          row.style.borderLeft = '3px solid transparent';
+          row.style.boxShadow = 'none';
         }
       });
 
@@ -6041,7 +6047,7 @@
         if (meData.data.trustScore !== undefined) {
           var dashScoreEl = document.getElementById('dash-trust-score');
           var dashLevelEl = document.getElementById('dash-trust-level');
-          var levelColors = { unverified: '#666', basic: '#80b3ff', verified: '#4CAF50', trusted: '#D4A853', premium: '#E040FB' };
+          var levelColors = { unverified: '#5a5a6e', basic: '#8CA6C4', verified: '#50C4ED', trusted: '#C9A84C', premium: '#B266FF', elite: '#F0C27F' };
           if (dashScoreEl) dashScoreEl.textContent = meData.data.trustScore + ' pts';
           if (dashLevelEl) {
             dashLevelEl.textContent = meData.data.trustLevel || 'unverified';
