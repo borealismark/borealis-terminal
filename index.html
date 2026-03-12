@@ -2040,42 +2040,167 @@
       margin: 0;
     }
 
-    /* Storefront page */
-    .storefront-header {
+    /* Storefront page — premium redesign */
+    .store-profile {
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .store-profile-hero {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 32px;
-      margin-bottom: 24px;
-      text-align: center;
+      border-radius: 16px;
+      padding: 32px 28px 24px;
+      position: relative;
     }
-
-    .storefront-header h2 {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--text);
-      margin: 0 0 8px 0;
+    .store-profile-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 0%, rgba(212,168,83,0.06) 0%, transparent 60%);
+      pointer-events: none;
+      border-radius: 16px;
     }
-
-    .storefront-header .store-desc {
-      color: var(--text-secondary);
-      font-size: 14px;
-      max-width: 500px;
-      margin: 0 auto 16px;
-    }
-
-    .storefront-stats {
+    .store-identity {
       display: flex;
-      gap: 24px;
-      justify-content: center;
-      font-size: 13px;
-      color: var(--text-muted);
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 20px;
+      position: relative;
     }
-
-    .storefront-stats span {
+    .store-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--gold), rgba(212,168,83,0.6));
       display: flex;
       align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 800;
+      color: #000;
+      flex-shrink: 0;
+    }
+    .store-meta h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text);
+      margin: 0 0 6px;
+      letter-spacing: -0.3px;
+    }
+    .store-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .store-badge {
+      font-size: 10px;
+      padding: 3px 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
       gap: 4px;
+    }
+    .store-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .store-stat-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+    .store-stat-card .stat-val {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1;
+    }
+    .store-stat-card .stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+    .trust-meter {
+      height: 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .trust-meter-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.8s ease;
+    }
+    .verification-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .verification-chip {
+      font-size: 10px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 500;
+    }
+    .store-toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .store-search {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+    }
+    .store-search:focus {
+      border-color: var(--gold-border);
+    }
+    .store-filter-btn {
+      padding: 8px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .store-filter-btn:hover, .store-filter-btn.active {
+      border-color: var(--gold-border);
+      color: var(--gold);
+      background: rgba(212,168,83,0.06);
+    }
+    .store-sort-select {
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      outline: none;
     }
 
     /* External buy link */
@@ -8064,17 +8189,92 @@
       });
   };
 
+  // ── Store state for filtering
+  window._storeAllListings = [];
+  window._storeSlug = '';
+  window._storeCategory = '';
+  window._storeCondition = '';
+  window._storeSearch = '';
+  window._storeSort = 'created_at';
+
+  window.renderStoreListings = function() {
+    var container = document.getElementById('store-listings-grid');
+    var countEl = document.getElementById('store-results-count');
+    if (!container) return;
+
+    var list = window._storeAllListings;
+
+    // Apply category filter
+    if (window._storeCategory) {
+      list = list.filter(function(l) { return l.category === window._storeCategory; });
+    }
+    // Apply condition filter
+    if (window._storeCondition) {
+      list = list.filter(function(l) { return l.condition === window._storeCondition; });
+    }
+    // Apply search
+    if (window._storeSearch) {
+      var q = window._storeSearch.toLowerCase();
+      list = list.filter(function(l) {
+        return (l.title || '').toLowerCase().indexOf(q) >= 0 || (l.description || '').toLowerCase().indexOf(q) >= 0;
+      });
+    }
+    // Apply sort
+    if (window._storeSort === 'price_low') {
+      list.sort(function(a, b) { return (a.priceCad || a.priceUsdc || 0) - (b.priceCad || b.priceUsdc || 0); });
+    } else if (window._storeSort === 'price_high') {
+      list.sort(function(a, b) { return (b.priceCad || b.priceUsdc || 0) - (a.priceCad || a.priceUsdc || 0); });
+    } else if (window._storeSort === 'views') {
+      list.sort(function(a, b) { return (b.viewCount || 0) - (a.viewCount || 0); });
+    }
+    // Default is newest first (already sorted by API)
+
+    if (countEl) countEl.textContent = list.length + ' item' + (list.length !== 1 ? 's' : '');
+
+    if (list.length === 0) {
+      container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;padding:40px;"><h3>No listings match your filters</h3><p style="color:var(--text-muted);">Try adjusting your search or clearing filters.</p></div>';
+      return;
+    }
+
+    var html = '';
+    list.forEach(function(l, i) {
+      var cIdx = cachedListings.findIndex(function(x) { return x.id === l.id; });
+      html += renderListingCard(l, cIdx >= 0 ? cIdx : i);
+    });
+    container.innerHTML = DOMPurify.sanitize(html);
+  };
+
+  window.storeSetCategory = function(cat) {
+    window._storeCategory = (window._storeCategory === cat) ? '' : cat;
+    // Update button states
+    document.querySelectorAll('.store-cat-btn').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-cat') === window._storeCategory);
+    });
+    renderStoreListings();
+  };
+
+  window.storeSetCondition = function(cond) {
+    window._storeCondition = (window._storeCondition === cond) ? '' : cond;
+    document.querySelectorAll('.store-cond-btn').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-cond') === window._storeCondition);
+    });
+    renderStoreListings();
+  };
+
   window.loadStorefront = function(slug) {
-    // Handle #store/slug routes
     if (!slug) return;
+    window._storeSlug = slug;
+    window._storeCategory = '';
+    window._storeCondition = '';
+    window._storeSearch = '';
+    window._storeSort = 'created_at';
 
     var tabBrowse = document.getElementById('tab-browse');
     if (!tabBrowse) return;
 
-    // Show loading state
-    tabBrowse.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#9678;</div><h3>Loading storefront...</h3></div>';
+    tabBrowse.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#9678;</div><h3>Loading store...</h3></div>';
 
-    fetch(API_BASE + '/v1/marketplace/storefronts/' + encodeURIComponent(slug))
+    fetch(API_BASE + '/v1/marketplace/storefronts/' + encodeURIComponent(slug) + '?limit=50')
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (data.success && data.data) {
@@ -8084,65 +8284,155 @@
           var pagination = store.pagination || {};
           var totalItems = pagination.total || listings.length;
 
-          // Load ALL storefront pages if there are more
-          async function loadAllStorefrontPages() {
+          // Seller trust data from enhanced API
+          var seller = sf.seller || {};
+          var trust = sf.trust || {};
+          var verifications = sf.verifications || [];
+          var categories = sf.categories || [];
+          var conditions = sf.conditions || [];
+
+          // Trust level styling
+          var levelColors = { unverified: '#5a5a6e', basic: '#8CA6C4', verified: '#50C4ED', trusted: '#C9A84C', premium: '#B266FF', elite: '#F0C27F' };
+          var trustColor = levelColors[trust.trustLevel] || '#5a5a6e';
+          var trustPct = Math.min(100, Math.round((trust.totalScore || 0) / 120 * 100));
+
+          // Build verification chips
+          var verChips = '';
+          if (trust.emailVerified) verChips += '<span class="verification-chip" style="background:rgba(52,211,153,0.1);color:#34D399;">&#10003; Email</span>';
+          if (trust.socialVerified) verChips += '<span class="verification-chip" style="background:rgba(96,165,250,0.1);color:#60A5FA;">&#10003; Social</span>';
+          if (trust.documentVerified) verChips += '<span class="verification-chip" style="background:rgba(245,158,11,0.1);color:#F59E0B;">&#10003; Government ID</span>';
+          verifications.forEach(function(v) {
+            if (v.platform && v.type !== 'email' && v.type !== 'government_id') {
+              verChips += '<span class="verification-chip" style="background:rgba(139,92,246,0.1);color:#8B5CF6;">&#10003; ' + esc(v.platform) + '</span>';
+            }
+          });
+
+          // Tier badge
+          var tierLabel = (seller.tier || 'standard').toUpperCase();
+          var tierBg = seller.tier === 'elite' ? 'rgba(240,194,127,0.15)' : seller.tier === 'pro' ? 'rgba(178,102,255,0.15)' : 'rgba(255,255,255,0.06)';
+          var tierClr = seller.tier === 'elite' ? '#F0C27F' : seller.tier === 'pro' ? '#B266FF' : 'var(--text-muted)';
+
+          // Member since
+          var memberDate = '';
+          if (seller.memberSince) {
+            try { memberDate = new Date(seller.memberSince).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }); } catch(e) {}
+          }
+
+          // Load ALL pages
+          async function loadAllPages() {
             if (pagination.totalPages > 1) {
-              var pagePromises = [];
+              var promises = [];
               for (var p = 2; p <= Math.min(pagination.totalPages, 10); p++) {
-                pagePromises.push(
-                  fetch(API_BASE + '/v1/marketplace/storefronts/' + encodeURIComponent(slug) + '?page=' + p + '&limit=100')
+                promises.push(
+                  fetch(API_BASE + '/v1/marketplace/storefronts/' + encodeURIComponent(slug) + '?page=' + p + '&limit=50')
                     .then(function(r) { return r.json(); })
                     .then(function(d) { return d.success ? d.data.listings : []; })
                     .catch(function() { return []; })
                 );
               }
-              var results = await Promise.all(pagePromises);
+              var results = await Promise.all(promises);
               results.forEach(function(ls) { listings = listings.concat(ls); });
             }
             return listings;
           }
 
-          loadAllStorefrontPages().then(function(allListings) {
-            // Merge into cachedListings for detail modal support
+          loadAllPages().then(function(allListings) {
             allListings.forEach(function(l) {
-              if (!cachedListings.find(function(x) { return x.id === l.id; })) {
-                cachedListings.push(l);
-              }
+              if (!cachedListings.find(function(x) { return x.id === l.id; })) cachedListings.push(l);
             });
+            window._storeAllListings = allListings;
 
-            var html = '<button onclick="window.location.hash=\'#browse\'" style="margin-bottom:16px;padding:8px 14px;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;font-size:13px;">← Back to Browse</button>';
+            var html = '<button onclick="window.location.hash=\'#browse\'" style="margin-bottom:16px;padding:8px 14px;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;font-size:13px;">&#8592; Back to Browse</button>';
 
-            html += '<div class="storefront-header">' +
-              '<h2>' + esc(sf.storeName || 'Storefront') + '</h2>' +
-              (sf.description ? '<p class="store-desc">' + esc(sf.description) + '</p>' : '') +
-              '<div class="storefront-stats">' +
-              '<span>📦 ' + totalItems + ' Items</span>' +
-              '<span>⭐ ' + (sf.avg_rating || '—') + '</span>' +
-              '<span>👤 Seller: ' + esc(sf.storeName || 'Store Owner') + '</span>' +
+            // ═══ STORE PROFILE HERO ═══
+            html += '<div class="store-profile"><div class="store-profile-hero">' +
+              '<div class="store-identity">' +
+                '<div class="store-avatar">' + esc((sf.storeName || 'S').charAt(0).toUpperCase()) + '</div>' +
+                '<div class="store-meta" style="flex:1;min-width:0;">' +
+                  '<h2>' + esc(sf.storeName || 'Store') + '</h2>' +
+                  '<div class="store-badges">' +
+                    '<span class="store-badge" style="background:' + tierBg + ';color:' + tierClr + ';">&#9733; ' + tierLabel + '</span>' +
+                    '<span class="store-badge" style="background:rgba(' + (trustColor === '#F0C27F' ? '240,194,127' : trustColor === '#B266FF' ? '178,102,255' : trustColor === '#C9A84C' ? '201,168,76' : trustColor === '#50C4ED' ? '80,196,237' : '138,166,196') + ',0.15);color:' + trustColor + ';">' + esc((trust.trustLevel || 'unverified').toUpperCase()) + ' &#183; ' + (trust.totalScore || 0) + ' pts</span>' +
+                    (memberDate ? '<span class="store-badge" style="background:rgba(255,255,255,0.04);color:var(--text-muted);">Since ' + memberDate + '</span>' : '') +
+                  '</div>' +
+                  (sf.description ? '<p style="font-size:13px;color:var(--text-secondary);margin:0;line-height:1.5;">' + esc(sf.description) + '</p>' : '') +
+                '</div>' +
               '</div>' +
-              '</div>';
 
-            html += '<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;">';
+              // Trust meter
+              '<div style="margin-bottom:16px;">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+                  '<span style="font-size:11px;color:var(--text-muted);">Trust Score</span>' +
+                  '<span style="font-size:11px;color:' + trustColor + ';font-weight:600;">' + (trust.totalScore || 0) + ' / 120</span>' +
+                '</div>' +
+                '<div class="trust-meter"><div class="trust-meter-fill" style="width:' + trustPct + '%;background:linear-gradient(90deg,' + trustColor + ',' + trustColor + 'cc);"></div></div>' +
+              '</div>' +
 
-            if (allListings.length > 0) {
-              allListings.forEach(function(l, i) {
-                var cIdx = cachedListings.findIndex(function(x) { return x.id === l.id; });
-                html += renderListingCard(l, cIdx >= 0 ? cIdx : i);
+              // Verification chips
+              (verChips ? '<div style="margin-bottom:16px;"><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Verified Credentials</div><div class="verification-chips">' + verChips + '</div></div>' : '') +
+
+              // Stats grid
+              '<div class="store-stat-grid">' +
+                '<div class="store-stat-card"><div class="stat-val">' + totalItems + '</div><div class="stat-label">Listings</div></div>' +
+                '<div class="store-stat-card"><div class="stat-val">' + categories.length + '</div><div class="stat-label">Categories</div></div>' +
+                '<div class="store-stat-card"><div class="stat-val">' + (trust.transactionCount || 0) + '</div><div class="stat-label">Transactions</div></div>' +
+                '<div class="store-stat-card"><div class="stat-val">' + (trust.accountAgeDays || 0) + 'd</div><div class="stat-label">Account Age</div></div>' +
+              '</div>' +
+
+            '</div></div>';
+
+            // ═══ TOOLBAR: Search + Category Filters + Sort ═══
+            html += '<div class="store-toolbar">' +
+              '<input type="text" class="store-search" id="store-search-input" placeholder="Search this store..." oninput="window._storeSearch=this.value;renderStoreListings()">' +
+              '<select class="store-sort-select" onchange="window._storeSort=this.value;renderStoreListings()">' +
+                '<option value="created_at">Newest First</option>' +
+                '<option value="price_low">Price: Low → High</option>' +
+                '<option value="price_high">Price: High → Low</option>' +
+                '<option value="views">Most Viewed</option>' +
+              '</select>' +
+            '</div>';
+
+            // Category filter pills
+            if (categories.length > 0) {
+              html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">' +
+                '<button class="store-filter-btn store-cat-btn" data-cat="" onclick="storeSetCategory(\'\')" style="font-size:11px;">All</button>';
+              categories.forEach(function(c) {
+                var label = (c.name || 'other').replace(/-/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+                html += '<button class="store-filter-btn store-cat-btn" data-cat="' + esc(c.name) + '" onclick="storeSetCategory(\'' + esc(c.name) + '\')">' + label + ' <span style="opacity:0.5;font-size:10px;">(' + c.count + ')</span></button>';
               });
-            } else {
-              html += '<div class="empty-state" style="grid-column:1/-1;"><h3>No listings in this storefront</h3></div>';
+              html += '</div>';
             }
 
-            html += '</div>';
+            // Condition filter pills
+            if (conditions.length > 1) {
+              html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">';
+              conditions.forEach(function(c) {
+                var label = (c.name || '').replace(/-/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+                html += '<button class="store-filter-btn store-cond-btn" data-cond="' + esc(c.name) + '" onclick="storeSetCondition(\'' + esc(c.name) + '\')" style="font-size:10px;padding:5px 10px;">' + label + ' (' + c.count + ')</button>';
+              });
+              html += '</div>';
+            }
+
+            // Results count
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
+              '<span id="store-results-count" style="font-size:12px;color:var(--text-muted);">' + allListings.length + ' items</span>' +
+            '</div>';
+
+            // Listings grid
+            html += '<div id="store-listings-grid" class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;"></div>';
+
             tabBrowse.innerHTML = DOMPurify.sanitize(html);
+
+            // Render listings into the grid
+            renderStoreListings();
           });
         } else {
-          tabBrowse.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#9678;</div><h3>Storefront not found</h3><p><button onclick="window.location.hash=\'#browse\'" style="padding:8px 14px;background:var(--gold);color:#000;border:none;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;">Back to Browse</button></p></div>';
+          tabBrowse.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#9678;</div><h3>Store not found</h3><p><button onclick="window.location.hash=\'#browse\'" style="padding:8px 14px;background:var(--gold);color:#000;border:none;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;">Back to Browse</button></p></div>';
         }
       })
       .catch(function(e) {
-        console.error('Storefront error:', e);
-        tabBrowse.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#9678;</div><h3>Error loading storefront</h3><p><button onclick="window.location.hash=\'#browse\'" style="padding:8px 14px;background:var(--gold);color:#000;border:none;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;">Back to Browse</button></p></div>';
+        console.error('Store error:', e);
+        tabBrowse.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#9678;</div><h3>Error loading store</h3><p><button onclick="window.location.hash=\'#browse\'" style="padding:8px 14px;background:var(--gold);color:#000;border:none;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;">Back to Browse</button></p></div>';
       });
   };
 
