@@ -7545,19 +7545,23 @@
       ? '<span class="verified-client-badge">Verified Client</span>'
       : '';
 
+    // Sold overlay
+    var isSold = l.status === 'sold' || l.syncStatus === 'sold_externally';
+    var soldOverlay = isSold ? '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:2;"><span style="font-size:18px;font-weight:800;color:#EF4444;text-transform:uppercase;letter-spacing:3px;padding:6px 18px;border:2px solid #EF4444;border-radius:6px;background:rgba(0,0,0,0.6);">SOLD</span></div>' : '';
+
     // Image
     var imgHtml = (l.images && l.images.length > 0)
-      ? '<div class="card-img-wrap"><img src="' + esc(l.images[0]) + '" alt="' + esc(l.title) + '" class="listing-img" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="listing-img-placeholder" style="display:none;">📦</div>' +
+      ? '<div class="card-img-wrap" style="position:relative;">' + soldOverlay + '<img src="' + esc(l.images[0]) + '" alt="' + esc(l.title) + '" class="listing-img" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="listing-img-placeholder" style="display:none;">📦</div>' +
         '<div class="card-engage">' +
           '<button class="card-engage-btn' + (isLiked ? ' liked' : '') + '" onclick="event.stopPropagation();toggleLike(\'' + esc(l.id) + '\')" title="Like">' + (isLiked ? '♥' : '♡') + '</button>' +
           '<button class="card-engage-btn' + (isWatched ? ' watched' : '') + '" onclick="event.stopPropagation();toggleWatch(\'' + esc(l.id) + '\')" title="Watchlist">' + (isWatched ? '★' : '☆') + '</button>' +
         '</div></div>'
-      : '<div class="card-img-wrap"><div class="listing-img-placeholder">📦</div></div>';
+      : '<div class="card-img-wrap" style="position:relative;">' + soldOverlay + '<div class="listing-img-placeholder">📦</div></div>';
 
     var price = l.listingType === 'trade' ? 'Trade' : '$' + Number(l.priceCad || l.priceUsdc || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) + ' CAD';
     var usdc = l.priceUsdc ? '≈ ' + Number(l.priceUsdc).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) + ' USDC' : '';
 
-    return '<div class="card" style="cursor:pointer;padding:0;border-left:3px solid ' + borderColor + ';" onclick="window.location.hash=\'#listing/' + esc(l.id) + '\'">' +
+    return '<div class="card" style="cursor:pointer;padding:0;border-left:3px solid ' + borderColor + ';' + (isSold ? 'opacity:0.7;' : '') + '" onclick="window.location.hash=\'#listing/' + esc(l.id) + '\'">' +
       imgHtml +
       '<div style="padding:12px 14px;">' +
         '<div style="margin-bottom:6px;display:flex;gap:5px;align-items:center;flex-wrap:wrap;"><span class="sector-badge">' + esc(catLabel) + '</span>' + renderOriginBadge(l) + '</div>' +
