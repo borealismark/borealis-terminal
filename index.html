@@ -8312,10 +8312,15 @@
           var tierBg = seller.tier === 'elite' ? 'rgba(240,194,127,0.15)' : seller.tier === 'pro' ? 'rgba(178,102,255,0.15)' : 'rgba(255,255,255,0.06)';
           var tierClr = seller.tier === 'elite' ? '#F0C27F' : seller.tier === 'pro' ? '#B266FF' : 'var(--text-muted)';
 
-          // Member since
+          // Member since + real account age in calendar days
           var memberDate = '';
+          var realAccountAge = 0;
           if (seller.memberSince) {
-            try { memberDate = new Date(seller.memberSince).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }); } catch(e) {}
+            try {
+              var joinDate = new Date(seller.memberSince);
+              memberDate = joinDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+              realAccountAge = Math.max(0, Math.floor((Date.now() - joinDate.getTime()) / 86400000));
+            } catch(e) {}
           }
 
           // Load ALL pages
@@ -8376,7 +8381,7 @@
                 '<div class="store-stat-card"><div class="stat-val">' + totalItems + '</div><div class="stat-label">Listings</div></div>' +
                 '<div class="store-stat-card"><div class="stat-val">' + categories.length + '</div><div class="stat-label">Categories</div></div>' +
                 '<div class="store-stat-card"><div class="stat-val">' + (trust.transactionCount || 0) + '</div><div class="stat-label">Transactions</div></div>' +
-                '<div class="store-stat-card"><div class="stat-val">' + (trust.accountAgeDays || 0) + 'd</div><div class="stat-label">Account Age</div></div>' +
+                '<div class="store-stat-card"><div class="stat-val">' + realAccountAge + 'd</div><div class="stat-label">Account Age</div></div>' +
               '</div>' +
 
             '</div></div>';
