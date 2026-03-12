@@ -9491,14 +9491,31 @@
   // Fire hash handler on initial load if hash is already set (fixes page refresh deep links)
   if (window.location.hash && window.location.hash.length > 1) {
     var _initHash = window.location.hash.substring(1);
-    // For any app-level route, show the app container first then handle the route
     var _appRoutes = ['store/', 'listing/', 'order/', 'browse', 'dashboard', 'services', 'my', 'messages', 'cart', 'orders', 'watchlist', 'checkout'];
     var _isAppRoute = _appRoutes.some(function(r) { return _initHash === r || _initHash.startsWith(r); });
     if (_isAppRoute) {
-      enterMarketplace();
+      // Skip fade animation on initial load — show app container instantly
+      Object.keys(pages).forEach(function(k) { document.getElementById(pages[k]).style.display = 'none'; });
+      var _appEl = document.getElementById('app-container');
+      _appEl.style.display = 'block';
+      _appEl.style.opacity = '1';
+      document.body.style.overflow = '';
+      updateAuthUI();
+      initSectorGrid();
+      fetchCategoryCounts();
+      loadListings();
+      loadFeaturedStorefront();
+      fetchStats();
+      loadUserEngagement();
+      if (typeof updateCartBadge === 'function') updateCartBadge();
+      // Now handle the specific route
       window.onhashchange();
     } else if (_initHash === 'auth') {
-      showPage('auth');
+      Object.keys(pages).forEach(function(k) { document.getElementById(pages[k]).style.display = 'none'; });
+      var _authEl = document.getElementById('auth-page');
+      _authEl.style.display = 'flex';
+      _authEl.style.opacity = '1';
+      document.body.style.overflow = 'hidden';
     }
   }
 
