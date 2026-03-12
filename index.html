@@ -6208,20 +6208,20 @@
           </div>
 
           <!-- Quick stats row -->
-          <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
-            <div style="flex:1;min-width:80px;text-align:center;padding:10px 8px;background:rgba(255,255,255,0.03);border-radius:10px;">
+          <div class="mo-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px;">
+            <div style="text-align:center;padding:10px 8px;background:rgba(255,255,255,0.03);border-radius:10px;">
               <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Rating</div>
               <div style="font-size:14px;font-weight:700;color:var(--gold);">&#9733; ${agent.star_rating || '4.8'}</div>
             </div>
-            <div style="flex:1;min-width:80px;text-align:center;padding:10px 8px;background:rgba(255,255,255,0.03);border-radius:10px;">
+            <div style="text-align:center;padding:10px 8px;background:rgba(255,255,255,0.03);border-radius:10px;">
               <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Jobs</div>
               <div style="font-size:14px;font-weight:700;color:var(--text);">${agent.jobs_completed || 0}</div>
             </div>
-            <div style="flex:1;min-width:80px;text-align:center;padding:10px 8px;background:rgba(255,255,255,0.03);border-radius:10px;">
+            <div style="text-align:center;padding:10px 8px;background:rgba(255,255,255,0.03);border-radius:10px;">
               <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Platform</div>
               <div style="font-size:14px;font-weight:700;color:#3B82F6;">eBay</div>
             </div>
-            <div style="flex:1;min-width:80px;text-align:center;padding:10px 8px;background:rgba(255,255,255,0.03);border-radius:10px;">
+            <div style="text-align:center;padding:10px 8px;background:rgba(255,255,255,0.03);border-radius:10px;">
               <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Tier</div>
               <div style="font-size:14px;font-weight:700;color:var(--gold);">${esc(agent.tier || 'Gold')}</div>
             </div>
@@ -6296,13 +6296,24 @@
       </div>
 
       <style>
-        .mo-open { max-height:800px !important; }
-        .mo-open ~ #mo-card #mo-chevron,
-        .mo-panel.mo-open + div { /* handled by JS */ }
+        .mo-open { max-height:1200px !important; }
+        #mo-card:hover { border-color:rgba(59,130,246,0.3); }
+        #mo-card:active { transform:scale(0.995); }
+
         @media (max-width:600px) {
-          #mo-card { padding:16px !important; }
-          .mo-panel > div { padding:0 16px 16px !important; }
+          #mo-card { padding:14px !important; }
+          #mo-card h2 { font-size:17px !important; }
+          #mo-card p { font-size:12px !important; }
+          .mo-stats { grid-template-columns:repeat(2,1fr) !important; gap:8px !important; }
+          .mo-panel > div { padding:0 14px 16px !important; }
           .mo-panel [style*="grid-template-columns:1fr 1fr"] { grid-template-columns:1fr !important; }
+        }
+
+        @media (max-width:400px) {
+          #mo-card { padding:12px !important; }
+          #mo-card h2 { font-size:16px !important; }
+          .mo-stats { gap:6px !important; }
+          .mo-panel > div { padding:0 12px 14px !important; }
         }
       </style>
     `);
@@ -9385,6 +9396,10 @@
       showPage('app');
       updateAuthUI();
       switchTab('browse');
+    } else if (hash === 'dashboard') {
+      switchTab('my');
+    } else if (hash === 'auth') {
+      showPage('auth');
     } else if (['services', 'my', 'messages'].includes(hash)) {
       switchTab(hash);
     }
