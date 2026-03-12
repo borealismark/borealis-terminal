@@ -303,7 +303,7 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 80px 24px 60px;
+      padding: 80px 32px 60px;
       max-width: 900px;
       margin: 0 auto;
       position: relative;
@@ -518,8 +518,8 @@
 
     /* ─── FEATURE CARDS SECTION ──────────────────────────────── */
     .features-section {
-      padding: 80px 24px;
-      max-width: 1200px;
+      padding: 80px 32px;
+      max-width: 1100px;
       margin: 0 auto;
       width: 100%;
     }
@@ -635,8 +635,8 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
-      padding: 48px 24px;
-      max-width: 1200px;
+      padding: 48px 32px;
+      max-width: 1100px;
       margin: 0 auto;
       width: 100%;
       border-top: 1px solid var(--border);
@@ -757,7 +757,7 @@
 
     /* ─── CTA SECTION ────────────────────────────────────────── */
     .cta-section {
-      padding: 80px 24px;
+      padding: 80px 32px;
       max-width: 900px;
       margin: 0 auto;
       width: 100%;
@@ -882,7 +882,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 24px;
+      padding: 12px 32px;
       border-bottom: 1px solid var(--border);
       background: rgba(12, 13, 16, 0.9);
       backdrop-filter: blur(12px);
@@ -1045,9 +1045,9 @@
 
     /* Main content */
     .app-content {
-      max-width: 1200px;
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 28px 24px;
+      padding: 28px 32px;
     }
 
     /* Controls bar */
@@ -9488,11 +9488,17 @@
     }
   };
 
-  // Fire hash handler on initial load if hash is already set (fixes guest-mode deep links)
+  // Fire hash handler on initial load if hash is already set (fixes page refresh deep links)
   if (window.location.hash && window.location.hash.length > 1) {
     var _initHash = window.location.hash.substring(1);
-    if (_initHash.startsWith('store/') || _initHash.startsWith('listing/') || _initHash.startsWith('order/')) {
+    // For any app-level route, show the app container first then handle the route
+    var _appRoutes = ['store/', 'listing/', 'order/', 'browse', 'dashboard', 'services', 'my', 'messages', 'cart', 'orders', 'watchlist', 'checkout'];
+    var _isAppRoute = _appRoutes.some(function(r) { return _initHash === r || _initHash.startsWith(r); });
+    if (_isAppRoute) {
+      enterMarketplace();
       window.onhashchange();
+    } else if (_initHash === 'auth') {
+      showPage('auth');
     }
   }
 
