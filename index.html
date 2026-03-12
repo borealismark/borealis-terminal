@@ -9488,37 +9488,6 @@
     }
   };
 
-  // Fire hash handler on initial load if hash is already set (fixes page refresh deep links)
-  if (window.location.hash && window.location.hash.length > 1) {
-    var _initHash = window.location.hash.substring(1);
-    var _appRoutes = ['store/', 'listing/', 'order/', 'browse', 'dashboard', 'services', 'my', 'messages', 'cart', 'orders', 'watchlist', 'checkout'];
-    var _isAppRoute = _appRoutes.some(function(r) { return _initHash === r || _initHash.startsWith(r); });
-    if (_isAppRoute) {
-      // Skip fade animation on initial load — show app container instantly
-      Object.keys(pages).forEach(function(k) { document.getElementById(pages[k]).style.display = 'none'; });
-      var _appEl = document.getElementById('app-container');
-      _appEl.style.display = 'block';
-      _appEl.style.opacity = '1';
-      document.body.style.overflow = '';
-      updateAuthUI();
-      initSectorGrid();
-      fetchCategoryCounts();
-      loadListings();
-      loadFeaturedStorefront();
-      fetchStats();
-      loadUserEngagement();
-      if (typeof updateCartBadge === 'function') updateCartBadge();
-      // Now handle the specific route
-      window.onhashchange();
-    } else if (_initHash === 'auth') {
-      Object.keys(pages).forEach(function(k) { document.getElementById(pages[k]).style.display = 'none'; });
-      var _authEl = document.getElementById('auth-page');
-      _authEl.style.display = 'flex';
-      _authEl.style.opacity = '1';
-      document.body.style.overflow = 'hidden';
-    }
-  }
-
   // ═══════════════════════════════════════════════════════════════
   // LISTING DETAIL PAGE (#listing/:id)
   // ═══════════════════════════════════════════════════════════════
@@ -11294,6 +11263,40 @@
     if (metaTag) metaTag.setAttribute('content', token);
     return token;
   }
-  document.addEventListener('DOMContentLoaded', generateCSRFToken);</script>
+  document.addEventListener('DOMContentLoaded', generateCSRFToken);
+
+  // ═══════════════════════════════════════════════════════════════
+  // DEEP LINK INIT — must be LAST so all route handlers are defined
+  // ═══════════════════════════════════════════════════════════════
+  (function() {
+    if (!window.location.hash || window.location.hash.length <= 1) return;
+    var _initHash = window.location.hash.substring(1);
+    var _appRoutes = ['store/', 'listing/', 'order/', 'browse', 'dashboard', 'services', 'my', 'messages', 'cart', 'orders', 'watchlist', 'checkout'];
+    var _isAppRoute = _appRoutes.some(function(r) { return _initHash === r || _initHash.startsWith(r); });
+    if (_isAppRoute) {
+      // Skip fade animation on initial load — show app container instantly
+      Object.keys(pages).forEach(function(k) { document.getElementById(pages[k]).style.display = 'none'; });
+      var _appEl = document.getElementById('app-container');
+      _appEl.style.display = 'block';
+      _appEl.style.opacity = '1';
+      document.body.style.overflow = '';
+      updateAuthUI();
+      initSectorGrid();
+      fetchCategoryCounts();
+      loadListings();
+      loadFeaturedStorefront();
+      fetchStats();
+      loadUserEngagement();
+      if (typeof updateCartBadge === 'function') updateCartBadge();
+      // Now handle the specific route — all handlers are defined at this point
+      window.onhashchange();
+    } else if (_initHash === 'auth') {
+      Object.keys(pages).forEach(function(k) { document.getElementById(pages[k]).style.display = 'none'; });
+      var _authEl = document.getElementById('auth-page');
+      _authEl.style.display = 'flex';
+      _authEl.style.opacity = '1';
+      document.body.style.overflow = 'hidden';
+    }
+  })();</script>
 </body>
 </html>
