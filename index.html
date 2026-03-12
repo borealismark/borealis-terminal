@@ -9385,6 +9385,14 @@
     }
   };
 
+  // Fire hash handler on initial load if hash is already set (fixes guest-mode deep links)
+  if (window.location.hash && window.location.hash.length > 1) {
+    var _initHash = window.location.hash.substring(1);
+    if (_initHash.startsWith('store/') || _initHash.startsWith('listing/') || _initHash.startsWith('order/')) {
+      window.onhashchange();
+    }
+  }
+
   // ═══════════════════════════════════════════════════════════════
   // LISTING DETAIL PAGE (#listing/:id)
   // ═══════════════════════════════════════════════════════════════
