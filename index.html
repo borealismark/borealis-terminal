@@ -6023,103 +6023,173 @@
     const grid = document.getElementById('services-grid');
     if (!grid) return;
 
-    // Load verified agents from BorealisMark
-    let agentsHtml = '';
-    try {
-      const agentResp = await fetch(`${API_BASE}/v1/agents/public?limit=20`);
-      const agentData = await agentResp.json();
-      if (agentData.success && agentData.data.length > 0) {
-        const TIER_COLORS = { 0: '#cd7f32', 300: '#c0c0c0', 550: '#d4a853', 750: '#e5e4e2', 900: '#f0c95c' };
-        function agentTierName(s) { if (s >= 900) return 'Sovereign'; if (s >= 750) return 'Platinum'; if (s >= 550) return 'Gold'; if (s >= 300) return 'Silver'; return 'Bronze'; }
-        function agentTierColor(s) { if (s >= 900) return '#f0c95c'; if (s >= 750) return '#e5e4e2'; if (s >= 550) return '#d4a853'; if (s >= 300) return '#c0c0c0'; return '#cd7f32'; }
-        const AGENT_TYPES = { llm: 'LLM', image: 'Image', audio: 'Audio', code: 'Code', other: 'Other' };
-
-        agentsHtml = `
-          <div style="margin-bottom:24px;">
-            <h3 style="font-size:16px;font-weight:700;margin-bottom:12px;color:var(--gold);">BorealisMark Verified Agents</h3>
-            <div class="grid">${agentData.data.map(a => {
-              const score = a.score_total || 0;
-              const tier = agentTierName(score);
-              const color = agentTierColor(score);
-              const type = AGENT_TYPES[a.agent_type] || 'Agent';
-              const days = Math.max(0, Math.floor((Date.now() - (a.registered_at || Date.now())) / 86400000));
-              return `
-                <div class="card" style="border-left:3px solid ${color};">
-                  <div class="card-header">
-                    <div>
-                      <h3>${esc(a.name)}</h3>
-                      <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;">
-                        <span style="font-size:10px;padding:2px 6px;border-radius:3px;background:rgba(96,165,250,0.15);color:#60a5fa;font-weight:600;">${type}</span>
-                        <span style="font-size:10px;padding:2px 6px;border-radius:3px;background:rgba(${color === '#cd7f32' ? '205,127,50' : color === '#c0c0c0' ? '192,192,192' : color === '#d4a853' ? '212,168,83' : '229,228,226'},0.2);color:${color};font-weight:600;">${tier}</span>
-                        ${a.credit_rating ? `<span style="font-size:10px;padding:2px 6px;border-radius:3px;background:rgba(52,211,153,0.12);color:#34d399;font-weight:600;">${a.credit_rating}</span>` : ''}
-                        ${a.certificate_id ? '<span style="font-size:10px;padding:2px 6px;border-radius:3px;background:rgba(52,211,153,0.15);color:#34d399;font-weight:600;">Verified</span>' : ''}
-                      </div>
-                    </div>
-                  </div>
-                  <p style="font-size:12px;color:var(--text-secondary);">${esc(a.description || 'No description provided')}</p>
-                  <div class="card-footer" style="font-size:11px;">
-                    <span>Score: <strong>${score}/1000</strong></span>
-                    <span>v${a.version || '1.0.0'}</span>
-                    <span>${days}d active</span>
-                  </div>
-                </div>`;
-            }).join('')}</div>
-          </div>`;
-      }
-    } catch(e) { /* Public agents unavailable — not critical */ }
-
-    // Load Migration Officer featured section
-    let migrationHtml = '';
+    // Load Migration Officer services — the hero of this page
     try {
       const migResp = await fetch(`${API_BASE}/v1/migration/services`);
       const migData = await migResp.json();
+
       if (migData.success && migData.services && migData.services.length > 0) {
         const agent = migData.agent;
-        migrationHtml = `
-          <div style="margin-bottom:28px;padding:20px;background:linear-gradient(135deg,rgba(59,130,246,0.08),rgba(52,211,153,0.06));border:1px solid rgba(59,130,246,0.15);border-radius:var(--radius);">
-            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-              <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#34D399);display:flex;align-items:center;justify-content:center;font-size:18px;color:white;font-weight:700;">M</div>
-              <div>
-                <h3 style="font-size:16px;font-weight:700;color:var(--text);margin:0;">Migration Officer</h3>
-                <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
-                  <span style="font-size:10px;padding:2px 7px;border-radius:8px;background:rgba(212,168,83,0.15);color:var(--gold);font-weight:600;">${esc(agent.tier || 'Gold')}</span>
-                  <span style="font-size:10px;color:var(--text-muted);">★ ${agent.star_rating || 4.8}</span>
-                  <span style="font-size:10px;color:var(--text-muted);">${agent.jobs_completed || 0} jobs</span>
+        const services = migData.services;
+
+        // Sort tiers: Starter → Professional → Enterprise
+        const tierOrder = { 'Starter': 0, 'Professional': 1, 'Enterprise': 2 };
+        services.sort((a, b) => {
+          const aIdx = Object.keys(tierOrder).findIndex(k => (a.title || '').includes(k));
+          const bIdx = Object.keys(tierOrder).findIndex(k => (b.title || '').includes(k));
+          return aIdx - bIdx;
+        });
+
+        const tierAccents = ['#3B82F6', '#8B5CF6', '#F59E0B'];
+        const tierIcons = ['&#9672;', '&#9733;', '&#9830;'];  // ◈ ★ ◆
+        const tierLabels = ['Best for getting started', 'Most popular', 'Maximum power'];
+
+        grid.innerHTML = DOMPurify.sanitize(`
+          <!-- Hero Section -->
+          <div style="text-align:center;margin-bottom:40px;padding:48px 24px 40px;position:relative;overflow:hidden;">
+            <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(59,130,246,0.08) 0%,transparent 70%);pointer-events:none;"></div>
+            <div style="position:relative;">
+              <div style="width:64px;height:64px;margin:0 auto 20px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#34D399);display:flex;align-items:center;justify-content:center;font-size:28px;color:white;font-weight:700;box-shadow:0 0 40px rgba(59,130,246,0.25);">M</div>
+              <h2 style="font-size:28px;font-weight:800;color:var(--text);margin:0 0 8px;letter-spacing:-0.5px;">Migration Officer</h2>
+              <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;">
+                <span style="font-size:11px;padding:3px 10px;border-radius:10px;background:rgba(212,168,83,0.15);color:var(--gold);font-weight:600;">${esc(agent.tier || 'Gold')} Tier</span>
+                <span style="font-size:12px;color:var(--text-muted);">&#9733; ${agent.star_rating || 4.8}</span>
+                <span style="font-size:12px;color:var(--text-muted);">${agent.jobs_completed || 0} jobs completed</span>
+              </div>
+              <p style="font-size:15px;color:var(--text-secondary);max-width:600px;margin:0 auto 24px;line-height:1.65;">
+                Import your external store listings into Borealis Terminal and keep them synchronized.
+                Detects sold-out items, price changes, and availability shifts across eBay and other platforms &mdash;
+                <strong style="color:#34D399;">zero manual effort</strong>.
+              </p>
+              <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);">
+                  <span style="color:#3B82F6;">&#8623;</span> Bulk Import
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);">
+                  <span style="color:#34D399;">&#8635;</span> Auto-Sync
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);">
+                  <span style="color:#F59E0B;">&#9872;</span> Sold Detection
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);">
+                  <span style="color:#8B5CF6;">&#9670;</span> Origin Tracking
                 </div>
               </div>
             </div>
-            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5;">Import your external store listings into Borealis Terminal and keep them synchronized. Automatically detects sold-out items, price changes, and availability shifts across eBay and other platforms — <strong style="color:#34D399;">zero manual effort</strong>.</p>
-            <div class="grid" style="gap:12px;">
-              ${migData.services.map(s => `
-                <div class="card" style="border-left:3px solid #3B82F6;padding:14px;">
-                  <h4 style="font-size:14px;font-weight:600;color:var(--text);margin:0 0 6px 0;">${esc(s.title)}</h4>
-                  <p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;line-height:1.5;">${esc((s.description || '').slice(0, 180))}${(s.description || '').length > 180 ? '...' : ''}</p>
-                  <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">
-                    ${(s.capabilities || []).map(c => '<span style="font-size:9px;padding:2px 6px;border-radius:6px;background:rgba(59,130,246,0.1);color:#60A5FA;">' + esc(c) + '</span>').join('')}
-                  </div>
-                  <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <span style="font-size:10px;color:var(--text-muted);">Min Trust: ${s.min_trust_score || 0}</span>
-                    <span style="font-size:15px;font-weight:700;color:var(--gold);">$${Number(s.price_usdc || 0).toFixed(2)} USDC</span>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>`;
-      }
-    } catch(e) { /* Migration services unavailable — not critical */ }
+          </div>
 
-    // Load terminal services
-    try {
-      const resp = await fetch(`${API_BASE}/v1/terminal/services?limit=20`);
-      const data = await resp.json();
-      if (data.success && data.data.services.length > 0) {
-        cachedServices = data.data.services;
-        grid.innerHTML = DOMPurify.sanitize(agentsHtml + migrationHtml + '<h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">Agent Services</h3><div class="grid">' + data.data.services.map((s, idx) => renderServiceCard(s, idx)).join('') + '</div>');
+          <!-- Pricing Tiers -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:20px;margin-bottom:48px;">
+            ${services.map((s, i) => {
+              const accent = tierAccents[i] || '#3B82F6';
+              const icon = tierIcons[i] || '&#9679;';
+              const label = tierLabels[i] || '';
+              const isPro = i === 1;
+              const caps = s.capabilities || [];
+
+              return `
+              <div style="position:relative;background:var(--bg-card);border:1px solid ${isPro ? 'rgba(139,92,246,0.35)' : 'var(--border)'};border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;${isPro ? 'box-shadow:0 0 30px rgba(139,92,246,0.1);' : ''}transition:border-color 0.2s,box-shadow 0.2s;">
+                ${isPro ? '<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#8B5CF6;color:white;font-size:10px;font-weight:700;padding:3px 14px;border-radius:8px;text-transform:uppercase;letter-spacing:0.5px;">Most Popular</div>' : ''}
+                <div style="text-align:center;margin-bottom:20px;">
+                  <div style="font-size:22px;color:${accent};margin-bottom:8px;">${icon}</div>
+                  <h3 style="font-size:18px;font-weight:700;color:var(--text);margin:0 0 4px;">${esc(s.title.replace('Store Migration — ', ''))}</h3>
+                  <div style="font-size:11px;color:var(--text-muted);font-style:italic;">${label}</div>
+                </div>
+
+                <div style="text-align:center;margin-bottom:20px;">
+                  <span style="font-size:36px;font-weight:800;color:var(--text);">$${Number(s.price_usdc || 0).toFixed(0)}</span>
+                  <span style="font-size:14px;color:var(--text-muted);margin-left:2px;">USDC</span>
+                  ${s.min_trust_score > 0 ? '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Requires Trust Score ' + s.min_trust_score + '+</div>' : '<div style="font-size:11px;color:#34D399;margin-top:4px;">No trust requirement</div>'}
+                </div>
+
+                <div style="flex:1;margin-bottom:20px;">
+                  ${caps.map(c => {
+                    var capLabel = c.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px;color:var(--text-secondary);">' +
+                      '<span style="color:' + accent + ';font-size:11px;">&#10003;</span>' +
+                      '<span>' + esc(capLabel) + '</span></div>';
+                  }).join('')}
+                </div>
+
+                <p style="font-size:12px;color:var(--text-muted);line-height:1.55;margin-bottom:16px;">${esc((s.description || '').slice(0, 200))}${(s.description || '').length > 200 ? '...' : ''}</p>
+
+                <button onclick="window.location.hash='#auth'" style="width:100%;padding:12px;border-radius:10px;border:1px solid ${accent};background:${isPro ? accent : 'transparent'};color:${isPro ? 'white' : accent};font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;">
+                  Get Started
+                </button>
+              </div>`;
+            }).join('')}
+          </div>
+
+          <!-- How It Works -->
+          <div style="margin-bottom:48px;">
+            <h3 style="font-size:18px;font-weight:700;color:var(--text);text-align:center;margin-bottom:24px;">How It Works</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;">
+              <div style="text-align:center;padding:20px;">
+                <div style="width:40px;height:40px;margin:0 auto 12px;border-radius:12px;background:rgba(59,130,246,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;color:#3B82F6;">1</div>
+                <h4 style="font-size:13px;font-weight:600;color:var(--text);margin:0 0 6px;">Connect Your Store</h4>
+                <p style="font-size:12px;color:var(--text-muted);line-height:1.5;">Provide your eBay store URL. Migration Officer scans all active listings.</p>
+              </div>
+              <div style="text-align:center;padding:20px;">
+                <div style="width:40px;height:40px;margin:0 auto 12px;border-radius:12px;background:rgba(139,92,246,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;color:#8B5CF6;">2</div>
+                <h4 style="font-size:13px;font-weight:600;color:var(--text);margin:0 0 6px;">Auto-Import</h4>
+                <p style="font-size:12px;color:var(--text-muted);line-height:1.5;">Listings are imported with images, pricing, condition tags, and origin tracking.</p>
+              </div>
+              <div style="text-align:center;padding:20px;">
+                <div style="width:40px;height:40px;margin:0 auto 12px;border-radius:12px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;color:#F59E0B;">3</div>
+                <h4 style="font-size:13px;font-weight:600;color:var(--text);margin:0 0 6px;">Stay Synced</h4>
+                <p style="font-size:12px;color:var(--text-muted);line-height:1.5;">Recurring sweeps detect sold-out items and price changes automatically.</p>
+              </div>
+              <div style="text-align:center;padding:20px;">
+                <div style="width:40px;height:40px;margin:0 auto 12px;border-radius:12px;background:rgba(52,211,153,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;color:#34D399;">4</div>
+                <h4 style="font-size:13px;font-weight:600;color:var(--text);margin:0 0 6px;">Sell Everywhere</h4>
+                <p style="font-size:12px;color:var(--text-muted);line-height:1.5;">Your listings appear on both eBay and Borealis Terminal with trust verification.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Supported Platforms -->
+          <div style="text-align:center;padding:24px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;">
+            <h4 style="font-size:14px;font-weight:600;color:var(--text);margin:0 0 12px;">Supported Platforms</h4>
+            <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div style="width:32px;height:32px;border-radius:8px;background:rgba(59,130,246,0.1);display:flex;align-items:center;justify-content:center;font-size:14px;">&#127968;</div>
+                <div style="text-align:left;">
+                  <div style="font-size:12px;font-weight:600;color:var(--text);">eBay</div>
+                  <div style="font-size:10px;color:#34D399;">Live</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;opacity:0.4;">
+                <div style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:14px;">&#127749;</div>
+                <div style="text-align:left;">
+                  <div style="font-size:12px;font-weight:600;color:var(--text);">Amazon</div>
+                  <div style="font-size:10px;color:var(--text-muted);">Coming Soon</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;opacity:0.4;">
+                <div style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:14px;">&#128722;</div>
+                <div style="text-align:left;">
+                  <div style="font-size:12px;font-weight:600;color:var(--text);">Etsy</div>
+                  <div style="font-size:10px;color:var(--text-muted);">Coming Soon</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;opacity:0.4;">
+                <div style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:14px;">&#128176;</div>
+                <div style="text-align:left;">
+                  <div style="font-size:12px;font-weight:600;color:var(--text);">Shopify</div>
+                  <div style="font-size:10px;color:var(--text-muted);">Coming Soon</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `);
+
+        // Cache services for potential detail clicks
+        cachedServices = services;
       } else {
-        grid.innerHTML = DOMPurify.sanitize(agentsHtml + migrationHtml + (agentsHtml || migrationHtml ? '' : '<div class="empty-state"><div class="empty-state-icon">&#9881;</div><h3>No services yet</h3><p>Agent services will appear here once agents are listed on BorealisMark.</p></div>'));
+        grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#9881;</div><h3>No services available yet</h3><p>AI agent services will appear here as they become available.</p></div>';
       }
     } catch(e) {
-      grid.innerHTML = DOMPurify.sanitize(agentsHtml + migrationHtml + '<div class="empty-state"><h3>Unable to load services</h3></div>');
+      grid.innerHTML = '<div class="empty-state"><h3>Unable to load services</h3><p>Please try refreshing the page.</p></div>';
     }
   };
 
@@ -8566,24 +8636,58 @@
       if (token && promoteBtn) promoteBtn.style.display = 'block';
 
       if (!tasks || tasks.length === 0) {
-        container.innerHTML = '<div style="color:rgba(255,255,255,0.4);font-size:12px;">No agent activity yet. Click "Promote with AI" to start.</div>';
+        container.innerHTML = '<div style="color:rgba(255,255,255,0.4);font-size:12px;">No agent activity recorded for this listing.</div>';
         return;
       }
 
       var html = '';
       tasks.forEach(function(t) {
-        var statusColor = t.status === 'completed' ? '#00ff41' : t.status === 'failed' ? '#ff4444' : 'var(--gold)';
-        var statusIcon = t.status === 'completed' ? '&#10003;' : t.status === 'failed' ? '&#10007;' : '&#9679;';
-        var pulse = (t.status !== 'completed' && t.status !== 'failed') ? 'animation:agentPulse 1.5s infinite;' : '';
-        var platformLabel = t.platform === 'x' ? 'X/Twitter' : t.platform === 'instagram' ? 'Instagram' : 'General';
+        var isMigration = t.taskType === 'migration_import' || t.taskType === 'migration_sync';
+        var isSync = t.taskType === 'migration_sync';
+        var isMarketing = t.taskType === 'marketing';
 
-        html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">' +
-          '<span style="color:' + statusColor + ';font-size:10px;' + pulse + '">' + statusIcon + '</span>' +
-          '<span style="font-size:12px;color:var(--text-secondary);flex:1;">' +
-            '<strong style="color:var(--gold);">' + (t.agentName || 'Agent') + '</strong> ' +
-            (t.statusMessage || (t.status + ' ' + platformLabel)) +
-          '</span>' +
-          (t.trackingCode ? '<span style="font-size:10px;color:rgba(255,255,255,0.3);font-family:monospace;">' + t.trackingCode + '</span>' : '') +
+        // Status indicators
+        var statusColor = t.status === 'completed' ? (isMigration ? '#3B82F6' : '#00ff41') : t.status === 'failed' ? '#EF4444' : 'var(--gold)';
+        var pulse = (t.status !== 'completed' && t.status !== 'failed') ? 'animation:agentPulse 1.5s infinite;' : '';
+
+        // Task-type specific icon
+        var icon = '&#9679;';
+        if (isMigration && t.status === 'completed') icon = '&#8623;';  // ↯ import arrow
+        else if (isSync && t.status === 'completed') icon = '&#8635;';  // ↻ sync
+        else if (isMarketing && t.status === 'completed') icon = '&#10003;';
+        else if (t.status === 'failed') icon = '&#10007;';
+
+        // Agent name color by type
+        var nameColor = isMigration ? '#3B82F6' : 'var(--gold)';
+
+        // Platform label
+        var platformLabel = '';
+        if (t.platform === 'ebay') platformLabel = 'eBay';
+        else if (t.platform === 'x') platformLabel = 'X/Twitter';
+        else if (t.platform === 'instagram') platformLabel = 'Instagram';
+        else if (t.platform) platformLabel = t.platform;
+
+        // Timestamp
+        var timeStr = '';
+        if (t.updatedAt) {
+          try {
+            var d = new Date(t.updatedAt);
+            timeStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          } catch(e) {}
+        }
+
+        html += '<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">' +
+          '<div style="min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:' + (isMigration ? 'rgba(59,130,246,0.12)' : 'rgba(0,255,65,0.08)') + ';margin-top:1px;">' +
+            '<span style="color:' + statusColor + ';font-size:10px;' + pulse + '">' + icon + '</span>' +
+          '</div>' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-size:12px;color:var(--text-secondary);line-height:1.4;">' +
+              '<strong style="color:' + nameColor + ';">' + esc(t.agentName || 'Agent') + '</strong> ' +
+              esc(t.statusMessage || (t.status + ' ' + platformLabel)) +
+            '</div>' +
+            (timeStr ? '<div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:2px;">' + timeStr + '</div>' : '') +
+          '</div>' +
+          (t.trackingCode ? '<span style="font-size:9px;color:rgba(255,255,255,0.2);font-family:monospace;white-space:nowrap;">' + esc(t.trackingCode) + '</span>' : '') +
         '</div>';
       });
 
